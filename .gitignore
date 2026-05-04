@@ -1,0 +1,25 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment & secrets
+.env
+
+# Generated output files
+backtest_*.png
+*.png
+
+# Virtual environment (the venv folder is outside this directory anyway)
+venv/
+.venv/
+env/
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
