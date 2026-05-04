@@ -1,0 +1,30 @@
+# for this project , we need install many thing(if cant run, must be your problem, then go ask AI first):
+# first read the file README.md pls pls (emoji唉😔)
+#use pip install 啊（i write short form for important pip only）
+#dont 傻傻呆呆 直接streamlit 那些罢了啊
+# IF really really dont know, pls use your AI first
+
+# Web dashboard
+streamlit==1.56.0
+plotly==6.7.0
+
+# Data fetching and technical indicators
+yfinance==1.3.0
+pandas==3.0.1
+pandas-ta==0.4.71b0
+numpy==2.2.6
+
+# Fuzzy Logic Controller
+scikit-fuzzy==0.5.0
+scipy==1.17.1
+networkx==3.6.1
+
+# Multi-agent framework (CrewAI + LangChain)
+crewai==1.14.4
+langchain==1.2.15
+langchain-core==1.3.2
+langchain-ollama==1.1.0
+
+# Utilities
+python-dotenv==1.2.2
+PyYAML==6.0.3
