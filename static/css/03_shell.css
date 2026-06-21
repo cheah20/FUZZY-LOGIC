@@ -1,0 +1,267 @@
+/* ============================================================
+   03_shell.css — App Shell Layout (ARCHITECTURE.md §4.1)
+   Root structure: body → app-shell → sidebar + main-area
+   ============================================================ */
+
+/* ── APP SHELL ──────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: transparent;
+  position: relative;
+}
+
+/* ── SIDEBAR (§7 Layout Components) ─────────────────────── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: rgba(28, 22, 15, 0.62);
+  backdrop-filter: var(--blur-premium);
+  -webkit-backdrop-filter: var(--blur-premium);
+  border-right: 1px solid rgba(255, 220, 180, 0.10);
+  display: flex;
+  flex-direction: column;
+  padding: var(--gap-lg) 0;
+  gap: var(--gap-md);
+  position: relative;
+  z-index: var(--z-sidebar);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 220, 180, 0.18) 25%,
+    rgba(255, 220, 180, 0.10) 65%,
+    transparent 100%
+  );
+}
+
+.sidebar-header {
+  padding: 0 var(--gap-lg);
+  margin-bottom: var(--gap-lg);
+}
+
+.sidebar-title {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--gold-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.sidebar-subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── SIDEBAR NAV ────────────────────────────────────────── */
+.nav-items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 var(--gap-lg);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  transition: all 0.22s ease;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--white-soft);
+}
+
+.nav-item.active {
+  background: var(--gold-soft);
+  color: #472a00;
+  font-weight: 600;
+  box-shadow: 0 0 28px rgba(248, 187, 111, 0.18);
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  padding: var(--gap-lg);
+  border-top: 1px solid var(--panel-border);
+  margin-top: auto;
+}
+
+/* ── MAIN AREA ──────────────────────────────────────────── */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── TOPBAR (§7) ────────────────────────────────────────── */
+.topbar {
+  height: 60px;
+  min-height: 60px;
+  background: rgba(28, 22, 15, 0.54);
+  backdrop-filter: var(--blur-premium);
+  -webkit-backdrop-filter: var(--blur-premium);
+  border-bottom: 1px solid rgba(255, 220, 180, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gap-xl);
+  position: relative;
+  z-index: var(--z-topbar);
+  flex-shrink: 0;
+}
+
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 228, 201, 0.08), transparent);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ── MOBILE NAV TOGGLE — hidden on desktop/tablet, shown <768px (§8) ── */
+.mobile-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  color: var(--white-soft);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mobile-nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── MOBILE SIDEBAR BACKDROP — dims page behind the open sidebar overlay ── */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.topbar-logo {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--white-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.topbar-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+/* ── PAGE SCROLL — Vertical overflow management (§4.1) ──── */
+.page-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── PAGE LAYOUT — Responsive page structure (§4.1) ─────── */
+/* flex:1 lets full-height pages (decision-grid, config-main,
+   settings-grid) stretch to fill the viewport without calc().
+   Multi-row pages (dashboard, market) stack naturally as
+   flex-column children — behaviour is identical to block. */
+.page-layout {
+  padding: 28px 32px;
+  max-width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── STATUS INDICATOR ───────────────────────────────────── */
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--synced-green);
+  display: inline-block;
+  flex-shrink: 0;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+/* Subtle — this dot means "system genuinely live", not decoration.
+   Slowed and softened so it reads peripherally without demanding attention. */
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 0.9;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.25);
+  }
+  50% {
+    opacity: 0.65;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0);
+  }
+}

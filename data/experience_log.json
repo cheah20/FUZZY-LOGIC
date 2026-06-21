@@ -1,0 +1,595 @@
+[
+  {
+    "timestamp": "2026-06-21T11:35:30",
+    "market_context": {
+      "symbol": "DEMO",
+      "rsi": 37.78,
+      "macd_hist": 0.0,
+      "atr": 4.22,
+      "sentiment": -0.053,
+      "market_regime": "TECHNICAL_DRIVEN",
+      "price": 64644.81
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 0.389
+    },
+    "llm_suggestion": {
+      "proposed_action": "Apply a minor upward confidence alignment. Indicators are in moderate ranges with no extremes detected. The fuzzy output appears well-calibrated to current market conditions; only a marginal adjustmen",
+      "confidence": 0.6,
+      "scenario_tag": "NORMAL_MINOR_ADJUSTMENT",
+      "mode": "demo",
+      "score_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": 0.05,
+      "label": "Hold",
+      "confidence": 0.283
+    },
+    "fuzzy_shift": {
+      "score_delta": 0.05,
+      "confidence_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "stability_score": 0.333,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T11:47:57",
+    "market_context": {
+      "symbol": "TEST",
+      "rsi": 74.2,
+      "macd_hist": -0.35,
+      "atr": 5.0,
+      "sentiment": -0.15,
+      "market_regime": "TECHNICAL_DRIVEN",
+      "price": 0.0
+    },
+    "baseline_fuzzy_output": {
+      "score": -1.1087,
+      "label": "Sell",
+      "confidence": 0.307
+    },
+    "llm_suggestion": {
+      "proposed_action": "Reduce confidence and bias toward Hold. RSI indicates overbought territory while MACD histogram is simultaneously negative, creating a conflicting signal environment. The opposing momentum and oscilla",
+      "confidence": 0.72,
+      "scenario_tag": "CONFLICT_RSI_MACD",
+      "mode": "demo",
+      "score_delta": -0.15,
+      "direction": "reduce_confidence"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -1.1746,
+      "label": "Sell",
+      "confidence": 0.064
+    },
+    "fuzzy_shift": {
+      "score_delta": -0.15,
+      "confidence_delta": -0.12,
+      "direction": "reduce_confidence"
+    },
+    "stability_score": 0.284,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T11:47:57",
+    "market_context": {
+      "symbol": "TEST",
+      "rsi": 25.0,
+      "macd_hist": 0.8,
+      "atr": 7.5,
+      "sentiment": -0.9,
+      "market_regime": "NEWS_DRIVEN_BEARISH",
+      "price": 0.0
+    },
+    "baseline_fuzzy_output": {
+      "score": -0.1312,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Moderately boost buy confidence. RSI is in oversold territory while MACD histogram is positive, creating bullish confluence across two independent indicator categories (oscillator + momentum).",
+      "confidence": 0.78,
+      "scenario_tag": "STRONG_BUY_CONFLUENCE",
+      "mode": "demo",
+      "score_delta": 0.15,
+      "direction": "boost_buy"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: RSI-001, MACD-001, MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "RSI-001",
+        "MACD-001",
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -1.0892,
+      "label": "Sell",
+      "confidence": 1.0
+    },
+    "fuzzy_shift": {
+      "score_delta": 0.15,
+      "confidence_delta": 0.1,
+      "direction": "boost_buy"
+    },
+    "stability_score": 1.0,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T11:47:57",
+    "market_context": {
+      "symbol": "TEST",
+      "rsi": 50.0,
+      "macd_hist": 0.0,
+      "atr": 3.0,
+      "sentiment": 0.0,
+      "market_regime": "TECHNICAL_DRIVEN",
+      "price": 0.0
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Apply a minor upward confidence alignment. Indicators are in moderate ranges with no extremes detected. The fuzzy output appears well-calibrated to current market conditions; only a marginal adjustmen",
+      "confidence": 0.6,
+      "scenario_tag": "NORMAL_MINOR_ADJUSTMENT",
+      "mode": "demo",
+      "score_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": 0.05,
+      "label": "Hold",
+      "confidence": 0.45
+    },
+    "fuzzy_shift": {
+      "score_delta": 0.05,
+      "confidence_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "stability_score": 0.5,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T12:13:02",
+    "market_context": {
+      "symbol": "AAPL",
+      "rsi": 39.07,
+      "macd_hist": -0.0958,
+      "atr": 10.0,
+      "sentiment": 0.161,
+      "market_regime": "HIGH_UNCERTAINTY",
+      "price": 298.01
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Slightly increase bearish bias due to weak RSI and negative MACD histogram, but maintain hold given high uncertainty.",
+      "confidence": 0.6,
+      "scenario_tag": "DEEPSEEK_REAL",
+      "mode": "real",
+      "score_delta": -0.15,
+      "direction": "boost_sell"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MACD-002, MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MACD-002",
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -0.15,
+      "label": "Hold",
+      "confidence": 0.35
+    },
+    "fuzzy_shift": {
+      "score_delta": -0.15,
+      "confidence_delta": 0.1,
+      "direction": "boost_sell"
+    },
+    "stability_score": 0.35,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T12:13:05",
+    "market_context": {
+      "symbol": "AAPL",
+      "rsi": 39.07,
+      "macd_hist": -0.0958,
+      "atr": 10.0,
+      "sentiment": 0.161,
+      "market_regime": "HIGH_UNCERTAINTY",
+      "price": 298.01
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Slightly increase buy bias due to oversold RSI and positive sentiment, but maintain caution given high uncertainty.",
+      "confidence": 0.4,
+      "scenario_tag": "DEEPSEEK_REAL",
+      "mode": "real",
+      "score_delta": 0.15,
+      "direction": "boost_buy"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": 0.15,
+      "label": "Hold",
+      "confidence": 0.3
+    },
+    "fuzzy_shift": {
+      "score_delta": 0.15,
+      "confidence_delta": 0.05,
+      "direction": "boost_buy"
+    },
+    "stability_score": 0.35,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T15:43:49",
+    "market_context": {
+      "symbol": "AAPL",
+      "rsi": 39.07,
+      "macd_hist": -0.0958,
+      "atr": 10.0,
+      "sentiment": 0.161,
+      "market_regime": "HIGH_UNCERTAINTY",
+      "price": 298.01
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Slightly reduce the Hold score and confidence due to bearish RSI and MACD signals under high uncertainty.",
+      "confidence": 0.6,
+      "scenario_tag": "DEEPSEEK_REAL",
+      "mode": "real",
+      "score_delta": -0.1,
+      "direction": "risk_penalty"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MACD-002, MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MACD-002",
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -0.1,
+      "label": "Hold",
+      "confidence": 0.15
+    },
+    "fuzzy_shift": {
+      "score_delta": -0.1,
+      "confidence_delta": -0.1,
+      "direction": "risk_penalty"
+    },
+    "stability_score": 0.35,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T17:34:07",
+    "market_context": {
+      "symbol": "AAPL",
+      "rsi": 39.07,
+      "macd_hist": -0.0958,
+      "atr": 10.0,
+      "sentiment": 0.161,
+      "market_regime": "HIGH_UNCERTAINTY",
+      "price": 298.01
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Slightly reduce score and confidence due to bearish RSI and MACD signals under high uncertainty.",
+      "confidence": 0.6,
+      "scenario_tag": "DEEPSEEK_REAL",
+      "mode": "real",
+      "score_delta": -0.1,
+      "direction": "reduce_confidence"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MACD-002, MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MACD-002",
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -0.1,
+      "label": "Hold",
+      "confidence": 0.15
+    },
+    "fuzzy_shift": {
+      "score_delta": -0.1,
+      "confidence_delta": -0.1,
+      "direction": "reduce_confidence"
+    },
+    "stability_score": 0.35,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T17:34:10",
+    "market_context": {
+      "symbol": "AAPL",
+      "rsi": 39.07,
+      "macd_hist": -0.0958,
+      "atr": 10.0,
+      "sentiment": 0.161,
+      "market_regime": "HIGH_UNCERTAINTY",
+      "price": 298.01
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Slightly reduce confidence due to bearish RSI and MACD signals under high uncertainty.",
+      "confidence": 0.7,
+      "scenario_tag": "DEEPSEEK_REAL",
+      "mode": "real",
+      "score_delta": -0.1,
+      "direction": "risk_penalty"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MACD-002, MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MACD-002",
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -0.1,
+      "label": "Hold",
+      "confidence": 0.15
+    },
+    "fuzzy_shift": {
+      "score_delta": -0.1,
+      "confidence_delta": -0.1,
+      "direction": "risk_penalty"
+    },
+    "stability_score": 0.35,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T18:15:38",
+    "market_context": {
+      "symbol": "AAPL",
+      "rsi": 39.07,
+      "macd_hist": -0.0958,
+      "atr": 10.0,
+      "sentiment": 0.161,
+      "market_regime": "HIGH_UNCERTAINTY",
+      "price": 298.01
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Slightly increase sell bias due to bearish RSI and MACD histogram, while maintaining conservative adjustment under high uncertainty.",
+      "confidence": 0.6,
+      "scenario_tag": "DEEPSEEK_REAL",
+      "mode": "real",
+      "score_delta": -0.2,
+      "direction": "boost_sell"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MACD-002, MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MACD-002",
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -0.2,
+      "label": "Hold",
+      "confidence": 0.15
+    },
+    "fuzzy_shift": {
+      "score_delta": -0.2,
+      "confidence_delta": -0.1,
+      "direction": "boost_sell"
+    },
+    "stability_score": 0.35,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T18:21:55",
+    "market_context": {
+      "symbol": "AAPL",
+      "rsi": 39.07,
+      "macd_hist": -0.0958,
+      "atr": 10.0,
+      "sentiment": 0.161,
+      "market_regime": "HIGH_UNCERTAINTY",
+      "price": 298.01
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.0,
+      "label": "Hold",
+      "confidence": 1.0
+    },
+    "llm_suggestion": {
+      "proposed_action": "Slightly reduce score and confidence due to bearish RSI and MACD signals under high uncertainty.",
+      "confidence": 0.6,
+      "scenario_tag": "DEEPSEEK_REAL",
+      "mode": "real",
+      "score_delta": -0.1,
+      "direction": "risk_penalty"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MACD-002, MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MACD-002",
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -0.1,
+      "label": "Hold",
+      "confidence": 0.15
+    },
+    "fuzzy_shift": {
+      "score_delta": -0.1,
+      "confidence_delta": -0.1,
+      "direction": "risk_penalty"
+    },
+    "stability_score": 0.35,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T18:22:15",
+    "market_context": {
+      "symbol": "WALKTHROUGH",
+      "rsi": 53.55,
+      "macd_hist": -0.7856,
+      "atr": 3.85,
+      "sentiment": -0.125,
+      "market_regime": "TECHNICAL_DRIVEN",
+      "price": 64200.86
+    },
+    "baseline_fuzzy_output": {
+      "score": -0.8359,
+      "label": "Sell",
+      "confidence": 0.683
+    },
+    "llm_suggestion": {
+      "proposed_action": "Apply a minor upward confidence alignment. Indicators are in moderate ranges with no extremes detected. The fuzzy output appears well-calibrated to current market conditions; only a marginal adjustmen",
+      "confidence": 0.6,
+      "scenario_tag": "NORMAL_MINOR_ADJUSTMENT",
+      "mode": "demo",
+      "score_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": -0.7935,
+      "label": "Sell",
+      "confidence": 0.323
+    },
+    "fuzzy_shift": {
+      "score_delta": 0.05,
+      "confidence_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "stability_score": 0.373,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  },
+  {
+    "timestamp": "2026-06-21T19:15:51",
+    "market_context": {
+      "symbol": "DEMO",
+      "rsi": 58.22,
+      "macd_hist": 3.7716,
+      "atr": 3.85,
+      "sentiment": -0.126,
+      "market_regime": "TECHNICAL_DRIVEN",
+      "price": 63929.52
+    },
+    "baseline_fuzzy_output": {
+      "score": 0.8373,
+      "label": "Buy",
+      "confidence": 0.589
+    },
+    "llm_suggestion": {
+      "proposed_action": "Apply a minor upward confidence alignment. Indicators are in moderate ranges with no extremes detected. The fuzzy output appears well-calibrated to current market conditions; only a marginal adjustmen",
+      "confidence": 0.6,
+      "scenario_tag": "NORMAL_MINOR_ADJUSTMENT",
+      "mode": "demo",
+      "score_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "expert_validation_result": {
+      "status": "APPROVED",
+      "reason": "LLM suggestion validated against Human Expert Knowledge Base. No rule violations detected. Supporting rules: MULTI-001.",
+      "violated_rules": [],
+      "supporting_rules": [
+        "MULTI-001"
+      ]
+    },
+    "final_decision": {
+      "score": 0.8934,
+      "label": "Buy",
+      "confidence": 0.33
+    },
+    "fuzzy_shift": {
+      "score_delta": 0.05,
+      "confidence_delta": 0.05,
+      "direction": "hold_neutral"
+    },
+    "stability_score": 0.28,
+    "reflection_note": "Agentic adjustment approved and applied. Indicator alignment is consistent with Human Expert KB."
+  }
+]

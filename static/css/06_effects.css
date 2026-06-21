@@ -1,0 +1,151 @@
+/* ============================================================
+   06_effects.css — Animations, Glows, Rich Effects
+   ASTDSS Terminal — Luxury spatial interface effects
+   ============================================================ */
+
+/* ── GPU COMPOSITOR PROMOTION (Task 2 §12.1) ────────────── */
+/* Promote persistent backdrop-filter layers to their own
+   compositor layer. Keeps paint/raster off the main thread.
+   Use sparingly — each layer consumes GPU memory. */
+.sidebar,
+.topbar {
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+}
+
+/* ── BACKGROUND LAYER ───────────────────────────────────── */
+/* bg-muted.jpeg is a blurred/desaturated/darkened derivative of bg.jpeg
+   (see static/img/bg.jpeg for the original). The original had its own
+   red/green chart candles and blue/purple line charts baked into the
+   photo, which bled through glass panels and fought with the
+   foreground's semantic red/green even with a heavy overlay. The muted
+   version keeps the trading-desk atmosphere (monitors, desk lamp, world
+   clock map) but removes the competing colour detail at the source. */
+body {
+  background:
+    /* Warm amber glow — top-left corner (kept subtle, brand-aligned) */
+    radial-gradient(ellipse 72% 55% at 14% 8%,  rgba(255, 140, 50, 0.05) 0%, transparent 64%),
+    /* Subtle top-center highlight */
+    radial-gradient(ellipse 45% 30% at 50% 0%,  rgba(255, 200, 120, 0.03) 0%, transparent 55%),
+    /* Overlay kept moderate since the image itself is now pre-muted */
+    linear-gradient(150deg, rgba(8, 6, 4, 0.62) 0%, rgba(10, 7, 4, 0.55) 48%, rgba(10, 7, 5, 0.65) 100%),
+    url('/static/img/bg-muted.jpeg') center center / cover no-repeat fixed,
+    /* Rich warm fallback when no image */
+    linear-gradient(150deg, #120e09 0%, #0f0c08 35%, #110e0a 65%, #130f0b 100%);
+}
+
+/* ── GLOW EFFECTS ───────────────────────────────────────── */
+.glow-gold {
+  box-shadow: 0 0 28px rgba(248, 187, 111, 0.18);
+}
+
+.glow-red {
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+}
+
+.glow-green {
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+/* ── PULSE ANIMATION ──────────────────────────────────────
+   Reserved for elements that represent a genuinely live/processing
+   state (e.g. a currently-running analysis). Not for static badges
+   or decoration — a screen with several independent infinite pulses
+   running at once is one of the main causes of visual fatigue. */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.95;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.25);
+  }
+  50% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0);
+  }
+}
+
+.pulse {
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-amber {
+  0%, 100% {
+    opacity: 0.95;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.25);
+  }
+  50% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0);
+  }
+}
+
+.pulse-amber {
+  animation: pulse-amber 2s ease-in-out infinite;
+}
+
+/* ── REDUCED MOTION ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── FADE IN ────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* ── STAGGER CHILDREN ───────────────────────────────────── */
+.stagger-children > * {
+  animation: fadeIn 0.4s ease forwards;
+  opacity: 0;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+
+/* ── HOVER LIFT ─────────────────────────────────────────── */
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* ── DIVIDER ────────────────────────────────────────────── */
+.divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+/* ── GLOW BAR FOR SIGNAL ────────────────────────────────── */
+.glow-bar {
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* ── VIGNETTE OVERLAY ───────────────────────────────────── */
+.vignette {
+  position: relative;
+}
+
+.vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.3) 100%);
+  pointer-events: none;
+}

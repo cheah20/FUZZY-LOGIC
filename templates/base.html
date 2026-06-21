@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASTDSS Terminal — {% block title %}Dashboard{% endblock %}</title>
+    <link rel="shortcut icon" href="data:,">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <!-- APP SHELL (§4.1): body → app-shell → sidebar + main-area -->
+    <div class="app-shell">
+      <!-- MOBILE SIDEBAR BACKDROP (shown only <768px, via #mobile-nav-toggle) -->
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="app-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">ASTDSS Terminal</div>
+          <div class="sidebar-subtitle">Active Session: Multi-Agent</div>
+        </div>
+
+        <nav class="nav-items">
+          <a
+            href="/"
+            class="nav-item{% if request.endpoint == 'dashboard' %} active{% endif %}"
+          >
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            Dashboard
+          </a>
+          <a
+            href="/market-intelligence"
+            class="nav-item{% if request.endpoint == 'market_intelligence' %} active{% endif %}"
+          >
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 3v9l5 3" />
+            </svg>
+            Market Intelligence
+          </a>
+          <a
+            href="/decision-logic"
+            class="nav-item{% if request.endpoint == 'decision_logic' %} active{% endif %}"
+          >
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="4" />
+              <path
+                d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41"
+              />
+            </svg>
+            Decision Logic
+          </a>
+          <a
+            href="/backtesting"
+            class="nav-item{% if request.endpoint == 'backtesting' %} active{% endif %}"
+          >
+            <svg viewBox="0 0 24 24">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            Backtesting
+          </a>
+          <a
+            href="/agentic"
+            class="nav-item{% if request.endpoint == 'agentic' %} active{% endif %}"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>
+              <circle cx="12" cy="12" r="7" stroke-dasharray="2 2"/>
+            </svg>
+            Agentic Layer
+          </a>
+          <a
+            href="/walkthrough"
+            class="nav-item{% if request.endpoint == 'walkthrough' %} active{% endif %}"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2l9 5-9 5-9-5 9-5z"/>
+              <path d="M3 12l9 5 9-5"/>
+              <path d="M3 17l9 5 9-5"/>
+            </svg>
+            Tutorial
+          </a>
+          <a
+            href="/settings"
+            class="nav-item{% if request.endpoint == 'settings' %} active{% endif %}"
+          >
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.14 12.94a7 7 0 0 0 .07-.94 7 7 0 0 0-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.59-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.49.41l-.36 2.54a7 7 0 0 0-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.63 8.47a.49.49 0 0 0 .12.64l2.03 1.58a7 7 0 0 0-.07.94c0 .32.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.64l1.92 3.32c.12.22.37.3.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.49.41h4c.25 0 .45-.17.49-.41l.36-2.54a7 7 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.64z"
+              />
+            </svg>
+            Settings
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="btn-execute" id="btn-execute-trade">
+            <svg
+              style="width: 15px; height: 15px; fill: currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Execute Trade
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN AREA -->
+      <div class="main-area">
+        <!-- TOPBAR -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open navigation" title="Menu">
+              <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div class="topbar-logo">ASTDSS</div>
+            {% block header_status %}
+            <div class="topbar-status">
+              <span class="status-dot"></span>
+              LIVE ANALYSIS SESSION
+            </div>
+            {% endblock %}
+          </div>
+
+          {% block header_right %}
+          <div class="topbar-right">
+            <button class="btn-icon" title="Network">
+              <svg
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  stroke: currentColor;
+                  fill: none;
+                  stroke-width: 1.5;
+                "
+              >
+                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                <circle cx="12" cy="20" r="1" fill="currentColor" />
+              </svg>
+            </button>
+            <button class="btn-icon" title="Signal">
+              <svg
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  stroke: currentColor;
+                  fill: none;
+                  stroke-width: 1.5;
+                "
+              >
+                <path d="M1.5 8.5a18 18 0 0 1 21 0" />
+                <path d="M5 12a13 13 0 0 1 14 0" />
+                <path d="M8.5 15.5a8 8 0 0 1 7 0" />
+                <circle cx="12" cy="19" r="1" fill="currentColor" />
+              </svg>
+            </button>
+            <button class="btn-avatar" title="User">
+              <svg
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  stroke: var(--gold-soft);
+                  fill: none;
+                  stroke-width: 1.5;
+                "
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-2.667 3.582-4 8-4s8 1.333 8 4" />
+              </svg>
+            </button>
+          </div>
+          {% endblock %}
+        </header>
+
+        <!-- PAGE SCROLL (Vertical overflow management) -->
+        <div class="page-scroll">
+          <div class="page-layout">{% block content %}{% endblock %}</div>
+        </div>
+      </div>
+      <!-- /main-area -->
+    </div>
+    <!-- /app-shell -->
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

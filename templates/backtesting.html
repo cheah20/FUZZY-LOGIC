@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% block title %}Backtesting{% endblock %}
+
+{% block header_status %}
+<div class="bt-breadcrumb">
+  {% for label, path in [('Dashboard','/'),('Backtesting','/backtesting'),('Market Intelligence','/market-intelligence')] %}
+  <a href="{{ path }}" class="{% if path=='/backtesting' %}bt-breadcrumb--active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="config-main">
+
+  <!-- LEFT CONFIG -->
+  <div class="glass-panel flex-col overflow-y-auto">
+    <div class="section-header">
+      <span class="section-header__title">BACKTEST CONFIG</span>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);margin-bottom:20px;">Session: Multi-Agent v5.0-EXPERT</div>
+
+    <!-- TICKER INPUT -->
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">BACKTEST TICKER</div>
+    <input
+      id="bt-ticker"
+      class="glass-input"
+      type="text"
+      placeholder="AAPL, TSLA, MSFT, BTC..."
+      value="AAPL"
+      style="margin-bottom:6px;text-transform:uppercase;"
+      autocomplete="off"
+    />
+    <div style="display:flex;gap:6px;margin-bottom:20px;">
+      {% for label in ['1Y','2Y','3Y'] %}
+      <button class="btn-secondary bt-period-btn {% if label == '2Y' %}bt-period-btn--active{% endif %}"
+              data-period="{{ label | lower }}"
+              style="flex:1;{% if label == '2Y' %}background:rgba(255,228,201,.12);border-color:rgba(255,228,201,.2);color:var(--gold-soft);{% endif %}">
+        {{ label }}
+      </button>
+      {% endfor %}
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">EVALUATION PERIOD <span style="color:var(--text-faint);text-transform:none;">(follows 1Y/2Y/3Y above)</span></div>
+    <div style="background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
+      <div class="config-field">
+        <span class="config-field__label">Start Date</span>
+        <span class="config-field__value" id="bt-eval-start">—</span>
+      </div>
+      <div class="config-field">
+        <span class="config-field__label">End Date</span>
+        <span class="config-field__value" id="bt-eval-end">—</span>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">ASSET CLASS & SECTORS <span style="color:var(--text-faint);text-transform:none;">(sets ticker below)</span></div>
+    <div class="flex-col flex-col-gap-sm" style="margin-bottom:20px;">
+      {% for label, ticker, active in [('Equities - AAPL','AAPL',True),('Crypto - BTC','BTC',False),('Forex - EUR/USD','EURUSD=X',False)] %}
+      <label class="asset-option{% if active %} asset-option--active{% endif %}" data-ticker="{{ ticker }}">
+        <span class="asset-option__name">{{ label }}</span>
+        <div class="radio-dot{% if active %} radio-dot--checked{% endif %}">
+          {% if active %}<svg viewBox="0 0 12 12" style="width:8px;height:8px;" fill="none"><path d="M2 6l3 3 5-5" stroke="#472a00" stroke-width="1.5" stroke-linecap="round"/></svg>{% endif %}
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">AGENT LOGIC DENSITY</div>
+    <input type="range" min="0" max="100" value="50" style="width:100%;margin-bottom:6px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+      <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">Low Noise</span>
+      <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">High Fidelity</span>
+    </div>
+
+    <div class="mt-auto" style="padding-top:12px;border-top:1px solid rgba(255,255,255,.05);">
+      <button id="bt-run-btn" class="btn-primary" style="width:100%;border-radius:var(--radius-lg);padding:13px;">
+        <svg id="bt-run-icon" style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <span id="bt-run-label">Execute Backtest</span>
+      </button>
+      <div id="bt-status" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-align:center;margin-top:8px;min-height:14px;"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="flex-col flex-col-gap-md overflow-y-auto" style="min-height:0;">
+
+    <!-- LIVE BACKTEST RESULTS (hidden until Run Backtest is clicked) -->
+    <div id="bt-live-results" style="display:none;flex-shrink:0;">
+      <!-- Ticker header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div>
+          <div style="font:600 18px 'Hanken Grotesk';color:var(--white-soft);" id="bt-result-ticker">—</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);" id="bt-result-bars">—</div>
+        </div>
+        <span id="bt-result-winner" class="badge badge--synced" style="font-size:var(--text-xs);">—</span>
+      </div>
+      <!-- Live metric cards -->
+      <div class="stat-row" style="margin-bottom:12px;">
+        <div class="glass-panel-high">
+          <div class="metric-label">EXPERT RETURN</div>
+          <div class="metric-value metric-value--gold" id="bt-expert-return">—</div>
+          <div class="metric-sub" id="bt-expert-sharpe" style="margin-top:4px;">—</div>
+        </div>
+        <div class="glass-panel-high">
+          <div class="metric-label">BASELINE RETURN</div>
+          <div class="metric-value" id="bt-baseline-return">—</div>
+          <div class="metric-sub" id="bt-baseline-sharpe" style="margin-top:4px;">—</div>
+        </div>
+        <div class="glass-panel-high">
+          <div class="metric-label">BUY &amp; HOLD</div>
+          <div class="metric-value" id="bt-bah-return">—</div>
+          <div class="metric-sub" style="margin-top:4px;">Benchmark</div>
+        </div>
+        <div class="glass-panel-high">
+          <div class="metric-label">WIN RATE</div>
+          <div class="metric-value" id="bt-winrate">—</div>
+          <div class="metric-sub" id="bt-drawdown" style="margin-top:4px;">—</div>
+        </div>
+      </div>
+      <!-- Equity Curve Chart -->
+      <div class="glass-panel" style="flex-shrink:0;padding:16px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <div style="font:600 14px 'Hanken Grotesk';color:var(--white-soft);">Equity Curve — <span id="bt-chart-ticker">—</span></div>
+            <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);">Expert FLC vs Baseline FLC vs Buy &amp; Hold</div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:center;">
+            <div style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:var(--gold-soft);display:inline-block;border-radius:1px;"></span><span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">Expert</span></div>
+            <div style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:var(--secondary);display:inline-block;border-radius:1px;"></span><span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">Baseline</span></div>
+            <div style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:rgba(255,255,255,.25);display:inline-block;border-radius:1px;border-style:dashed;"></span><span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">B&amp;H</span></div>
+          </div>
+        </div>
+        <div id="bt-chart-container" style="width:100%;height:180px;background:rgba(0,0,0,.2);border-radius:var(--radius-md);overflow:hidden;"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;" id="bt-date-labels"></div>
+      </div>
+    </div>
+
+    <!-- Top Stats (static metrics, shown when no live results) -->
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);margin-bottom:8px;flex-shrink:0;">
+      EXAMPLE METRICS — click "Execute Backtest" (left panel) to run a real backtest and replace these with live numbers
+    </div>
+    <div id="bt-static-stats" class="stat-row" style="flex-shrink:0;">
+      <div class="glass-panel-high">
+        <div class="metric-label">SHARPE RATIO</div>
+        <div class="metric-value">{{ backtesting_metrics.sharpe_ratio }}</div>
+        <div class="metric-sub metric-sub--green">{{ backtesting_metrics.sharpe_vs_llm }} vs LLM</div>
+      </div>
+      <div class="glass-panel-high" style="border-left:2px solid var(--semantic-buy);">
+        <div class="metric-label">MAX DRAWDOWN</div>
+        <div class="metric-value">{{ backtesting_metrics.max_drawdown }}</div>
+        <div class="metric-sub metric-sub--green">Optimal</div>
+      </div>
+      <div class="glass-panel-high">
+        <div class="metric-label">WIN RATE</div>
+        <div class="metric-value">{{ backtesting_metrics.win_rate }}</div>
+        <div class="metric-sub">Historical</div>
+      </div>
+      <div class="glass-panel-high">
+        <div class="metric-label" style="display:flex;align-items:center;gap:6px;">
+          <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.5;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+          FUZZY-LOGIC MITIGATIONS
+        </div>
+        <div class="metric-value">{{ backtesting_metrics.fuzzy_logic_mitigations }}</div>
+        <div class="metric-sub">"Grey Zone" Safes</div>
+      </div>
+    </div><!-- /bt-static-stats -->
+
+    <!-- Chart -->
+    <div class="glass-panel" style="flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <div style="font:600 20px 'Hanken Grotesk';color:var(--white-soft);">Cumulative Returns Comparison</div>
+            <span class="badge badge--idle" style="font-size:var(--text-xs);">ILLUSTRATIVE</span>
+          </div>
+          <div style="font:400 12px 'Hanken Grotesk';color:var(--text-muted);">Conceptual diagram — not computed from live data. For real Expert vs Baseline numbers, see the panel below or run a backtest.</div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;">
+          {% for dot, label in [('var(--gold-soft)','Fuzzy-Agentic Workflow'),('var(--secondary)','Baseline LLM'),('rgba(255,255,255,.3)','S&P 500 Index')] %}
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:{{ dot }};display:inline-block;flex-shrink:0;"></span>
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">{{ label }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="bt-chart-container">
+        <svg viewBox="0 0 760 200" style="width:100%;height:200px;">
+          <defs>
+            <pattern id="cg" width="126.7" height="50" patternUnits="userSpaceOnUse">
+              <line x1="126.7" y1="0" x2="126.7" y2="200" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+              <line x1="0" y1="50" x2="760" y2="50" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+            </pattern>
+            <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f8bb6f" stop-opacity=".15"/>
+              <stop offset="100%" stop-color="#f8bb6f" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect width="760" height="200" fill="url(#cg)"/>
+          <path d="M0,175 C130,170 260,162 380,158 C500,154 630,150 760,148" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <path d="M0,178 C130,168 260,155 380,148 C430,142 480,155 530,148 C600,138 680,128 760,118" fill="none" stroke="var(--secondary)" stroke-width="1.8"/>
+          <path d="M0,180 C130,168 260,148 380,120 C480,95 600,65 760,22" fill="none" stroke="var(--gold-soft)" stroke-width="2.2"/>
+          <path d="M0,180 C130,168 260,148 380,120 C480,95 600,65 760,22 L760,200 L0,200 Z" fill="url(#ag)"/>
+          <line x1="510" y1="0" x2="510" y2="200" stroke="rgba(255,255,255,.1)" stroke-width="1" stroke-dasharray="4,3"/>
+          <rect x="516" y="38" width="195" height="52" rx="5" fill="rgba(15,17,17,.95)" stroke="rgba(255,255,255,.1)"/>
+          <text x="526" y="54" fill="rgba(255,255,255,.4)" style="font:8px 'JetBrains Mono';text-transform:uppercase;">DEC 2022 MARKET VOLATILITY</text>
+          <text x="526" y="66" fill="rgba(255,255,255,.7)" style="font:9px 'JetBrains Mono';">Fuzzy Logic Controller triggered</text>
+          <text x="526" y="78" fill="var(--gold-soft)" style="font:9px 'JetBrains Mono';font-weight:600;">Shield Protocol.</text>
+          <text x="526" y="88" fill="rgba(255,255,255,.4)" style="font:8px 'JetBrains Mono';">LLM Baseline: -8.2% decay</text>
+          {% for yr, x in [('2019','4'),('2020','130'),('2021','256'),('2022','382'),('2023','508'),('JAN 2024','680')] %}
+          <text x="{{ x }}" y="196" fill="rgba(255,255,255,.25)" style="font:9px 'JetBrains Mono';">{{ yr }}</text>
+          {% endfor %}
+        </svg>
+      </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-row" style="flex-shrink:0;">
+      <!-- Left column: stacked log tables -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- Backtest Trade Log -->
+        <div class="glass-panel" style="padding:16px 18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;">BACKTEST TRADE LOG</span>
+            <span id="bt-log-count" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">Run backtest to load trades</span>
+          </div>
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Timestamp</th><th>Exit Type</th><th>Fuzzy Signal</th><th>Outcome</th></tr></thead>
+            <tbody id="bt-log-tbody">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-faint);font-style:italic;padding:12px;">Run backtest above to populate trade log</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        <!-- Real Agentic Experience Log (live from /api/agentic/experience-log) -->
+        <div class="glass-panel" style="padding:16px 18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;">RECENT AGENTIC DECISIONS</span>
+            <span id="bt-agentic-count" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">Loading…</span>
+          </div>
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Timestamp</th><th>Final Decision</th><th>Validation</th><th>Stability</th></tr></thead>
+            <tbody id="bt-agentic-tbody">
+              <tr><td colspan="4" style="text-align:center;color:var(--text-faint);font-style:italic;padding:12px;">No agentic runs yet — use Agentic Layer page to run analysis</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+      </div><!-- end left column -->
+
+      <!-- Baseline vs Expert Comparison (updated by JS after backtest) -->
+      <div id="bt-cmp-panel" class="glass-panel">
+        <div class="section-header" style="margin-bottom:6px;">
+          <span class="section-header__title">BASELINE vs EXPERT</span>
+          {% if comparison and comparison.winner == 'expert' %}
+          <span class="badge badge--synced" style="margin-left:auto;font-size:var(--text-xs);">EXPERT WINS</span>
+          {% elif comparison %}
+          <span class="badge badge--idle" style="margin-left:auto;font-size:var(--text-xs);">BASELINE WINS</span>
+          {% endif %}
+        </div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);line-height:1.5;margin-bottom:12px;">
+          The Human Expert Layer changes and explains decisions under risky/extreme market regimes — it is not guaranteed to outperform the baseline on every dataset or window.
+        </div>
+
+        {% if comparison %}
+        {% set rows = [
+          ('Total Return', comparison.expert_return, comparison.baseline_return, comparison.buy_hold_return, '%'),
+          ('Win Rate',     comparison.expert_winrate, comparison.baseline_winrate, None, '%'),
+          ('Sharpe Ratio', comparison.expert_sharpe,  comparison.baseline_sharpe,  None, ''),
+        ] %}
+        {% for label, ev, bv, bah, unit in rows %}
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);text-transform:uppercase;">{{ label }}</span>
+            {% if bah is not none %}
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">B&H {{ '%+.1f'|format(bah) }}{{ unit }}</span>
+            {% endif %}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div>
+              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--gold-soft);margin-bottom:3px;">EXPERT</div>
+              <div class="progress-bar" style="height:4px;margin-bottom:2px;">
+                <div class="progress-bar__fill" style="width:{{ [[(ev|abs / ([bv|abs, ev|abs]|max + 0.01) * 100)|int, 100]|min, 0]|max }}%;background:var(--gold-soft);"></div>
+              </div>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--gold-soft);font-weight:600;">{{ '%+.2f'|format(ev) if unit == '%' else '%.3f'|format(ev) }}{{ unit }}</span>
+            </div>
+            <div>
+              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--secondary);margin-bottom:3px;">BASELINE</div>
+              <div class="progress-bar" style="height:4px;margin-bottom:2px;">
+                <div class="progress-bar__fill" style="width:{{ [[(bv|abs / ([bv|abs, ev|abs]|max + 0.01) * 100)|int, 100]|min, 0]|max }}%;background:var(--secondary);"></div>
+              </div>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--secondary);">{{ '%+.2f'|format(bv) if unit == '%' else '%.3f'|format(bv) }}{{ unit }}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.12);border-radius:var(--radius-md);margin-top:6px;">
+          <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">Expert vs Buy &amp; Hold</span>
+          <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:{% if comparison.expert_vs_bah > 0 %}var(--semantic-buy){% else %}var(--semantic-sell){% endif %};">
+            {{ '%+.2f'|format(comparison.expert_vs_bah) }}%
+          </span>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);margin-top:8px;text-align:center;">
+          30% out-of-sample  |  {{ comparison.extreme_events_pct|int }}% extreme sentiment events
+        </div>
+
+        {% else %}
+        <!-- Fallback when comparison data not available -->
+        <div style="display:flex;align-items:center;gap:7px;padding:9px 12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:var(--radius-lg);">
+          <span class="status-dot"></span>
+          <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--semantic-buy);">Simulation Environment Synced</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div><!-- /right -->
+</div>
+{% endblock %}

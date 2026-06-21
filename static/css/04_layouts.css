@@ -1,0 +1,118 @@
+/* ============================================================
+   04_layouts.css — Reusable Grid Layout Classes
+   ARCHITECTURE.md §5.1, §7, §8
+   ============================================================ */
+
+/* ── STAT-CARD ROW ──────────────────────────────────────── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap-md);
+  margin-bottom: 20px;
+}
+
+/* ── CHART + SIDEBAR ────────────────────────────────────── */
+.chart-with-sidebar {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-md);
+}
+
+/* ── THREE-COLUMN DECISION LAYOUT ───────────────────────── */
+.decision-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  gap: 20px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── THREE-COLUMN AGENTIC LAYOUT (Agentic page) ─────────── */
+.agentic-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── LEFT-CONFIG + MAIN CONTENT ─────────────────────────── */
+.config-main {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── FEED + RIGHT PANEL ─────────────────────────────────── */
+.feed-with-panel {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+}
+
+/* ── SETTINGS LAYOUT ────────────────────────────────────── */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── DUAL COLUMN SPLIT ──────────────────────────────────── */
+.split-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+/* ── TRIPLE ROW BOTTOM ──────────────────────────────────── */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 250px;
+  gap: 14px;
+}
+
+/* ── FULL-WIDTH FLEX COLUMN ─────────────────────────────── */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-col-gap-sm { gap: var(--gap-sm); }
+.flex-col-gap-md { gap: var(--gap-md); }
+.flex-col-gap-lg { gap: var(--gap-lg); }
+
+/* ── UTIL: FLEX-1 for pushing content ──────────────────── */
+.flex-1 { flex: 1; }
+
+/* ── MIXED GRID: 1fr + 280px for settings sub-layouts ──── */
+.split-1-280 {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--gap-md);
+}
+
+/* ── TRIPLE BOTTOM ROW (Settings) ───────────────────────── */
+.triple-bottom {
+  display: grid;
+  grid-template-columns: 1fr 240px 200px;
+  gap: var(--gap-md);
+}
+
+/* ── OVERFLOW CONTAINMENT ───────────────────────────────── */
+.overflow-y-auto {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+/* ── SPACER ─────────────────────────────────────────────── */
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-auto { margin-top: auto; }

@@ -1,0 +1,589 @@
+{% extends "base.html" %} {% block title %}Agentic Layer{% endblock %} {% block header_status %}
+<div style="display:flex;align-items:center;gap:14px">
+  <div style="font:600 15px 'Hanken Grotesk';color:var(--white-soft);text-transform:uppercase;letter-spacing:0.08em;">ASTDSS TERMINAL</div>
+  <div style="width:1px;height:18px;background:rgba(255,255,255,0.15)"></div>
+  <div class="label-xs">PA3 — AGENTIC FUZZY LAYER</div>
+  <span class="badge badge--idle">LIT-GROUNDED</span>
+  <span class="badge badge--idle">HUMAN EXPERT VALIDATED</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="agentic-grid" style="padding:2px 0">
+
+  <!-- LEFT: Agent Profile + KB Summary -->
+  <div class="flex-col flex-col-gap-md">
+
+    <!-- Agent Profile — identity + counts always visible; mission/objective/disclaimer
+         prose is reference material, collapsed by default so it doesn't compete
+         with the live pipeline during a timed demo -->
+    <div class="glass-panel glass-panel--gold" style="flex-shrink:0">
+      <div class="panel-header">
+        <span class="label-xs" style="color:var(--gold-soft)">AGENT PROFILE</span>
+        <span class="badge badge--synced">ACTIVE</span>
+      </div>
+
+      {% if agent_profile %}
+      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(0,0,0,.18);border-radius:var(--radius-md)">
+        <div class="label-xs" style="margin-bottom:3px">AGENT ID</div>
+        <div class="data-value" style="color:var(--gold-soft)">{{ agent_profile.agent_name }}</div>
+        <div class="label-xs" style="margin-top:3px;text-transform:none">{{ agent_profile.agent_id }} · {{ agent_profile.version }}</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="inner-card" style="padding:9px 11px">
+          <div class="label-xs" style="color:var(--semantic-buy);margin-bottom:4px">ALLOWED</div>
+          <div class="data-value">{{ agent_profile.allowed_actions|length }}</div>
+          <div class="label-xs" style="text-transform:none">actions</div>
+        </div>
+        <div class="inner-card" style="padding:9px 11px">
+          <div class="label-xs" style="color:var(--semantic-sell);margin-bottom:4px">BLOCKED</div>
+          <div class="data-value">{{ agent_profile.disallowed_actions|length }}</div>
+          <div class="label-xs" style="text-transform:none">actions</div>
+        </div>
+      </div>
+
+      <button class="btn-icon" style="width:100%;padding:5px;font-size:10px;margin-bottom:0" onclick="toggleSection('agent-profile-details', this)">Show Mission / Objective / Disclaimer ▾</button>
+      <div id="agent-profile-details" style="display:none;margin-top:10px">
+        <div style="margin-bottom:12px">
+          <div class="label-xs" style="margin-bottom:5px">MISSION</div>
+          <div class="body-sm">{{ agent_profile.mission[:180] }}…</div>
+        </div>
+        <div class="evidence-box evidence-box--gold" style="margin-bottom:8px">
+          <div class="label-xs" style="margin-bottom:4px">PRIMARY OBJECTIVE</div>
+          <div class="body-sm" style="color:var(--gold-soft)">{{ agent_profile.trade_off_logic.primary_objective }}</div>
+        </div>
+        <div class="muted-box">
+          <div class="label-xs" style="text-transform:none;line-height:1.6">⚠ {{ agent_profile.disclaimer[:120] }}…</div>
+        </div>
+      </div>
+      {% else %}
+      <div class="body-sm">Agent profile not available.</div>
+      {% endif %}
+    </div>
+
+    <!-- Human Expert KB Summary — collapsed by default; this is reference material, not what a demo audience needs read aloud -->
+    <div class="glass-panel" style="flex-shrink:0">
+      <div class="panel-header" style="margin-bottom:0">
+        <span class="label-xs">EXPERT KNOWLEDGE BASE</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          {% if kb_summary %}
+          <span class="badge badge--idle">{{ kb_summary.total_rules }} RULES</span>
+          {% endif %}
+          <button class="btn-icon" style="width:auto;padding:4px 10px;font-size:10px" id="kb-toggle-btn" onclick="toggleSection('kb-details', this)">Show ▾</button>
+        </div>
+      </div>
+
+      <div id="kb-details" style="display:none;max-height:380px;overflow-y:auto;margin-top:10px">
+        {% if kb_summary %}
+        {% for cat in kb_summary.categories %}
+        <div style="margin-bottom:12px">
+          <div class="label-xs" style="color:var(--gold-soft);margin-bottom:6px;padding:4px 8px;background:rgba(248,187,111,.06);border-radius:4px">
+            {{ cat }} ({{ kb_summary.rules_by_category[cat] }})
+          </div>
+          {% for rule in kb_rules if rule.category == cat %}
+          <div class="evidence-box" style="margin-bottom:4px;padding:6px 9px">
+            <div class="label-xs" style="text-transform:none;color:var(--text-muted);margin-bottom:2px">{{ rule.id }}</div>
+            <div class="label-xs" style="text-transform:none;line-height:1.5">{{ rule.captured_knowledge[:90] }}…</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="body-sm">Loading knowledge base…</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: Agentic Decision Pipeline (the page's main focus) -->
+  <div class="flex-col flex-col-gap-md">
+
+    <!-- Controls -->
+    <div class="glass-panel glass-panel--inset" style="padding:14px 16px">
+      <div class="panel-header" style="margin-bottom:10px">
+        <div>
+          <div class="panel-title" style="font-size:14px">Agentic Decision Pipeline</div>
+          <div class="label-xs" style="text-transform:none;margin-top:2px">Market Data → Baseline → Expert → LLM Proposal → Validation → Final Decision</div>
+          <div id="agentic-source-hint" class="label-xs" style="text-transform:none;margin-top:4px;color:var(--text-muted)"></div>
+        </div>
+        <span id="agentic-mode-badge" class="badge badge--idle">DEMO MODE</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btn-run-agentic" class="btn-execute" style="flex:1;min-width:140px;padding:10px 16px;font-size:11px" onclick="runAgenticAnalysis()">
+          <svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Run Agentic Analysis
+        </button>
+        <button id="btn-failure-demo" class="btn-icon" style="width:auto;padding:8px 14px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-md)" onclick="loadFailureDemo()">
+          Failure Demo
+        </button>
+      </div>
+    </div>
+
+    <!-- Analysis Results (hidden until run) -->
+    <div id="agentic-results" style="display:none" class="flex-col flex-col-gap-md">
+
+      <!-- Single dominant flow panel: every stage as a row, top to bottom -->
+      <div class="glass-panel-high">
+        <div class="panel-header">
+          <span class="label-xs">AGENTIC DECISION FLOW</span>
+        </div>
+
+        <!-- Stage 1: Market Context -->
+        <div class="pipeline-stage">
+          <div class="pipeline-stage__num">1</div>
+          <div style="flex:1">
+            <div class="pipeline-stage__label" style="margin-bottom:6px">MARKET CONTEXT</div>
+            <div id="ctx-chips" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          </div>
+        </div>
+
+        <!-- Stage 2: Baseline vs Expert -->
+        <div class="pipeline-stage">
+          <div class="pipeline-stage__num">2</div>
+          <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <div class="label-xs" style="margin-bottom:5px">BASELINE FUZZY</div>
+              <div id="baseline-label" class="data-value--lg">—</div>
+              <div id="baseline-score" class="label-xs" style="text-transform:none;margin-top:3px">score: — · conf: —</div>
+            </div>
+            <div>
+              <div class="label-xs" style="margin-bottom:5px">EXPERT FUZZY (regime + masking)</div>
+              <div id="expert-label" class="data-value--lg" style="color:var(--gold-soft)">—</div>
+              <div id="expert-score" class="label-xs" style="text-transform:none;margin-top:3px">score: — · conf: —</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 3: LLM Suggestion (neutral panel — gold is reserved for the final decision, not every "important" box) -->
+        <div class="pipeline-stage">
+          <div class="pipeline-stage__num">3</div>
+          <div style="flex:1">
+            <div class="panel-header" style="margin-bottom:8px">
+              <span class="pipeline-stage__label">LLM PROPOSED ADJUSTMENT <span title="Proposal only — not yet applied" style="cursor:help;opacity:.5">ⓘ</span></span>
+              <span id="llm-mode-badge" class="badge badge--idle">—</span>
+            </div>
+            <div id="llm-action" class="body-sm" style="margin-bottom:10px">—</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <div class="inner-card" style="padding:8px 10px">
+                <div class="label-xs" style="margin-bottom:3px">SCORE DELTA</div>
+                <div id="llm-delta" class="data-value">—</div>
+              </div>
+              <div class="inner-card" style="padding:8px 10px">
+                <div class="label-xs" style="margin-bottom:3px">DIRECTION</div>
+                <div id="llm-direction" class="label-sm" style="text-transform:none">—</div>
+              </div>
+              <div class="inner-card" style="padding:8px 10px">
+                <div class="label-xs" style="margin-bottom:3px">LLM CONFIDENCE</div>
+                <div id="llm-conf" class="data-value">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 4: Human Expert Validation -->
+        <div id="validation-panel" class="pipeline-stage">
+          <div class="pipeline-stage__num">4</div>
+          <div style="flex:1">
+            <div class="panel-header" style="margin-bottom:8px">
+              <span class="pipeline-stage__label">HUMAN EXPERT VALIDATION GATE <span title="Zero LLM calls — rule check only" style="cursor:help;opacity:.5">ⓘ</span></span>
+              <span id="val-status-badge" class="badge badge--idle">—</span>
+            </div>
+            <div id="val-reason" class="body-sm" style="margin-bottom:10px">—</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div>
+                <div class="label-xs" style="color:var(--semantic-sell);margin-bottom:4px">VIOLATED RULES</div>
+                <div id="val-violated" class="label-sm" style="text-transform:none">—</div>
+              </div>
+              <div>
+                <div class="label-xs" style="color:var(--semantic-buy);margin-bottom:4px">SUPPORTING RULES</div>
+                <div id="val-supporting" class="label-sm" style="text-transform:none">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage 5: Final Decision — the one place gold dominates -->
+        <div id="final-panel" class="pipeline-stage pipeline-stage--active" style="padding:16px;margin-top:4px;margin-bottom:0">
+          <div class="pipeline-stage__num" style="color:var(--gold-soft)">5</div>
+          <div style="flex:1">
+            <div class="panel-header" style="margin-bottom:10px">
+              <span class="label-xs" style="color:var(--gold-soft)">FINAL AGENTIC FUZZY DECISION</span>
+              <span id="stability-badge" class="badge badge--idle">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <div class="label-xs" style="margin-bottom:4px">DECISION SIGNAL</div>
+                <div id="final-label" style="font:700 22px 'Hanken Grotesk';color:var(--gold-soft)">—</div>
+              </div>
+              <div style="text-align:right">
+                <div class="label-xs" style="margin-bottom:4px">SCORE / CONFIDENCE</div>
+                <div id="final-score-conf" class="data-value" style="font-size:14px">— / —</div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                <span class="label-xs">SYSTEM STABILITY</span>
+                <span id="stability-pct" class="label-xs" style="color:var(--gold-soft)">—</span>
+              </div>
+              <div class="progress-bar" style="height:5px">
+                <div id="stability-bar" class="progress-bar__fill" style="width:0%;background:var(--gold-soft)"></div>
+              </div>
+            </div>
+            <div id="reflection-note" class="label-xs" style="margin-top:10px;text-transform:none;line-height:1.6"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Failure Demo Panel (hidden until triggered) -->
+    <div id="failure-demo-panel" style="display:none" class="flex-col flex-col-gap-md">
+      <div class="glass-panel">
+        <div class="panel-header">
+          <span class="label-xs" style="color:var(--semantic-sell)">FAILURE REFLECTION DEMO</span>
+          <span id="fail-scenario-id" class="badge badge--error">—</span>
+        </div>
+        <div class="panel-title" style="font-size:13px;margin-bottom:6px" id="fail-title">—</div>
+        <div id="fail-description" class="body-sm" style="margin-bottom:12px">—</div>
+
+        <div class="evidence-box evidence-box--sell">
+          <div class="label-xs" style="color:var(--semantic-sell);margin-bottom:5px">LLM INCORRECT SUGGESTION</div>
+          <div id="fail-llm-action" class="body-sm"></div>
+        </div>
+
+        <div class="evidence-box evidence-box--sell">
+          <div class="label-xs" style="color:var(--semantic-sell);margin-bottom:5px">GATE DECISION: <span id="fail-gate-status">REJECTED</span></div>
+          <div id="fail-gate-reason" class="body-sm"></div>
+          <div id="fail-violated" class="label-xs" style="margin-top:6px;color:var(--semantic-sell);text-transform:none"></div>
+        </div>
+
+        <div class="evidence-box evidence-box--gold">
+          <div class="label-xs" style="color:var(--gold-soft);margin-bottom:5px">REFLECTION &amp; CORRECTIVE PRINCIPLE</div>
+          <div id="fail-root-cause" class="body-sm" style="margin-bottom:6px"></div>
+          <div id="fail-lesson" class="body-sm" style="color:var(--gold-soft);font-weight:600"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Experience Log + Compliance -->
+  <div class="flex-col flex-col-gap-md">
+
+    <!-- Experience Log -->
+    <div class="glass-panel" style="flex:1;min-height:200px">
+      <div class="panel-header">
+        <span class="label-xs">EXPERIENCE LOG</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span id="log-count-badge" class="badge badge--idle">0 ENTRIES</span>
+          <button class="btn-icon" style="font-size:10px" onclick="loadExperienceLog()" title="Refresh">↺</button>
+        </div>
+      </div>
+      <div id="experience-log-content" class="log-stream" style="max-height:340px;overflow-y:auto">
+        <div class="body-sm">No entries yet. Run an analysis to start logging.</div>
+      </div>
+    </div>
+
+    <!-- PA3 Compliance Map — compact by default, full file list on demand -->
+    {% set pa3_items = [
+      ('Agent Profile', True, 'agent_profile.py'),
+      ('LLM Reasoning Layer', True, 'llm_reasoning.py'),
+      ('Human Expert KB', True, 'human_expert_kb.py'),
+      ('Expert Validation Gate', True, 'expert_validation_gate.py'),
+      ('Experience Log', True, 'memory_log.py'),
+      ('Failure Reflection', True, 'failure_reflection.py'),
+      ('Agentic Pipeline', True, 'agentic_pipeline.py'),
+      ('Fuzzy Engine (existing)', True, 'fuzzy_engine.py'),
+      ('Backtesting (existing)', True, 'backtester.py'),
+    ] %}
+    {% set pa3_done = pa3_items | selectattr('1') | list | length %}
+    <div class="glass-panel glass-panel--inset" style="flex-shrink:0">
+      <div class="label-xs" style="display:flex;align-items:center;justify-content:space-between">
+        <span>PA3 REQUIREMENT COVERAGE</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="badge badge--synced" style="text-transform:none">{{ pa3_done }}/{{ pa3_items|length }} ✓</span>
+          <button class="btn-icon" style="width:auto;padding:4px 10px;font-size:10px" onclick="toggleSection('pa3-details', this)">Show ▾</button>
+        </div>
+      </div>
+      <div id="pa3-details" style="display:none;margin-top:10px">
+        {% for item, done, file in pa3_items %}
+        <div class="status-row">
+          <span class="label-xs" style="color:{% if done %}var(--semantic-buy){% else %}var(--text-faint){% endif %}">{% if done %}✓{% else %}○{% endif %}</span>
+          <span class="label-xs" style="text-transform:none;color:{% if done %}var(--text-muted){% else %}var(--text-faint){% endif %};flex:1;margin-left:8px">{{ item }}</span>
+          <span class="label-xs" style="text-transform:none;color:var(--text-faint)">{{ file }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Risk Disclaimer -->
+    <div class="muted-box">
+      <div class="label-xs" style="text-transform:none;line-height:1.6">
+        ⚠ ACADEMIC DSS ONLY. Outputs are simulated decision-support signals.
+        NOT financial advice. Not for actual trading.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Collapsible section toggle (KB / PA3 detail blocks default-hidden
+// so a demo audience sees the live pipeline, not a wall of reference text) ──
+function toggleSection(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const hidden = el.style.display === 'none';
+  el.style.display = hidden ? 'block' : 'none';
+  if (btn) {
+    if (hidden) {
+      btn.dataset.showLabel = btn.textContent;
+      btn.textContent = 'Hide ▴';
+    } else {
+      btn.textContent = btn.dataset.showLabel || 'Show ▾';
+    }
+  }
+}
+
+// Status colour helpers
+// Gold is reserved for the FINAL decision label only. Baseline/Expert
+// intermediate labels stay neutral so the eye is drawn to the end result.
+const LABEL_COLORS = {
+  'Strong Buy':  'var(--semantic-buy)',
+  'Buy':         'var(--semantic-buy)',
+  'Hold':        'var(--white-soft)',
+  'Sell':        'var(--semantic-sell)',
+  'Strong Sell': 'var(--semantic-sell)',
+};
+const STATUS_BADGE = {
+  'APPROVED':     'badge--synced',
+  'REJECTED':     'badge--error',
+  'MODIFIED':     'badge--processing',
+  'NEEDS_REVIEW': 'badge--processing',
+};
+const STATUS_COLOR = {
+  'APPROVED':     'var(--semantic-buy)',
+  'REJECTED':     'var(--semantic-sell)',
+  'MODIFIED':     'var(--semantic-warning)',
+  'NEEDS_REVIEW': 'var(--semantic-warning)',
+};
+
+function labelColor(label) {
+  return LABEL_COLORS[label] || 'var(--white-soft)';
+}
+
+// Show a short line by default, full text on hover — keeps the live result
+// scannable in a timed demo without losing the detail for anyone who wants it.
+function setTruncated(id, text, maxLen) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const full = text || '—';
+  el.textContent = full.length > maxLen ? full.slice(0, maxLen) + '…' : full;
+  el.title = full;
+}
+
+// Chip builder
+function chip(label, value, color) {
+  return `<div class="inner-card" style="padding:6px 10px;display:inline-flex;flex-direction:column;align-items:center;gap:1px">
+    <span class="label-xs">${label}</span>
+    <span class="data-value" style="color:${color}">${value}</span>
+  </div>`;
+}
+
+// Run Agentic Analysis
+async function runAgenticAnalysis() {
+  const btn = document.getElementById('btn-run-agentic');
+  btn.textContent = '⟳ Analysing…';
+  btn.disabled = true;
+  document.getElementById('failure-demo-panel').style.display = 'none';
+
+  try {
+    const ticker = localStorage.getItem('astdss:lastTicker');
+    const url = ticker
+      ? `/api/agentic/analyze?symbol=${encodeURIComponent(ticker)}&demo=false`
+      : '/api/agentic/analyze';
+    const resp = await fetch(url);
+    const d    = await resp.json();
+    if (d.error) { alert(d.error); return; }
+    renderAgenticResult(d);
+    document.getElementById('agentic-results').style.display = 'flex';
+    loadExperienceLog();
+  } catch(e) {
+    alert('Agentic analysis failed: ' + e.message);
+  } finally {
+    btn.innerHTML = '<svg style="width:13px;height:13px;fill:currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Run Agentic Analysis';
+    btn.disabled = false;
+  }
+}
+
+function renderAgenticResult(d) {
+  const ctx  = d.market_context || {};
+  const bl   = d.baseline_result || {};
+  const ex   = d.expert_result   || {};
+  const llm  = d.llm_suggestion  || {};
+  const val  = d.validation_result || {};
+  const fin  = d.final_decision  || {};
+  const sft  = val.applied_shift || {};
+
+  // Mode badge
+  document.getElementById('agentic-mode-badge').textContent = d.demo_mode ? 'DEMO MODE' : 'LIVE MODE';
+
+  // Context chips
+  const rsiColor = ctx.rsi < 35 ? 'var(--semantic-buy)' : ctx.rsi > 65 ? 'var(--semantic-sell)' : 'var(--white-soft)';
+  document.getElementById('ctx-chips').innerHTML =
+    chip('SYMBOL', ctx.symbol||'DEMO', 'var(--gold-soft)') +
+    chip('RSI', (ctx.rsi||0).toFixed(1), rsiColor) +
+    chip('MACD HIST', (ctx.macd_hist||0).toFixed(3), ctx.macd_hist > 0 ? 'var(--semantic-buy)' : 'var(--semantic-sell)') +
+    chip('ATR', (ctx.atr||0).toFixed(2), ctx.atr > 6 ? 'var(--semantic-sell)' : 'var(--white-soft)') +
+    chip('SENTIMENT', (ctx.sentiment||0).toFixed(2), ctx.sentiment > 0 ? 'var(--semantic-buy)' : ctx.sentiment < 0 ? 'var(--semantic-sell)' : 'var(--white-soft)') +
+    chip('REGIME', (ctx.market_regime||'—').replace(/_/g,' '), 'var(--gold-soft)');
+
+  // Baseline
+  document.getElementById('baseline-label').textContent = bl.label || '—';
+  document.getElementById('baseline-label').style.color = labelColor(bl.label);
+  document.getElementById('baseline-score').textContent =
+    `score: ${(bl.score||0).toFixed(3)}  ·  conf: ${((bl.confidence||0)*100).toFixed(0)}%`;
+
+  // Expert
+  document.getElementById('expert-label').textContent = ex.label || '—';
+  document.getElementById('expert-score').textContent =
+    `score: ${(ex.score||0).toFixed(3)}  ·  conf: ${((ex.confidence||0)*100).toFixed(0)}%`;
+
+  // LLM suggestion
+  const llmShift = llm.fuzzy_shift || {};
+  document.getElementById('llm-mode-badge').textContent = (llm.mode||'demo').toUpperCase();
+  setTruncated('llm-action', llm.proposed_action, 70);
+  const sd = llmShift.score_delta || 0;
+  document.getElementById('llm-delta').textContent = (sd >= 0 ? '+' : '') + sd.toFixed(3);
+  document.getElementById('llm-delta').style.color = sd > 0 ? 'var(--semantic-buy)' : sd < 0 ? 'var(--semantic-sell)' : 'var(--white-soft)';
+  document.getElementById('llm-direction').textContent = (llmShift.direction||'—').replace(/_/g,' ');
+  document.getElementById('llm-conf').textContent = ((llm.confidence||0)*100).toFixed(0) + '%';
+
+  // Validation
+  const vStatus = val.status || '—';
+  const statusBadgeEl = document.getElementById('val-status-badge');
+  statusBadgeEl.textContent = vStatus;
+  statusBadgeEl.className = 'badge ' + (STATUS_BADGE[vStatus] || 'badge--idle');
+  document.getElementById('validation-panel').className = 'pipeline-stage' +
+    (vStatus === 'APPROVED' ? ' pipeline-stage--approved' :
+     vStatus === 'REJECTED' ? ' pipeline-stage--rejected' :
+     (vStatus === 'MODIFIED' || vStatus === 'NEEDS_REVIEW') ? ' pipeline-stage--modified' : '');
+  setTruncated('val-reason', val.reason, 70);
+  document.getElementById('val-violated').textContent =
+    (val.violated_rules||[]).length ? val.violated_rules.join(', ') : 'None';
+  document.getElementById('val-supporting').textContent =
+    (val.supporting_rules||[]).length ? val.supporting_rules.join(', ') : 'None';
+
+  // Final decision
+  document.getElementById('final-label').textContent = fin.label || '—';
+  document.getElementById('final-score-conf').textContent =
+    `${(fin.score||0).toFixed(3)}  /  ${((fin.confidence||0)*100).toFixed(0)}%`;
+
+  // Stability
+  const stab = d.stability_score || 0;
+  const stabPct = Math.round(stab * 100);
+  document.getElementById('stability-pct').textContent = stabPct + '%';
+  document.getElementById('stability-bar').style.width = stabPct + '%';
+  document.getElementById('stability-bar').style.background =
+    stabPct >= 70 ? 'var(--semantic-buy)' : stabPct >= 45 ? 'var(--gold-soft)' : 'var(--semantic-sell)';
+  document.getElementById('stability-badge').textContent =
+    `STABILITY ${stabPct}%`;
+  document.getElementById('stability-badge').className =
+    'badge ' + (stabPct >= 70 ? 'badge--synced' : stabPct >= 45 ? 'badge--processing' : 'badge--idle');
+
+  document.getElementById('reflection-note').textContent = d.reflection_note || '';
+}
+
+// Load Experience Log
+async function loadExperienceLog() {
+  try {
+    const resp = await fetch('/api/agentic/experience-log');
+    const entries = await resp.json();
+    if (!Array.isArray(entries)) return;
+    renderExperienceLog(entries);
+  } catch(e) { /* silent */ }
+}
+
+function renderExperienceLog(entries) {
+  const el = document.getElementById('experience-log-content');
+  document.getElementById('log-count-badge').textContent = entries.length + ' ENTRIES';
+  if (!entries.length) {
+    el.innerHTML = '<div class="body-sm">No entries yet.</div>';
+    return;
+  }
+  const sc = { APPROVED: 'var(--semantic-buy)', REJECTED: 'var(--semantic-sell)', MODIFIED: 'var(--semantic-warning)', NEEDS_REVIEW: 'var(--semantic-warning)' };
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  // Two lines per entry, not three — the reflection sentence moves to a hover
+  // tooltip so a 10-entry log doesn't read like a wall of text mid-demo.
+  el.innerHTML = entries.map(e => {
+    const val  = e.expert_validation_result || {};
+    const fin  = e.final_decision || {};
+    const ctx  = e.market_context || {};
+    const s    = val.status || '?';
+    const ts   = (e.timestamp || '').replace('T',' ').slice(0,19);
+    return `<div class="inner-card" style="padding:8px 10px;margin-bottom:6px;border-left:2px solid ${sc[s]||'var(--text-faint)'}" title="${esc(e.reflection_note || '')}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span class="label-xs" style="text-transform:none">${ts}</span>
+        <span class="label-xs" style="color:${sc[s]||'var(--text-subtle)'};font-weight:700">${s}</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="label-xs" style="color:var(--gold-soft);text-transform:none">${ctx.symbol||'DEMO'}</span>
+        <span class="label-xs" style="text-transform:none">${(ctx.market_regime||'').replace(/_/g,' ')}</span>
+        <span class="label-sm" style="color:${labelColor(fin.label)};font-weight:700;margin-left:auto;text-transform:none">${fin.label||'—'}</span>
+        <span class="label-xs" style="text-transform:none">stab:${Math.round((e.stability_score||0)*100)}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Load Failure Demo
+async function loadFailureDemo() {
+  try {
+    const resp = await fetch('/api/agentic/failure-demo');
+    const d    = await resp.json();
+    if (d.error) { alert(d.error); return; }
+    renderFailureDemo(d);
+    document.getElementById('failure-demo-panel').style.display = 'flex';
+    document.getElementById('failure-demo-panel').style.flexDirection = 'column';
+    document.getElementById('failure-demo-panel').style.gap = '14px';
+    document.getElementById('agentic-results').style.display = 'none';
+  } catch(e) {
+    alert('Failed to load failure demo: ' + e.message);
+  }
+}
+
+function renderFailureDemo(d) {
+  document.getElementById('fail-scenario-id').textContent = d.scenario_id || '—';
+  document.getElementById('fail-title').textContent = d.title || '—';
+  document.getElementById('fail-description').textContent = d.description || '—';
+
+  const llm = d.llm_suggestion || {};
+  document.getElementById('fail-llm-action').textContent = llm.proposed_action || '—';
+
+  const val = d.validation_result || {};
+  document.getElementById('fail-gate-status').textContent = val.status || 'REJECTED';
+  document.getElementById('fail-gate-reason').textContent = val.reason || '—';
+  document.getElementById('fail-violated').textContent =
+    'Violated: ' + (val.violated_rules||[]).join(', ');
+
+  const ref = d.reflection || {};
+  document.getElementById('fail-root-cause').textContent =
+    (ref.root_cause || '') + ' ' + (ref.corrective_principle || '');
+  document.getElementById('fail-lesson').textContent = '💡 ' + (ref.lesson || '');
+}
+
+// Init
+function updateSourceHint() {
+  const ticker = localStorage.getItem('astdss:lastTicker');
+  const el = document.getElementById('agentic-source-hint');
+  el.textContent = ticker
+    ? `Using ${ticker} (analyzed on Dashboard) — live data`
+    : 'No ticker analyzed on Dashboard yet — will run on simulated DEMO data';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadExperienceLog();
+  updateSourceHint();
+});
+</script>
+{% endblock %}

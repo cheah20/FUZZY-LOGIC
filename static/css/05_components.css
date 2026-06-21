@@ -1,0 +1,1059 @@
+/* ============================================================
+   05_components.css — Reusable UI Components (§7)
+   ASTDSS Terminal — Cards, Buttons, Badges, Tables, Inputs
+   ============================================================ */
+
+/* ── GLASS PANEL (Core Card) ────────────────────────────── */
+.glass-panel {
+  background: rgba(28, 24, 20, 0.52);
+  backdrop-filter: var(--blur-medium);
+  -webkit-backdrop-filter: var(--blur-medium);
+  border: 1px solid rgba(255, 220, 180, 0.12);
+  border-top: 1px solid rgba(255, 228, 200, 0.20);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 18px rgba(248, 187, 111, 0.04);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+  transform: translateZ(0);
+}
+
+.glass-panel:hover {
+  background: rgba(34, 29, 23, 0.58);
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0 24px rgba(248, 187, 111, 0.06);
+}
+
+/* Panel variant: no padding (for feed lists) */
+.glass-panel--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Panel variant: elevated stat highlight — sits one level above
+   .glass-panel in the blur hierarchy (Level 1, same as shell) */
+.glass-panel-high {
+  background: rgba(28, 24, 20, 0.56);
+  backdrop-filter: var(--blur-premium);
+  -webkit-backdrop-filter: var(--blur-premium);
+  border: 1px solid rgba(255, 220, 180, 0.14);
+  border-top: 1px solid rgba(255, 228, 200, 0.24);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 16px rgba(248, 187, 111, 0.05);
+  transform: translateZ(0);
+}
+
+/* Panel variant: danger-tinted — reserve for genuinely critical states only */
+.glass-panel--danger {
+  background: rgba(45, 22, 20, 0.56);
+  border-color: rgba(239, 68, 68, 0.20);
+}
+
+/* Panel variant: gold-tinted (agent synthesis) — muted; gold is for the
+   single most important panel on a page, not a recurring category colour */
+.glass-panel--gold {
+  background: rgba(40, 32, 18, 0.54);
+  border-color: rgba(248, 187, 111, 0.16);
+  cursor: pointer;
+  transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+.glass-panel--gold:hover {
+  background: rgba(46, 36, 19, 0.62);
+  border-color: rgba(248, 187, 111, 0.26);
+  box-shadow: 0 0 20px rgba(248, 187, 111, 0.06);
+}
+
+/* Panel variant: dark inset */
+.glass-panel--inset {
+  background: rgba(10, 8, 6, 0.62);
+  border-color: rgba(255, 220, 180, 0.07);
+}
+
+/* ── INNER CARD / DATA ROW / CHIP ────────────────────────────
+   Level 3 of the glass hierarchy: flat, no blur. Used inside a
+   glass-panel for chips, rows, small stat blocks — stacking another
+   full blur layer inside an already-blurred panel is what produces
+   "everything looks equally important" visual fatigue. */
+.inner-card,
+.data-row,
+.chip {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+}
+
+/* ── METRIC CARD ────────────────────────────────────────── */
+.metric-card {
+  background: rgba(28, 24, 20, 0.50);
+  backdrop-filter: var(--blur-medium);
+  -webkit-backdrop-filter: var(--blur-medium);
+  border: 1px solid rgba(255, 220, 180, 0.13);
+  border-top: 1px solid rgba(255, 228, 200, 0.20);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--white-soft);
+  letter-spacing: -0.02em;
+}
+
+.metric-value--gold {
+  color: var(--gold-soft);
+}
+
+.metric-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+}
+
+.metric-sub--green {
+  color: var(--synced-green);
+}
+
+/* ── BUTTONS ────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--gold-soft);
+  color: #472a00;
+  border: none;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.btn-primary:hover {
+  background: var(--gold-bright);
+  box-shadow: 0 0 28px rgba(248, 187, 111, 0.22);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background: rgba(255, 228, 201, 0.1);
+  border-color: rgba(255, 228, 201, 0.18);
+  color: var(--white-soft);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 20px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-danger:hover {
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.22);
+}
+
+.btn-execute {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: var(--gold-soft);
+  color: #472a00;
+  border: none;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.btn-execute:hover {
+  background: var(--gold-bright);
+  box-shadow: 0 0 36px rgba(248, 187, 111, 0.28);
+  transform: translateY(-2px);
+}
+.btn-execute:active {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-icon:hover {
+  background: rgba(255, 228, 201, 0.1);
+  border-color: rgba(255, 228, 201, 0.2);
+  color: var(--white-soft);
+}
+
+.btn-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 228, 201, 0.25);
+  background: rgba(248, 187, 111, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* ── BADGES ─────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.badge--synced {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: var(--synced-green);
+}
+
+.badge--processing {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: var(--optimal-processing);
+}
+
+.badge--idle {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.badge--error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: var(--strong-sell);
+}
+
+/* ── TAG BADGES (News sentiment) ────────────────────────── */
+.tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+}
+
+.tag--bearish {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.tag--bullish {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: var(--synced-green);
+}
+
+.tag--volatile {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: var(--optimal-processing);
+}
+
+.tag--neutral {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ── AGENT CARD ─────────────────────────────────────────── */
+.agent-card {
+  background: rgba(255, 220, 180, 0.04);
+  border: 1px solid rgba(255, 220, 180, 0.09);
+  border-top: 1px solid rgba(255, 228, 200, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  transition: background 0.2s ease;
+}
+.agent-card:hover {
+  background: rgba(255, 220, 180, 0.07);
+}
+
+.agent-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.agent-card__name {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--white-soft);
+  margin-bottom: 3px;
+}
+
+.agent-card__source {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── RULE CARD ──────────────────────────────────────────── */
+.rule-card {
+  border-radius: var(--radius-lg);
+  padding: 14px;
+}
+
+.rule-card--firing {
+  background: rgba(248, 187, 111, 0.06);
+  border: 1px solid rgba(248, 187, 111, 0.22);
+  box-shadow: 0 0 16px rgba(248, 187, 111, 0.06);
+}
+
+.rule-card--idle {
+  background: rgba(255, 220, 180, 0.025);
+  border: 1px solid rgba(255, 220, 180, 0.07);
+}
+
+.rule-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 9px;
+}
+
+.rule-card__id {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.rule-card__body {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.rule-card--firing .rule-card__body {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.rule-card--firing .rule-card__id {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── DATA TABLE ─────────────────────────────────────────── */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+}
+
+.data-table th {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--white-soft);
+  font-size: 12px;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── INPUTS ─────────────────────────────────────────────── */
+.glass-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--white-soft);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.glass-input:focus {
+  background: rgba(0, 0, 0, 0.38);
+  border-color: rgba(255, 228, 201, 0.2);
+  box-shadow: 0 0 16px rgba(248, 187, 111, 0.08);
+}
+
+input[type="range"] {
+  accent-color: var(--gold-soft);
+  cursor: pointer;
+  height: 4px;
+}
+
+select.glass-input {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/* ── PROGRESS BAR ───────────────────────────────────────── */
+.progress-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.6s ease;
+}
+
+/* ── SECTION HEADER ─────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.section-header__icon {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 13px;
+}
+
+.section-header__title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── TOGGLE SWITCH ──────────────────────────────────────── */
+.toggle-switch {
+  width: 38px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-switch--active {
+  background: var(--gold-soft);
+}
+
+.toggle-switch__thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: left 0.3s ease, background 0.3s ease;
+}
+
+.toggle-switch--active .toggle-switch__thumb {
+  left: 21px;
+  background: #472a00;
+}
+
+/* ── NEWS FEED ITEM ─────────────────────────────────────── */
+.feed-item {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+.feed-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.feed-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.feed-item__time {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+.feed-item__content {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.feed-item__tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── LOG STREAM ─────────────────────────────────────────── */
+.log-stream {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.8;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.log-stream__time {
+  color: var(--secondary);
+}
+
+.log-stream__action {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.log-stream__alert {
+  color: var(--strong-sell);
+}
+
+/* ── SENTIMENT GAUGE ────────────────────────────────────── */
+.sentiment-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sentiment-gauge__value {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--white-soft);
+  margin-top: 8px;
+}
+
+.sentiment-gauge__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--synced-green);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* ── SIGNAL BAR ─────────────────────────────────────────── */
+.signal-bar {
+  display: grid;
+  grid-template-columns: 220px 1fr 240px;
+  gap: 24px;
+  align-items: center;
+}
+
+.signal-bar__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.signal-bar__value {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--strong-sell);
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  margin-top: 4px;
+}
+
+.signal-bar__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── CONFIG FIELD ───────────────────────────────────────── */
+.config-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.config-field__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.config-field__value {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--white-soft);
+}
+
+/* ── ASSET CLASS OPTION ─────────────────────────────────── */
+.asset-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.asset-option--active {
+  background: rgba(248, 187, 111, 0.08);
+  border-color: rgba(248, 187, 111, 0.2);
+}
+
+.asset-option__name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.asset-option--active .asset-option__name {
+  color: var(--gold-soft);
+}
+
+/* ── RADIO DOT ──────────────────────────────────────────── */
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.radio-dot--checked {
+  border-color: var(--gold-soft);
+  background: var(--gold-soft);
+}
+
+/* ── TAB BAR ────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tab-bar__item {
+  padding: 9px 18px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.4);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+}
+
+.tab-bar__item--active {
+  background: rgba(255, 228, 201, 0.12);
+  color: var(--gold-soft);
+}
+
+.tab-bar__item:last-child {
+  border-right: none;
+}
+
+/* ── SOURCE TABS ────────────────────────────────────────── */
+.source-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* ── LABEL MONO (typography utility — used in settings & headers) */
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── GPU ACCELERATION — glassmorphism compositor promotion ── */
+.glass-panel,
+.glass-panel-high,
+.glass-panel--flush,
+.glass-panel--danger,
+.glass-panel--gold,
+.glass-panel--inset {
+  transform: translateZ(0);
+}
+
+/* ── LEGACY / UNUSED — not referenced by any current template ──
+   (.wallet-panel, .floating-wallet-panel, .premium-wallet-card)
+   Kept rather than deleted in case of future re-use; confirmed via
+   full-project search to have zero references as of this pass. */
+/* ── PREMIUM WALLET / FLOATING STAT PANEL ───────────────── */
+.wallet-panel {
+  background: rgba(38, 32, 24, 0.42);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 220, 180, 0.14);
+  border-top: 1px solid rgba(255, 228, 200, 0.22);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 32px rgba(248, 187, 111, 0.07);
+  transform: translateZ(0);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.floating-wallet-panel {
+  background: rgba(42, 34, 24, 0.44);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 220, 180, 0.16);
+  border-top: 1px solid rgba(255, 228, 200, 0.26);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow:
+    0 20px 52px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 44px rgba(248, 187, 111, 0.09);
+  transform: translateZ(0);
+  transition: box-shadow 0.3s ease;
+}
+
+.floating-wallet-panel:hover {
+  box-shadow:
+    0 28px 68px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 60px rgba(248, 187, 111, 0.14);
+}
+
+.premium-wallet-card {
+  background: rgba(40, 32, 20, 0.48);
+  backdrop-filter: blur(28px) saturate(165%);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  border: 1px solid rgba(255, 220, 180, 0.18);
+  border-top: 1px solid rgba(255, 228, 200, 0.30);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0 0 1px rgba(255, 220, 180, 0.05),
+    0 0 64px rgba(248, 187, 111, 0.10);
+  transform: translateZ(0);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.premium-wallet-card:hover {
+  border-color: rgba(255, 228, 200, 0.26);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 0 80px rgba(248, 187, 111, 0.16);
+}
+
+/* ── PAGE TITLE ─────────────────────────────────────────── */
+.page-title {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--white-soft);
+  margin-bottom: 2px;
+}
+
+.page-subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── PANEL / TYPOGRAPHY UTILITIES ─────────────────────────
+   Reusable replacements for the inline font-size:8px/9px +
+   rgba(255,255,255,.NN) patterns repeated throughout templates. */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.panel-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--white-soft);
+}
+
+.panel-subtitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.label-xs {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.label-sm {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.body-sm {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.body-md {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+.section-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── DATA LABEL / VALUE (replaces ad-hoc inline stat blocks) ── */
+.data-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.data-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--white-soft);
+}
+
+.data-value--lg {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.status-row:last-child {
+  border-bottom: none;
+}
+
+/* ── EVIDENCE / MUTED BOX (replaces inline tinted background boxes) ──
+   Neutral by default — only colour the left border when the content
+   is a genuine semantic result (approved/rejected/warning), never to
+   mark "which panel category" this is. */
+.evidence-box {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--text-faint);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-bottom: 10px;
+}
+.evidence-box--gold   { border-left-color: var(--gold-soft); }
+.evidence-box--buy    { border-left-color: var(--semantic-buy); }
+.evidence-box--sell   { border-left-color: var(--semantic-sell); }
+.evidence-box--warning{ border-left-color: var(--semantic-warning); }
+
+.muted-box {
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-md);
+}
+
+/* ── PIPELINE STAGE (Agentic Layer / Walkthrough top-to-bottom flow) ──
+   One consistent row type for "Market Context → Baseline → Expert →
+   LLM Proposal → Validation → Final Decision" instead of separate
+   strongly-tinted cards per stage. */
+.pipeline-stage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid var(--text-faint);
+  margin-bottom: 8px;
+}
+.pipeline-stage--active    { border-left-color: var(--gold-soft); background: rgba(248, 187, 111, 0.05); }
+.pipeline-stage--approved  { border-left-color: var(--semantic-buy); }
+.pipeline-stage--rejected  { border-left-color: var(--semantic-sell); }
+.pipeline-stage--modified,
+.pipeline-stage--review    { border-left-color: var(--semantic-warning); }
+
+.pipeline-stage__num {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  width: 20px;
+  flex-shrink: 0;
+}
+.pipeline-stage__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  flex: 1;
+}
+.pipeline-stage__value {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--white-soft);
+}

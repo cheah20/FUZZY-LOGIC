@@ -1,25 +1,36 @@
+# API keys — never commit these
+.env
+
+# Runtime cache, regenerated automatically, no need to commit
+# (data/experience_log.json is NOT listed here on purpose — it holds
+# persistent agentic-run demo records used for PA3 presentation/demo
+# purposes, and is meant to stay available locally across sessions.)
+data/news_cache.json
+
 # Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python
 
-# Environment & secrets
-.env
-
-# Generated output files
-backtest_*.png
-*.png
-
-# Virtual environment (the venv folder is outside this directory anyway)
-venv/
-.venv/
-env/
-
-# IDE settings
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Virtual env (if accidentally placed inside the project)
+venv/
+env/
+.venv/
+
+# Distribution
+*.egg-info/
+dist/
+build/

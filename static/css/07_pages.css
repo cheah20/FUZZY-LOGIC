@@ -1,0 +1,226 @@
+/* ============================================================
+   07_pages.css — Page-Specific Layout Adjustments
+   Minimal overrides — most layout lives in 04_layouts.css
+   ============================================================ */
+
+/* ── DASHBOARD ──────────────────────────────────────────── */
+.dashboard-chart-area {
+  width: 100%;
+  height: 290px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-signal-value {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--strong-sell);
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  letter-spacing: -0.01em;
+}
+
+/* ── MARKET INTELLIGENCE ────────────────────────────────── */
+.mi-feed-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.mi-feed-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ── DECISION LOGIC ─────────────────────────────────────── */
+.dl-membership-chart {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+}
+
+.dl-signal-agg {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dl-signal-name {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--strong-sell);
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.dl-signal-conf {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold-soft);
+}
+
+.dl-conf-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+/* ── BACKTESTING ────────────────────────────────────────── */
+.bt-chart-container {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+}
+
+/* ── SETTINGS ───────────────────────────────────────────── */
+.settings-agent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.settings-api-row {
+  margin-bottom: 12px;
+}
+
+.settings-api-header {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.settings-api-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.settings-appearance-grid {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.settings-theme-btn {
+  flex: 1;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: var(--blur-medium);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.settings-theme-btn--active {
+  border-color: var(--gold-soft);
+  color: var(--gold-soft);
+}
+
+.settings-density-row {
+  display: flex;
+  gap: 4px;
+}
+
+.settings-density-btn {
+  flex: 1;
+  padding: 7px 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.settings-density-btn--active {
+  background: rgba(248, 187, 111, 0.1);
+  border-color: rgba(248, 187, 111, 0.2);
+  color: var(--gold-soft);
+  font-weight: 600;
+}
+
+/* ── SETTINGS LEFT NAV ──────────────────────────────────── */
+.settings-left-nav {
+  height: fit-content;
+  padding: 16px;
+}
+
+.settings-nav-item {
+  display: block;
+  padding: 9px 10px;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.settings-nav-item:hover {
+  color: var(--white-soft);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settings-nav-item--active {
+  color: var(--white-soft);
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 500;
+}
+
+/* ── BACKTESTING BREADCRUMB ─────────────────────────────── */
+.bt-breadcrumb {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.bt-breadcrumb a {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.bt-breadcrumb a:hover,
+.bt-breadcrumb a.bt-breadcrumb--active {
+  color: var(--white-soft);
+  font-weight: 600;
+}
+
+.bt-breadcrumb a.bt-breadcrumb--active {
+  border-bottom: 1.5px solid var(--gold-soft);
+  padding-bottom: 2px;
+}
+
+/* ── DANGER INSET QUOTE ─────────────────────────────────── */
+.settings-quote {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 2px solid rgba(255, 228, 201, 0.2);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  line-height: 1.7;
+}

@@ -1,0 +1,211 @@
+/* ============================================================
+   08_responsive.css — Responsive Breakpoints (§8)
+   ASTDSS Terminal — Adaptive scaling system
+   ============================================================ */
+
+/* ── DESKTOP XL (>= 1920px) ─────────────────────────────── */
+@media (min-width: 1920px) {
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .page-layout {
+    padding: 32px 40px;
+  }
+
+  .topbar {
+    padding: 0 40px;
+  }
+}
+
+/* ── DESKTOP (1440px - 1919px) ──────────────────────────── */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  /* Default values already set */
+}
+
+/* ── LAPTOP (1200px - 1439px) ───────────────────────────── */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .stat-row {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .chart-with-sidebar {
+    grid-template-columns: 1fr 260px;
+    gap: 12px;
+  }
+
+  .feed-with-panel {
+    grid-template-columns: 1fr 280px;
+    gap: 16px;
+  }
+
+  .signal-bar {
+    grid-template-columns: 200px 1fr 220px;
+    gap: 16px;
+  }
+}
+
+/* ── TABLET (768px - 1199px) ────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .sidebar {
+    width: 72px;
+    min-width: 72px;
+  }
+
+  .sidebar-title,
+  .sidebar-subtitle,
+  .nav-item span:not(.sr-only),
+  .sidebar-footer .btn-execute span {
+    display: none;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .chart-with-sidebar,
+  .feed-with-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .decision-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-main {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agentic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .triple-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .bottom-row {
+    grid-template-columns: 1fr;
+  }
+
+  .split-1-280 {
+    grid-template-columns: 1fr;
+  }
+
+  .page-layout {
+    padding: 20px 24px;
+  }
+}
+
+/* ── MOBILE (< 768px) ───────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Sidebar becomes a slide-in overlay (toggled via #mobile-nav-toggle)
+     instead of disappearing entirely — mobile users still need navigation. */
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 260px;
+    min-width: 260px;
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 100;
+  }
+
+  .sidebar.sidebar--open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop.sidebar-backdrop--open {
+    display: block;
+  }
+
+  .mobile-nav-toggle {
+    display: flex;
+  }
+
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: 0 16px;
+    height: 52px;
+    min-height: 52px;
+  }
+
+  .topbar-left {
+    gap: 12px;
+  }
+
+  .topbar-logo {
+    font-size: 14px;
+  }
+
+  .topbar-status {
+    display: none;
+  }
+
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .chart-with-sidebar,
+  .feed-with-panel,
+  .decision-grid,
+  .config-main,
+  .settings-grid,
+  .agentic-grid,
+  .signal-bar,
+  .triple-bottom,
+  .bottom-row,
+  .split-1-280,
+  .split-two {
+    grid-template-columns: 1fr;
+  }
+
+  .page-layout {
+    padding: 16px;
+  }
+
+  .data-table {
+    font-size: 10px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 6px 8px;
+  }
+
+  .metric-value {
+    font-size: 20px;
+  }
+
+  .source-tabs {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── ZOOM TOLERANCE (125% browser zoom) ─────────────────── */
+@media (-webkit-device-pixel-ratio: 1.25) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
