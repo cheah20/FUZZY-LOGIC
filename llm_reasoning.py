@@ -23,6 +23,12 @@ Output contract (both modes):
       "confidence":          float,  # LLM's self-assessed confidence (0..1)
       "scenario_tag":        str,    # Internal scenario identifier for logging
       "mode":                str,    # "demo" | "real"
+      "prompt_log": {
+          "system_prompt": str | None,  # Exact system prompt sent (None in demo mode)
+          "user_prompt":   str | None,  # Exact user prompt sent (None in demo mode)
+          "raw_response":  str | None,  # Raw text returned by the LLM before JSON parsing
+          "note":          str | None,  # Explanation when no live call was made
+      },
   }
 """
 
@@ -171,6 +177,12 @@ def _build_demo_output(market_context: dict) -> dict:
         "confidence": scenario["confidence"],
         "scenario_tag": tag,
         "mode": "demo",
+        "prompt_log": {
+            "system_prompt": None,
+            "user_prompt": None,
+            "raw_response": None,
+            "note": "Demo mode — deterministic scenario lookup, no live LLM call made.",
+        },
     }
 
 
@@ -242,6 +254,12 @@ def _build_real_output(market_context: dict, fuzzy_output: dict) -> dict:
         )
 
         raw = response.choices[0].message.content.strip()
+        prompt_log = {
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+            "raw_response": raw,
+            "note": None,
+        }
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             data = json.loads(match.group())
@@ -253,6 +271,7 @@ def _build_real_output(market_context: dict, fuzzy_output: dict) -> dict:
             shift["confidence_delta"] = max(-0.3, min(0.3, float(shift.get("confidence_delta", 0))))
             data["fuzzy_shift"]  = shift
             data["confidence"]   = max(0.0, min(1.0, float(data.get("confidence", 0.6))))
+            data["prompt_log"]   = prompt_log
             return data
 
     except Exception as exc:
@@ -260,7 +279,12 @@ def _build_real_output(market_context: dict, fuzzy_output: dict) -> dict:
         # failed real-API call isn't mistaken for a successful one.
         print(f"[llm_reasoning] DeepSeek API call failed, falling back to demo mode: {exc}")
 
-    return _build_demo_output(market_context)
+    fallback = _build_demo_output(market_context)
+    fallback["prompt_log"]["note"] = (
+        "Real-mode DeepSeek API call failed or returned unparseable output; "
+        "fell back to demo scenario. See server logs for the underlying error."
+    )
+    return fallback
 
 
 def generate_llm_suggestion(

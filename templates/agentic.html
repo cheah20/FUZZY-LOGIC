@@ -138,10 +138,10 @@
           </div>
         </div>
 
-        <!-- Stage 2: Baseline vs Expert -->
+        <!-- Stage 2: Baseline vs Expert vs ANFIS -->
         <div class="pipeline-stage">
           <div class="pipeline-stage__num">2</div>
-          <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
             <div>
               <div class="label-xs" style="margin-bottom:5px">BASELINE FUZZY</div>
               <div id="baseline-label" class="data-value--lg">—</div>
@@ -151,6 +151,12 @@
               <div class="label-xs" style="margin-bottom:5px">EXPERT FUZZY (regime + masking)</div>
               <div id="expert-label" class="data-value--lg" style="color:var(--gold-soft)">—</div>
               <div id="expert-score" class="label-xs" style="text-transform:none;margin-top:3px">score: — · conf: —</div>
+            </div>
+            <div>
+              <div class="label-xs" style="margin-bottom:5px">ANFIS <span title="Adaptive Neuro-Fuzzy Inference System — Jang 1993 hybrid-trained, independent proposer (anfis.py)" style="cursor:help;opacity:.5">ⓘ</span></div>
+              <div id="anfis-label" class="data-value--lg">—</div>
+              <div id="anfis-score" class="label-xs" style="text-transform:none;margin-top:3px">score: — · conf: —</div>
+              <div id="anfis-rule" class="label-xs" style="text-transform:none;margin-top:2px;color:var(--text-faint)"></div>
             </div>
           </div>
         </div>
@@ -177,6 +183,15 @@
                 <div class="label-xs" style="margin-bottom:3px">LLM CONFIDENCE</div>
                 <div id="llm-conf" class="data-value">—</div>
               </div>
+            </div>
+            <button class="btn-icon" style="width:100%;padding:5px;font-size:10px;margin-top:8px" onclick="toggleSection('llm-prompt-details', this)">Show Exact Prompt &amp; Raw Response ▾</button>
+            <div id="llm-prompt-details" style="display:none;margin-top:8px">
+              <div class="label-xs" style="margin-bottom:3px">SYSTEM PROMPT</div>
+              <pre id="llm-system-prompt" class="body-sm" style="white-space:pre-wrap;background:rgba(0,0,0,.18);padding:8px 10px;border-radius:var(--radius-md);margin-bottom:8px;max-height:160px;overflow-y:auto">—</pre>
+              <div class="label-xs" style="margin-bottom:3px">USER PROMPT</div>
+              <pre id="llm-user-prompt" class="body-sm" style="white-space:pre-wrap;background:rgba(0,0,0,.18);padding:8px 10px;border-radius:var(--radius-md);margin-bottom:8px;max-height:160px;overflow-y:auto">—</pre>
+              <div class="label-xs" style="margin-bottom:3px">RAW LLM RESPONSE</div>
+              <pre id="llm-raw-response" class="body-sm" style="white-space:pre-wrap;background:rgba(0,0,0,.18);padding:8px 10px;border-radius:var(--radius-md);max-height:160px;overflow-y:auto">—</pre>
             </div>
           </div>
         </div>
@@ -293,6 +308,7 @@
       ('Experience Log', True, 'memory_log.py'),
       ('Failure Reflection', True, 'failure_reflection.py'),
       ('Agentic Pipeline', True, 'agentic_pipeline.py'),
+      ('ANFIS Neuro-Fuzzy Layer', True, 'anfis.py'),
       ('Fuzzy Engine (existing)', True, 'fuzzy_engine.py'),
       ('Backtesting (existing)', True, 'backtester.py'),
     ] %}
@@ -449,6 +465,17 @@ function renderAgenticResult(d) {
   document.getElementById('expert-score').textContent =
     `score: ${(ex.score||0).toFixed(3)}  ·  conf: ${((ex.confidence||0)*100).toFixed(0)}%`;
 
+  // ANFIS — independent neuro-fuzzy proposer (anfis.py)
+  const anfis = d.anfis_result || {};
+  document.getElementById('anfis-label').textContent = anfis.label || '—';
+  document.getElementById('anfis-label').style.color = labelColor(anfis.label);
+  document.getElementById('anfis-score').textContent =
+    `score: ${(anfis.score||0).toFixed(3)}  ·  conf: ${((anfis.confidence||0)*100).toFixed(0)}%`;
+  const domRule = anfis.dominant_rule;
+  document.getElementById('anfis-rule').textContent = domRule
+    ? `dominant rule: RSI ${domRule.rsi} · MACD ${domRule.macd_hist} · ATR ${domRule.atr}`
+    : (anfis.note || '');
+
   // LLM suggestion
   const llmShift = llm.fuzzy_shift || {};
   document.getElementById('llm-mode-badge').textContent = (llm.mode||'demo').toUpperCase();
@@ -458,6 +485,10 @@ function renderAgenticResult(d) {
   document.getElementById('llm-delta').style.color = sd > 0 ? 'var(--semantic-buy)' : sd < 0 ? 'var(--semantic-sell)' : 'var(--white-soft)';
   document.getElementById('llm-direction').textContent = (llmShift.direction||'—').replace(/_/g,' ');
   document.getElementById('llm-conf').textContent = ((llm.confidence||0)*100).toFixed(0) + '%';
+  const pLog = llm.prompt_log || {};
+  document.getElementById('llm-system-prompt').textContent = pLog.system_prompt || (pLog.note || '— (demo mode, no live call) —');
+  document.getElementById('llm-user-prompt').textContent = pLog.user_prompt || (pLog.note || '— (demo mode, no live call) —');
+  document.getElementById('llm-raw-response').textContent = pLog.raw_response || (pLog.note || '— (demo mode, no live call) —');
 
   // Validation
   const vStatus = val.status || '—';

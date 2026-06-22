@@ -15,6 +15,7 @@ from typing import Optional
 
 _DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 _LOG_FILE = os.path.join(_DATA_DIR, "experience_log.json")
+_TXT_LOG_FILE = os.path.join(_DATA_DIR, "llm_prompt_log.txt")
 
 
 def _ensure_data_dir() -> None:
@@ -82,6 +83,7 @@ def build_experience_record(
     final_decision: dict,
     stability_score: float,
     reflection_note: str = "",
+    anfis_result: Optional[dict] = None,
 ) -> dict:
     """
     Helper to assemble a well-structured experience record.
@@ -112,6 +114,22 @@ def build_experience_record(
             "score_delta":     float(llm_suggestion.get("fuzzy_shift", {}).get("score_delta", 0)),
             "direction":       llm_suggestion.get("fuzzy_shift", {}).get("direction", "hold_neutral"),
         },
+        # Full prompt/response audit trail — answers "where can I see the
+        # exact prompt sent to the LLM and what it returned" (PA3 review).
+        # Kept separate from llm_suggestion above so the summary table stays
+        # short while the raw record below remains fully inspectable.
+        "llm_prompt_log": {
+            "system_prompt": (llm_suggestion.get("prompt_log") or {}).get("system_prompt"),
+            "user_prompt":   (llm_suggestion.get("prompt_log") or {}).get("user_prompt"),
+            "raw_response":  (llm_suggestion.get("prompt_log") or {}).get("raw_response"),
+            "note":          (llm_suggestion.get("prompt_log") or {}).get("note"),
+        },
+        "anfis_result": {
+            "score":      round(float((anfis_result or {}).get("score", 0.0)), 4),
+            "label":      (anfis_result or {}).get("label", "Hold"),
+            "confidence": round(float((anfis_result or {}).get("confidence", 0.0)), 4),
+            "mode":       (anfis_result or {}).get("mode", "untrained"),
+        },
         "expert_validation_result": {
             "status":           validation_result.get("status", "UNKNOWN"),
             "reason":           validation_result.get("reason", "")[:300],
@@ -131,3 +149,57 @@ def build_experience_record(
         "stability_score": round(float(stability_score), 3),
         "reflection_note": reflection_note or validation_result.get("reason", "")[:200],
     }
+
+
+def append_llm_text_log(record: dict) -> None:
+    """
+    Append a plain-text, human-readable mirror of one experience record's
+    LLM prompt/response to data/llm_prompt_log.txt.
+
+    This exists alongside the structured JSON log in experience_log.json on
+    purpose: it's a redundant, independently-inspectable record so anyone
+    (including a non-technical reviewer) can open a .txt file and see, in
+    full, exactly what was sent to the LLM and what came back — without
+    needing to parse JSON. Because both logs are built from the same
+    `record` dict in the same call (see agentic_pipeline.py), the timestamp
+    in this file should always match an entry in experience_log.json; if it
+    ever doesn't, that itself is a signal something broke between the two
+    writes.
+
+    Also doubles as a quick "is the LLM actually running" check: when
+    DEEPSEEK_API_KEY is missing/invalid, every block here will show
+    mode=demo and empty SYSTEM PROMPT / USER PROMPT / RAW RESPONSE fields.
+    """
+    _ensure_data_dir()
+
+    ctx = record.get("market_context", {})
+    llm = record.get("llm_suggestion", {})
+    plog = record.get("llm_prompt_log", {})
+
+    def _block(label: str, text) -> str:
+        text = text or "(empty — demo mode or no live LLM call was made)"
+        return f"{label}:\n{text}\n"
+
+    lines = [
+        "=" * 80,
+        f"TIMESTAMP : {record.get('timestamp', '')}",
+        f"SYMBOL    : {ctx.get('symbol', 'DEMO')}",
+        f"MODE      : {llm.get('mode', 'demo')}",
+        "-" * 80,
+        _block("SYSTEM PROMPT", plog.get("system_prompt")),
+        _block("USER PROMPT", plog.get("user_prompt")),
+        _block("RAW LLM RESPONSE", plog.get("raw_response")),
+        "-" * 80,
+        f"PARSED proposed_action : {llm.get('proposed_action', '')}",
+        f"PARSED scenario_tag    : {llm.get('scenario_tag', '')}",
+        f"PARSED score_delta     : {llm.get('score_delta', '')}",
+        f"PARSED direction       : {llm.get('direction', '')}",
+        f"PARSED confidence      : {llm.get('confidence', '')}",
+    ]
+    if plog.get("note"):
+        lines.append(f"NOTE                    : {plog.get('note')}")
+    lines.append("=" * 80)
+    lines.append("")
+
+    with open(_TXT_LOG_FILE, "a", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")

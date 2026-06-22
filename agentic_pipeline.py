@@ -131,8 +131,9 @@ def run_agentic_analysis(
     from Trading_Data import get_simulated_market_snapshot, get_ticker_snapshot
     from llm_reasoning import generate_llm_suggestion
     from expert_validation_gate import validate_llm_suggestion
-    from memory_log import append_experience_log, build_experience_record
+    from memory_log import append_experience_log, append_llm_text_log, build_experience_record
     from backtester import get_backtest_evidence
+    import anfis
 
     # Step 1: Market Data
     if rsi is not None:
@@ -163,6 +164,16 @@ def run_agentic_analysis(
     baseline_result = baseline_fuzzy_tool(_rsi, _macd_hist, _sentiment, _atr)
     expert_result   = fuzzy_analysis_tool(_rsi, _macd_hist, _sentiment, _atr, mode="expert")
 
+    # Step 2b: ANFIS — independent data-driven proposer (Jang 1993 hybrid-trained
+    # neuro-fuzzy network, see anfis.py). Runs in parallel with the expert engine;
+    # never applied directly — its suggestion still passes through the same
+    # Human Expert Validation Gate as the LLM suggestion (Step 5).
+    try:
+        anfis_result = anfis.predict_score(_rsi, _macd_hist, _atr)
+    except Exception as exc:
+        anfis_result = {"score": 0.0, "label": "Hold", "confidence": 0.0,
+                         "mode": "error", "note": str(exc)}
+
     market_regime_info = expert_result.get("market_regime") or {}
     market_regime = (
         market_regime_info.get("regime", "NORMAL")
@@ -186,6 +197,8 @@ def run_agentic_analysis(
         "baseline_label":   baseline_result.get("label", "Hold"),
         "expert_score":     expert_result.get("score", 0.0),
         "expert_label":     expert_result.get("label", "Hold"),
+        "anfis_score":      anfis_result.get("score", 0.0),
+        "anfis_label":      anfis_result.get("label", "Hold"),
         "indicator_conflict": has_conflict,
         "demo_mode":        demo,
     }
@@ -234,11 +247,16 @@ def run_agentic_analysis(
         final_decision=final_decision,
         stability_score=stability_score,
         reflection_note=reflection_note,
+        anfis_result=anfis_result,
     )
     try:
         append_experience_log(record)
     except Exception:
         pass  # Never let logging failure break the pipeline
+    try:
+        append_llm_text_log(record)
+    except Exception:
+        pass  # Same — txt mirror is a convenience, not a hard dependency
 
     # Step 9: Return Full Output
     return {
@@ -261,6 +279,7 @@ def run_agentic_analysis(
             "active_features": expert_result.get("active_features", []),
             "masked_features": expert_result.get("masked_features", []),
         },
+        "anfis_result":    anfis_result,
         # Agentic layer
         "llm_suggestion":    llm_suggestion,
         "validation_result": validation_result,
