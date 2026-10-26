@@ -160,8 +160,8 @@ The Human Expert layer (`expert_layer.py`) detects the regime; `feature_selector
 You need **Python 3.10 or newer**. API keys are optional: without them the app runs in demo mode.
 
 ```bash
-git clone https://github.com/cheah20/FUZZY-LOGIC.git
-cd FUZZY-LOGIC
+git clone https://github.com/cheah20/NeuralTrade.git
+cd NeuralTrade
 python -m venv venv
 venv\Scripts\activate            # Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
