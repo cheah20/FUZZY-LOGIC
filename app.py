@@ -347,6 +347,7 @@ def api_analyze():
         'confidence':      reasoning['confidence'],
         'output_tendency': reasoning['output_tendency'],
         'regime_reason':   reasoning['regime_reason'],
+        'input_display':   reasoning['input_display'],
         # Chart data
         'chart_data':      chart if 'error' not in chart else None,
     })

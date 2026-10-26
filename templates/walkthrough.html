@@ -1,64 +1,58 @@
-{% extends "base.html" %} {% block title %}Tutorial{% endblock %} {% block header_status %}
-<div style="display:flex;align-items:center;gap:14px">
-  <div style="font:600 15px 'Roboto', sans-serif;color:var(--white-soft);text-transform:uppercase;letter-spacing:0.08em;">ASTDSS TERMINAL</div>
-  <div style="width:1px;height:18px;background:rgba(32, 53, 80, 0.15)"></div>
-  <div style="font-family:var(--font-mono);font-size:10px;color:rgba(32, 53, 80, 0.45);text-transform:uppercase;">GUIDED · ONE STAGE AT A TIME</div>
-  <span class="badge badge--idle" style="font-size:var(--text-xs)">LEARNING MODE</span>
-</div>
-{% endblock %}
+{% extends "base.html" %} {% block title %}Tutorial{% endblock %}
+{% block page_name %}Tutorial{% endblock %}
+ 
 
 {% block content %}
 <div style="display:flex;flex-direction:column;gap:14px;max-width:880px;margin:0 auto;padding:2px 0">
 
   <!-- Intro -->
   <div class="glass-panel glass-panel--gold">
-    <div style="font:600 15px 'Roboto', sans-serif;color:var(--white-soft);margin-bottom:6px">How the Agentic Pipeline Actually Works</div>
-    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(32, 53, 80, 0.5);line-height:1.7">
-      This page runs the exact same pipeline as the <b style="color:var(--gold-soft)">Agentic Layer</b> page
-      (<code style="color:var(--secondary)">/api/agentic/analyze</code>) — nothing is faked or simplified — but reveals it
-      <b style="color:var(--gold-soft)">one stage at a time</b> with an explanation of what's really happening:
-      real fuzzy-logic math, a deterministic rule check, or (optionally) a live LLM call.
-      Core rule to watch for: <b style="color:var(--gold-soft)">the LLM only proposes — the Human Expert Knowledge Base decides.</b>
+    <div style="font:600 15px 'Roboto', sans-serif;color:var(--white-soft);margin-bottom:6px">How the agentic pipeline works</div>
+    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(20, 26, 34, 0.5);line-height:1.7">
+      Same pipeline as the <b style="color:var(--gold-soft)">Agentic Layer</b> page
+      (<code style="color:var(--secondary)">/api/agentic/analyze</code>), shown <b style="color:var(--gold-soft)">one stage at a time</b>
+      with a short note on what each stage does. Keep one thing in mind:
+      <b style="color:var(--gold-soft)">the LLM can only suggest. The knowledge base makes the call.</b>
     </div>
   </div>
 
   <!-- Setup Panel -->
   <div id="setup-panel" class="glass-panel glass-panel--inset">
-    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;margin-bottom:12px">1 · CHOOSE LLM MODE</div>
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);text-transform:uppercase;margin-bottom:12px">1 · Choose LLM mode</div>
     <div style="display:flex;gap:8px;margin-bottom:16px">
       <button id="mode-demo-btn" class="wt-toggle wt-toggle--active" onclick="setMode('demo')">
-        DEMO — deterministic scenarios, no network, no cost
+        Demo: fixed scenarios, works offline
       </button>
       <button id="mode-real-btn" class="wt-toggle" onclick="setMode('real')">
-        REAL — calls DeepSeek API (falls back to demo if no key in .env)
+        Real: asks DeepSeek (uses demo if .env has no key)
       </button>
     </div>
 
-    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;margin-bottom:12px">2 · CHOOSE MARKET DATA SOURCE</div>
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);text-transform:uppercase;margin-bottom:12px">2 · Choose market data source</div>
     <div style="display:flex;gap:8px;margin-bottom:16px">
       <button id="src-sim-btn" class="wt-toggle wt-toggle--active" onclick="setSource('sim')">
-        SIMULATED — random realistic snapshot
+        Simulated: random market snapshot
       </button>
       <button id="src-manual-btn" class="wt-toggle" onclick="setSource('manual')">
-        MANUAL — enter RSI / MACD / ATR / sentiment myself
+        Manual: type in RSI, MACD, ATR and sentiment
       </button>
     </div>
 
     <div id="manual-inputs" style="display:none;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px">
       <div>
-        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">RSI (0-100)</div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">RSI (0-100)</div>
         <input id="in-rsi" type="number" class="glass-input" value="50" style="width:100%">
       </div>
       <div>
-        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">MACD HIST</div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">MACD hist</div>
         <input id="in-macd" type="number" step="0.01" class="glass-input" value="0" style="width:100%">
       </div>
       <div>
-        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">ATR (0-10)</div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">ATR (0-10)</div>
         <input id="in-atr" type="number" step="0.1" class="glass-input" value="3" style="width:100%">
       </div>
       <div>
-        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">SENTIMENT (-1 to 1)</div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">SENTIMENT (-1 to 1)</div>
         <input id="in-sent" type="number" step="0.05" class="glass-input" value="0" style="width:100%">
       </div>
     </div>
@@ -76,7 +70,7 @@
     <!-- Progress -->
     <div class="glass-panel" style="padding:12px 16px;margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span id="step-progress-label" style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45)">STEP 1 OF 10</span>
+        <span id="step-progress-label" style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45)">Step 1 of 10</span>
         <span id="step-nature-badge" class="badge badge--idle" style="font-size:var(--text-xs)">—</span>
       </div>
       <div class="progress-bar" style="height:4px">
@@ -87,15 +81,15 @@
     <!-- Step Content -->
     <div class="glass-panel glass-panel--gold" style="min-height:220px">
       <div id="step-title" style="font:700 16px 'Roboto', sans-serif;color:var(--gold-soft);margin-bottom:8px">—</div>
-      <div id="step-explain" style="font-family:var(--font-mono);font-size:10px;color:rgba(32, 53, 80, 0.55);line-height:1.7;margin-bottom:16px">—</div>
+      <div id="step-explain" style="font-family:var(--font-mono);font-size:10px;color:rgba(20, 26, 34, 0.55);line-height:1.7;margin-bottom:16px">—</div>
       <div id="step-data"></div>
     </div>
 
     <!-- Nav buttons -->
     <div style="display:flex;justify-content:space-between;margin-top:14px">
-      <button id="prev-btn" class="btn-icon" style="padding:9px 18px;font-family:var(--font-mono);font-size:10px" onclick="prevStep()">← PREV</button>
-      <button id="restart-btn" class="btn-icon" style="padding:9px 18px;font-family:var(--font-mono);font-size:10px;color:rgba(32, 53, 80, 0.45)" onclick="restartWalkthrough()">RESTART</button>
-      <button id="next-btn" class="btn-execute" style="padding:9px 18px;font-size:10px" onclick="nextStep()">NEXT →</button>
+      <button id="prev-btn" class="btn-icon" style="padding:9px 18px;font-family:var(--font-mono);font-size:10px" onclick="prevStep()">← Prev</button>
+      <button id="restart-btn" class="btn-icon" style="padding:9px 18px;font-family:var(--font-mono);font-size:10px;color:rgba(20, 26, 34, 0.45)" onclick="restartWalkthrough()">Restart</button>
+      <button id="next-btn" class="btn-execute" style="padding:9px 18px;font-size:10px" onclick="nextStep()">Next →</button>
     </div>
   </div>
 
@@ -105,10 +99,10 @@
   .wt-toggle {
     flex: 1;
     padding: 10px 12px;
-    background: rgba(32, 53, 80, 0.03);
-    border: 1px solid rgba(32, 53, 80, 0.08);
+    background: rgba(20, 26, 34, 0.03);
+    border: 1px solid rgba(20, 26, 34, 0.08);
     border-radius: var(--radius-md);
-    color: rgba(32, 53, 80, 0.45);
+    color: rgba(20, 26, 34, 0.45);
     font-family: var(--font-mono);
     font-size: 9px;
     text-align: left;
@@ -116,8 +110,8 @@
     line-height: 1.5;
   }
   .wt-toggle--active {
-    border-color: rgba(196, 128, 18, 0.4);
-    background: rgba(196, 128, 18, 0.07);
+    border-color: rgba(217, 138, 0, 0.4);
+    background: rgba(217, 138, 0, 0.07);
     color: var(--gold-soft);
   }
 </style>
@@ -236,7 +230,7 @@ function renderStep() {
   if (STEP === 1) {
     set('REAL MATH', 'badge--idle', '1. Market Data',
       `Source: <code style="color:var(--secondary)">Trading_Data.get_simulated_market_snapshot()</code> or your manual values.
-       ${SOURCE === 'sim' ? 'A pseudo price series is generated, then RSI/MACD/ATR are computed on it with real formulas — only the underlying price feed is fake.' : 'You entered these values directly.'}`,
+       ${SOURCE === 'sim' ? 'The price series is made up, but RSI, MACD and ATR are worked out from it with the normal formulas.' : 'You entered these values directly.'}`,
       chip('RSI', (ctx.rsi||0).toFixed(2), ctx.rsi > 65 ? 'var(--strong-sell)' : ctx.rsi < 35 ? 'var(--synced-green)' : 'var(--white-soft)') +
       chip('MACD HIST', (ctx.macd_hist||0).toFixed(3), ctx.macd_hist > 0 ? 'var(--semantic-buy)' : 'var(--semantic-sell)') +
       chip('ATR', (ctx.atr||0).toFixed(2), ctx.atr > 6 ? 'var(--strong-sell)' : 'var(--white-soft)') +
@@ -246,18 +240,18 @@ function renderStep() {
   } else if (STEP === 2) {
     set('REAL MATH', 'badge--idle', '2. Baseline Fuzzy Logic',
       `<code style="color:var(--secondary)">tools.baseline_fuzzy_tool()</code> → the original Mamdani fuzzy_engine.py.
-       All indicators treated equally — no expert feature masking applied yet.`,
+       Every indicator counts the same here. No expert masking yet.`,
       `<div style="display:flex;align-items:center;gap:20px">
         <div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">LABEL</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">LABEL</div>
           <div style="font:700 22px 'Roboto', sans-serif;color:${labelColor(bl.label)}">${bl.label||'—'}</div>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">SCORE</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">SCORE</div>
           <div style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--white-soft)">${(bl.score||0).toFixed(3)}</div>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">CONFIDENCE</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">CONFIDENCE</div>
           <div style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--white-soft)">${((bl.confidence||0)*100).toFixed(0)}%</div>
         </div>
       </div>`
@@ -265,52 +259,52 @@ function renderStep() {
   } else if (STEP === 3) {
     const regime = ctx.market_regime || 'NORMAL';
     set('REAL MATH', 'badge--idle', '3. Expert Fuzzy Logic',
-      `<code style="color:var(--secondary)">tools.fuzzy_analysis_tool(mode='expert')</code> — same engine, but first detects the
-       market regime, then reweights/masks indicators (<code style="color:var(--secondary)">feature_selector.py</code>) before defuzzifying.
-       Any difference from Step 2 came <b style="color:var(--gold-soft)">only</b> from this masking — still zero LLM involvement.`,
+      `<code style="color:var(--secondary)">tools.fuzzy_analysis_tool(mode='expert')</code> uses the same engine, but it first works out the
+       market regime and re-weights or masks indicators (<code style="color:var(--secondary)">feature_selector.py</code>).
+       Any difference from step 2 comes <b style="color:var(--gold-soft)">only</b> from that masking. The LLM is not involved yet.`,
       `<div style="display:flex;align-items:center;gap:20px;margin-bottom:12px">
         <div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">LABEL</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">LABEL</div>
           <div style="font:700 22px 'Roboto', sans-serif;color:${labelColor(ex.label)}">${ex.label||'—'}</div>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">SCORE</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">SCORE</div>
           <div style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--white-soft)">${(ex.score||0).toFixed(3)}</div>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">CONFIDENCE</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">CONFIDENCE</div>
           <div style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--white-soft)">${((ex.confidence||0)*100).toFixed(0)}%</div>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">REGIME</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">REGIME</div>
           <div style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--gold-soft)">${regime.replace(/_/g,' ')}</div>
         </div>
       </div>
       <div style="display:flex;gap:16px">
         <div style="flex:1">
           <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--synced-green);margin-bottom:4px">ACTIVE FEATURES</div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5)">${(ex.active_features||[]).join(', ') || 'none'}</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.5)">${(ex.active_features||[]).join(', ') || 'none'}</div>
         </div>
         <div style="flex:1">
           <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--strong-sell);margin-bottom:4px">MASKED FEATURES</div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5)">${(ex.masked_features||[]).join(', ') || 'none'}</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.5)">${(ex.masked_features||[]).join(', ') || 'none'}</div>
         </div>
       </div>`
     );
   } else if (STEP === 4) {
     set('DATA PACKAGING', 'badge--idle', '4. Market Context Assembly',
-      `Just a dict collected from Steps 1-3 — no computation happens here. This is the
-       <b style="color:var(--gold-soft)">only</b> information the LLM will see in Step 5. It never sees raw price history.`,
-      `<pre style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5);background:rgba(20, 35, 55, 0.07);padding:12px;border-radius:var(--radius-md);overflow-x:auto;line-height:1.6">${JSON.stringify(ctx, null, 2)}</pre>`
+      `A plain dict built from steps 1 to 3, nothing is calculated here. It is the
+       <b style="color:var(--gold-soft)">only</b> thing the LLM sees in step 5. It never sees the price history.`,
+      `<pre style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.5);background:rgba(16, 24, 40, 0.07);padding:12px;border-radius:var(--radius-md);overflow-x:auto;line-height:1.6">${JSON.stringify(ctx, null, 2)}</pre>`
     );
   } else if (STEP === 5) {
     const sd = (llm.fuzzy_shift||{}).score_delta || 0;
     set(d.demo_mode ? 'DEMO LOGIC' : 'LLM CALL', d.demo_mode ? 'badge--idle' : 'badge--processing', '5. LLM Reasoning',
       d.demo_mode
-        ? `DEMO mode: a deterministic if/else scenario was picked from the market context
-           (<code style="color:var(--secondary)">llm_reasoning._select_demo_scenario</code>). No network call happened.`
-        : `REAL mode: DeepSeek API (<code style="color:var(--secondary)">deepseek-chat</code>) was called with the Step 4 context.
-           If the call had failed, it would silently fall back to demo output — the pipeline never crashes over LLM unavailability.`,
+        ? `Demo mode: a fixed scenario was picked from the market context
+           (<code style="color:var(--secondary)">llm_reasoning._select_demo_scenario</code>). Nothing was sent over the network.`
+        : `Real mode: DeepSeek (<code style="color:var(--secondary)">deepseek-chat</code>) was called with the step 4 context.
+           If that call fails, the page quietly uses the demo answer instead, so a missing LLM never breaks the run.`,
       box('PROPOSED ACTION', `<div class="body-sm">${llm.proposed_action||'—'}</div>`) +
       box('REASONING', `<div class="body-sm">${llm.reason||'—'}</div>`) +
       chip('SCORE Δ', (sd>=0?'+':'')+sd.toFixed(3), sd>0?'var(--semantic-buy)':sd<0?'var(--semantic-sell)':'var(--white-soft)') +
@@ -318,37 +312,37 @@ function renderStep() {
       chip('LLM CONFIDENCE', ((llm.confidence||0)*100).toFixed(0)+'%', 'var(--white-soft)') +
       chip('SCENARIO TAG', llm.scenario_tag||'—', 'var(--white-soft)') +
       `<div class="evidence-box evidence-box--gold" style="margin-top:10px;margin-bottom:0">
-        <span class="label-xs" style="text-transform:none;color:var(--gold-soft)">⚠ This is only a PROPOSAL. Nothing has been applied yet — it must pass the Validation Gate next.</span>
+        <span class="label-xs" style="text-transform:none;color:var(--gold-soft)">This is only a suggestion. Nothing changes until it passes the validation gate in the next step.</span>
       </div>`
     );
   } else if (STEP === 6) {
-    const statusColor = STATUS_COLOR[val.status] || 'rgba(32, 53, 80, 0.45)';
+    const statusColor = STATUS_COLOR[val.status] || 'rgba(20, 26, 34, 0.45)';
     set('RULE CHECK', 'badge--synced', '6. Human Expert Validation Gate',
-      `<code style="color:var(--secondary)">expert_validation_gate.validate_llm_suggestion()</code> — checks Step 5's proposal against
-       16 deterministic rules from <code style="color:var(--secondary)">human_expert_kb.py</code> (7 academic papers).
-       <b style="color:var(--gold-soft)">Zero LLM calls happen here.</b>`,
+      `<code style="color:var(--secondary)">expert_validation_gate.validate_llm_suggestion()</code> checks the step 5 suggestion against
+       the 16 fixed rules in <code style="color:var(--secondary)">human_expert_kb.py</code>.
+       <b style="color:var(--gold-soft)">No LLM is called here.</b>`,
       `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <span style="font:700 20px 'Roboto', sans-serif;color:${statusColor}">${val.status||'—'}</span>
       </div>` +
-      box('REASON', `<div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5);line-height:1.7">${val.reason||'—'}</div>`, statusColor) +
+      box('REASON', `<div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.5);line-height:1.7">${val.reason||'—'}</div>`, statusColor) +
       `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
         <div>
           <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--strong-sell);margin-bottom:4px">VIOLATED RULES</div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5)">${(val.violated_rules||[]).join(', ')||'None'}</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.5)">${(val.violated_rules||[]).join(', ')||'None'}</div>
         </div>
         <div>
           <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--synced-green);margin-bottom:4px">SUPPORTING RULES</div>
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5)">${(val.supporting_rules||[]).join(', ')||'None'}</div>
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.5)">${(val.supporting_rules||[]).join(', ')||'None'}</div>
         </div>
       </div>` +
-      `<div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);line-height:1.8">
-        APPROVED → apply full shift &nbsp;|&nbsp; MODIFIED → apply 50% &nbsp;|&nbsp; REJECTED → apply zero, keep expert baseline &nbsp;|&nbsp; NEEDS_REVIEW → apply zero, flag for human
+      `<div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);line-height:1.8">
+        APPROVED: use all of it &nbsp;·&nbsp; MODIFIED: use half &nbsp;·&nbsp; REJECTED: use none &nbsp;·&nbsp; NEEDS_REVIEW: use none and flag it
       </div>`
     );
   } else if (STEP === 7) {
     set('ARITHMETIC', 'badge--idle', '7. Apply Shift',
-      `Simple addition — no rules, no LLM. The Step 6 verdict already decided how much of the Step 5 proposal (0%, 50%, or 100%) gets applied here.`,
-      `<div style="font-family:var(--font-mono);font-size:10px;color:rgba(32, 53, 80, 0.5);line-height:2.2">
+      `Plain addition. Step 6 already decided how much of the suggestion is used: none, half or all of it.`,
+      `<div style="font-family:var(--font-mono);font-size:10px;color:rgba(20, 26, 34, 0.5);line-height:2.2">
         final_score &nbsp;=&nbsp; expert_score (${(ex.score||0).toFixed(3)}) + applied_delta (${(sft.score_delta||0).toFixed(3)})<br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp; <b style="color:${labelColor(fin.label)};font-size:13px">${(fin.score||0).toFixed(3)} → ${fin.label}</b><br><br>
         final_confidence &nbsp;=&nbsp; expert_confidence (${((ex.confidence||0)).toFixed(2)}) + applied_delta (${(sft.confidence_delta||0).toFixed(3)})<br>
@@ -359,8 +353,8 @@ function renderStep() {
     const stab = d.stability_score || 0;
     const stabPct = Math.round(stab*100);
     set('FORMULA', 'badge--idle', '8. Stability Score',
-      `A 0-1 score reflecting how coherent and well-validated this decision cycle was. No rules, no LLM — just a formula.`,
-      `<div style="font-family:var(--font-mono);font-size:10px;color:rgba(32, 53, 80, 0.5);line-height:2.2;margin-bottom:12px">
+      `A score from 0 to 1 for how consistent this run was. It is just a formula.`,
+      `<div style="font-family:var(--font-mono);font-size:10px;color:rgba(20, 26, 34, 0.5);line-height:2.2;margin-bottom:12px">
         stability &nbsp;=&nbsp; expert_confidence + validation_adjustment(${val.status}) - conflict_penalty(${d.indicator_conflict})<br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp; <b style="color:var(--gold-soft);font-size:14px">${stab.toFixed(3)}</b> &nbsp;(clamped to [0,1])
       </div>
@@ -370,28 +364,28 @@ function renderStep() {
     );
   } else if (STEP === 9) {
     set('FILE WRITE', 'badge--idle', '9. Experience Log',
-      `<code style="color:var(--secondary)">memory_log.append_experience_log()</code> — every pipeline run (including this one) is automatically
-       appended to <code style="color:var(--secondary)">data/experience_log.json</code>. You'll find this exact run on the
-       Agentic Layer page and on the Backtesting page's "RECENT AGENTIC DECISIONS" panel.`,
-      box('REFLECTION NOTE', `<div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5);line-height:1.7">${d.reflection_note||'—'}</div>`, 'var(--gold-soft)')
+      `<code style="color:var(--secondary)">memory_log.append_experience_log()</code> adds every run, this one too, to
+       <code style="color:var(--secondary)">data/experience_log.json</code>. You can find it again on the
+       Agentic Layer page and under "Recent agentic decisions" on the Backtesting page.`,
+      box('REFLECTION NOTE', `<div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.5);line-height:1.7">${d.reflection_note||'—'}</div>`, 'var(--gold-soft)')
     );
   } else if (STEP === 10) {
-    set('SUMMARY', 'badge--synced', '10. Final Decision Summary', `That's the full cycle. Here's how the decision evolved stage by stage:`,
+    set('SUMMARY', 'badge--synced', '10. Final Decision Summary', `That is the whole run. Here is how the decision changed at each stage:`,
       `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
-        <div style="padding:10px;background:rgba(20, 35, 55, 0.063);border-radius:var(--radius-md);text-align:center">
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">BASELINE</div>
+        <div style="padding:10px;background:rgba(16, 24, 40, 0.063);border-radius:var(--radius-md);text-align:center">
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">BASELINE</div>
           <div style="font:700 14px 'Roboto', sans-serif;color:${labelColor(bl.label)}">${bl.label}</div>
         </div>
-        <div style="padding:10px;background:rgba(20, 35, 55, 0.063);border-radius:var(--radius-md);text-align:center">
-          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);margin-bottom:4px">EXPERT</div>
+        <div style="padding:10px;background:rgba(16, 24, 40, 0.063);border-radius:var(--radius-md);text-align:center">
+          <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);margin-bottom:4px">EXPERT</div>
           <div style="font:700 14px 'Roboto', sans-serif;color:${labelColor(ex.label)}">${ex.label}</div>
         </div>
-        <div style="padding:10px;background:rgba(196, 128, 18, 0.08);border:1px solid rgba(196, 128, 18, 0.2);border-radius:var(--radius-md);text-align:center">
+        <div style="padding:10px;background:rgba(217, 138, 0, 0.08);border:1px solid rgba(217, 138, 0, 0.2);border-radius:var(--radius-md);text-align:center">
           <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--gold-soft);margin-bottom:4px">FINAL (AGENTIC)</div>
           <div style="font:700 14px 'Roboto', sans-serif;color:${labelColor(fin.label)}">${fin.label}</div>
         </div>
       </div>
-      <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.45);line-height:1.8;margin-bottom:14px">
+      <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(20, 26, 34, 0.45);line-height:1.8;margin-bottom:14px">
         Gate verdict: <b style="color:${STATUS_COLOR[val.status]}">${val.status}</b> &nbsp;·&nbsp;
         Stability: <b style="color:var(--gold-soft)">${Math.round((d.stability_score||0)*100)}%</b>
       </div>

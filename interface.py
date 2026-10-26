@@ -67,15 +67,15 @@ def get_expert_reasoning_data(
 
     def _bar_color(feat: str, val: float) -> str:
         if feat not in active:
-            return "rgba(32, 53, 80, 0.18)"   # muted = masked
+            return "rgba(20, 26, 34, 0.18)"   # muted = masked
         if feat == "rsi":
-            if val > 70: return "#d9622b"
-            if val < 30: return "#3f6fb6"
-            return "#203550"
+            if val > 70: return "#e5443b"
+            if val < 30: return "#12a46b"
+            return "#141a22"
         if feat in ("macd_hist", "sentiment"):
-            if val > 0.05:  return "#3f6fb6"
-            if val < -0.05: return "#d9622b"
-            return "rgba(32, 53, 80, 0.45)"
+            if val > 0.05:  return "#12a46b"
+            if val < -0.05: return "#e5443b"
+            return "rgba(20, 26, 34, 0.45)"
         return "var(--gold-soft)"
 
     # Normalise raw values to 0–100 for progress bars
@@ -85,21 +85,21 @@ def get_expert_reasoning_data(
 
     input_display = [
         {
-            "label":  "RSI INTENSITY",
+            "label":  "RSI",
             "value":  f"{rsi:.1f}",
             "pct":    rsi_pct,
             "color":  _bar_color("rsi", rsi),
             "active": "rsi" in active,
         },
         {
-            "label":  "MACD HISTOGRAM",
+            "label":  "MACD histogram",
             "value":  f"{macd_hist:+.3f}",
             "pct":    macd_pct,
             "color":  _bar_color("macd_hist", macd_hist),
             "active": "macd_hist" in active,
         },
         {
-            "label":  "SENTIMENT SCORE",
+            "label":  "Sentiment",
             "value":  f"{sentiment:+.2f}",
             "pct":    sent_pct,
             "color":  _bar_color("sentiment", sentiment),
@@ -109,7 +109,7 @@ def get_expert_reasoning_data(
     if atr is not None:
         atr_pct = int(max(0, min(100, (atr / 10) * 100)))
         input_display.append({
-            "label":  "ATR (VOLATILITY)",
+            "label":  "ATR (volatility)",
             "value":  f"{atr:.2f}",
             "pct":    atr_pct,
             "color":  _bar_color("atr", atr),

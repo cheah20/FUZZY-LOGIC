@@ -1,12 +1,7 @@
-{% extends "base.html" %} {% block title %}Market Intelligence{% endblock %} {%
-block header_status %}
-<div class="topbar-status" style="gap: 20px">
-  <span style="color: rgba(32, 53, 80, 0.8); font-weight: 500"
-    >NETWORK: ACTIVE</span
-  >
-  <span>UPTIME: 99.98%</span>
-</div>
-{% endblock %} {% block header_right %}
+{% extends "base.html" %}
+{% block title %}Market Intelligence{% endblock %}
+{% block page_name %}Market Intelligence{% endblock %}
+{% block header_right %}
 <div style="flex: 1; max-width: 280px; margin-left: auto">
   <div style="position: relative">
     <svg
@@ -17,7 +12,7 @@ block header_status %}
         transform: translateY(-50%);
         width: 14px;
         height: 14px;
-        stroke: rgba(32, 53, 80, 0.45);
+        stroke: rgba(20, 26, 34, 0.45);
         fill: none;
         stroke-width: 1.5;
       "
@@ -30,75 +25,30 @@ block header_status %}
       id="mi-search"
       type="text"
       class="glass-input"
-      placeholder="Search signals..."
+      placeholder="Search headlines"
       style="padding-left: 34px; font-size: 13px"
     />
   </div>
 </div>
 <div class="topbar-right" style="margin-left: 16px">
-  <button class="btn-icon">
-    <svg
-      viewBox="0 0 24 24"
-      style="
-        width: 16px;
-        height: 16px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.5;
-      "
-    >
-      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-      <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-      <circle cx="12" cy="20" r="1" fill="currentColor" />
-    </svg>
-  </button>
-  <button class="btn-icon">
-    <svg
-      viewBox="0 0 24 24"
-      style="
-        width: 16px;
-        height: 16px;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.5;
-      "
-    >
-      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-    </svg>
-  </button>
-  <button class="btn-avatar">
-    <svg
-      viewBox="0 0 24 24"
-      style="
-        width: 15px;
-        height: 15px;
-        stroke: var(--gold-soft);
-        fill: none;
-        stroke-width: 1.5;
-      "
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c0-2.667 3.582-4 8-4s8 1.333 8 4" />
-    </svg>
-  </button>
+  <span class="topbar-clock" id="topbar-clock">--:--:--</span>
 </div>
 {% endblock %} {% block content %}
 
 <!-- Page Header -->
 <div class="mb-20">
   <div class="page-title">Market Intelligence</div>
-  <div class="page-subtitle">AI-CURATED FINANCE NEWS — SEE STATUS BADGE BELOW FOR LIVE/DEMO SOURCE</div>
+  <div class="page-subtitle">Finance headlines from Marketaux, or a demo feed when no API key is set.</div>
 </div>
 
 <!-- Sentiment Filter Tabs -->
 <div class="source-tabs" id="mi-source-tabs">
   <button class="btn-primary mi-source-btn" data-filter="ALL" style="padding: 8px 18px; font-size: 11px">
-    ALL HEADLINES
+    All
   </button>
-  <button class="btn-secondary mi-source-btn" data-filter="BULLISH">BULLISH</button>
-  <button class="btn-secondary mi-source-btn" data-filter="BEARISH">BEARISH</button>
-  <button class="btn-secondary mi-source-btn" data-filter="NEUTRAL">NEUTRAL</button>
+  <button class="btn-secondary mi-source-btn" data-filter="BULLISH">Bullish</button>
+  <button class="btn-secondary mi-source-btn" data-filter="BEARISH">Bearish</button>
+  <button class="btn-secondary mi-source-btn" data-filter="NEUTRAL">Neutral</button>
   <button class="btn-secondary" id="mi-filters-btn" style="margin-left: auto">
     <svg
       style="
@@ -114,7 +64,7 @@ block header_status %}
       <line x1="8" y1="12" x2="16" y2="12" />
       <line x1="11" y1="18" x2="13" y2="18" />
     </svg>
-    FILTERS
+    Filters
   </button>
 </div>
 
@@ -134,7 +84,7 @@ block header_status %}
             text-transform: uppercase;
             letter-spacing: 0.08em;
           "
-          >LOADING…</span
+          >Loading…</span
         >
       </div>
       <span
@@ -142,14 +92,14 @@ block header_status %}
         style="
           font-family: var(--font-mono);
           font-size: 10px;
-          color: rgba(32, 53, 80, 0.45);
+          color: rgba(20, 26, 34, 0.45);
         "
-        >UTC CLOCK: 14:28:45 UTC</span
+        ></span
       >
     </div>
     <div id="mi-feed-updated" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);padding:0 16px 10px;"></div>
 
-    <!-- News items — populated dynamically from /api/market-news (real Marketaux or demo fallback) -->
+    <!-- filled in by main.js from /api/market-news -->
     <div class="mi-feed-container" id="mi-feed-container">
       <div class="body-sm" style="padding:16px;">Loading market news…</div>
     </div>
@@ -157,11 +107,11 @@ block header_status %}
 
   <!-- RIGHT COLUMN -->
   <div class="flex-col flex-col-gap-md">
-    <!-- AI Market Brief — real (Marketaux) or demo finance headlines + DeepSeek/rule-based summary -->
+    <!-- short summary of the headlines -->
     <div class="glass-panel glass-panel--gold">
       <div class="section-header" style="margin-bottom:8px;">
-        <span class="section-header__title" style="color:var(--gold-soft);">AI MARKET BRIEF</span>
-        <span id="amb-source-badge" class="badge badge--idle" style="margin-left:auto;font-size:var(--text-xs);">LOADING…</span>
+        <span class="section-header__title" style="color:var(--gold-soft);">Market brief</span>
+        <span id="amb-source-badge" class="badge badge--idle" style="margin-left:auto;font-size:var(--text-xs);">Loading…</span>
       </div>
       <div id="amb-updated" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);margin-bottom:10px;">—</div>
       <div id="amb-brief-text" class="body-sm" style="margin-bottom:8px;">Loading market brief…</div>
@@ -172,9 +122,9 @@ block header_status %}
     <!-- Sentiment Aggregator -->
     <div class="glass-panel">
       <div class="section-header">
-        <span class="section-header__title">SENTIMENT AGGREGATOR</span>
+        <span class="section-header__title">Sentiment</span>
         <span
-          title="Simulated for demo — randomizes periodically, not a real sentiment feed"
+          title="Demo value. It changes every few seconds and is not a real sentiment feed."
           style="
             margin-left: auto;
             cursor: pointer;
@@ -188,15 +138,15 @@ block header_status %}
         <svg viewBox="0 0 160 90" style="width: 100%; max-width: 200px">
           <defs>
             <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#d9622b" />
-              <stop offset="40%" stop-color="#c48012" />
-              <stop offset="100%" stop-color="#3f6fb6" />
+              <stop offset="0%" stop-color="#e5443b" />
+              <stop offset="40%" stop-color="#d98a00" />
+              <stop offset="100%" stop-color="#12a46b" />
             </linearGradient>
           </defs>
           <path
             d="M 15 80 A 65 65 0 0 1 145 80"
             fill="none"
-            stroke="rgba(32, 53, 80, 0.07)"
+            stroke="rgba(20, 26, 34, 0.07)"
             stroke-width="10"
             stroke-linecap="round"
           />
@@ -222,123 +172,34 @@ block header_status %}
           <text
             x="8"
             y="95"
-            fill="rgba(32, 53, 80, 0.45)"
+            fill="rgba(20, 26, 34, 0.45)"
             style="font: 8px &quot;Roboto Mono&quot;"
           >
-            FEAR
+            Fear
           </text>
           <text
             x="70"
             y="95"
-            fill="rgba(32, 53, 80, 0.45)"
+            fill="rgba(20, 26, 34, 0.45)"
             style="font: 8px &quot;Roboto Mono&quot;"
           >
-            NEUTRAL
+            Neutral
           </text>
           <text
             x="130"
             y="95"
-            fill="rgba(32, 53, 80, 0.45)"
+            fill="rgba(20, 26, 34, 0.45)"
             style="font: 8px &quot;Roboto Mono&quot;"
           >
-            GREED
+            Greed
           </text>
         </svg>
         <div class="sentiment-gauge__value" id="mi-sentiment-value">68</div>
-        <div class="sentiment-gauge__label" id="mi-sentiment-label">GREED PREVAILING</div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(32, 53, 80, 0.45);margin-top:4px;text-align:center;">simulated demo value</div>
+        <div class="sentiment-gauge__label" id="mi-sentiment-label">Mostly greed</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(20, 26, 34, 0.45);margin-top:4px;text-align:center;">demo value</div>
       </div>
     </div>
 
-    <!-- Correlated Trends -->
-    <div class="glass-panel">
-      <div class="section-header">
-        <span class="section-header__title">CORRELATED TRENDS</span>
-      </div>
-      <div class="flex-col flex-col-gap-sm">
-        {% for num, name, pct, color, bar_w in [('#01','Yield Curve
-        Inversion','+12.4%','var(--gold-soft)','40%'),('#02','AI Compute
-        Squeeze','+42.1%','var(--semantic-buy)','68%'),('#03','Digital Assets
-        Flow','-2.4%','rgba(32, 53, 80, 0.45)','8%')] %}
-        <div
-          class="asset-option{% if loop.first %} asset-option--active{% endif %}"
-        >
-          <span
-            style="
-              font-family: var(--font-mono);
-              font-size: 10px;
-              color: rgba(32, 53, 80, 0.45);
-              min-width: 28px;
-            "
-            >{{ num }}</span
-          >
-          <div style="flex: 1">
-            <div
-              style="
-                font-family: var(--font-sans);
-                font-size: 12px;
-                font-weight: 500;
-                color: rgba(32, 53, 80, 0.8);
-                margin-bottom: 5px;
-              "
-            >
-              {{ name }}
-            </div>
-            <div class="progress-bar" style="height: 3px">
-              <div
-                class="progress-bar__fill"
-                style="width:{{ bar_w }};background:{{ color }};"
-              ></div>
-            </div>
-          </div>
-          <span
-            style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ color }};min-width:44px;text-align:right;"
-            >{{ pct }}</span
-          >
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- Agent Synthesis -->
-    <div class="glass-panel glass-panel--gold">
-      <div
-        style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px"
-      >
-        <svg
-          style="
-            width: 14px;
-            height: 14px;
-            stroke: var(--gold-soft);
-            fill: none;
-            stroke-width: 1.5;
-          "
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
-        </svg>
-        <span
-          style="
-            font-family: var(--font-mono);
-            font-size: 10px;
-            color: var(--gold-soft);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-          "
-          >AGENT SYNTHESIS</span
-        >
-      </div>
-      <div
-        style="
-          font-family: var(--font-sans);
-          font-size: 13px;
-          color: rgba(32, 53, 80, 0.45);
-        "
-      >
-        Processing market signals…
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}

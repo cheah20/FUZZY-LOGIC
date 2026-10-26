@@ -7,10 +7,8 @@
 /* Promote persistent backdrop-filter layers to their own
    compositor layer. Keeps paint/raster off the main thread.
    Use sparingly — each layer consumes GPU memory. */
-.sidebar,
 .topbar {
   transform: translateZ(0);
-  will-change: backdrop-filter;
 }
 
 /* ── BACKGROUND LAYER ───────────────────────────────────── */
@@ -28,15 +26,15 @@ body {
 
 /* ── GLOW EFFECTS ───────────────────────────────────────── */
 .glow-gold {
-  box-shadow: 0 0 28px rgba(32, 53, 80, 0.162);
+  box-shadow: 0 0 28px rgba(20, 26, 34, 0.162);
 }
 
 .glow-red {
-  text-shadow: 0 0 20px rgba(217, 98, 43, 0.35);
+  text-shadow: 0 0 20px rgba(229, 68, 59, 0.35);
 }
 
 .glow-green {
-  text-shadow: 0 0 12px rgba(63, 111, 182, 0.25);
+  text-shadow: 0 0 12px rgba(18, 164, 107, 0.25);
 }
 
 /* ── PULSE ANIMATION ──────────────────────────────────────
@@ -47,11 +45,11 @@ body {
 @keyframes pulse {
   0%, 100% {
     opacity: 0.95;
-    box-shadow: 0 0 0 0 rgba(63, 111, 182, 0.25);
+    box-shadow: 0 0 0 0 rgba(18, 164, 107, 0.25);
   }
   50% {
     opacity: 0.75;
-    box-shadow: 0 0 0 3px rgba(63, 111, 182, 0.0);
+    box-shadow: 0 0 0 3px rgba(18, 164, 107, 0.0);
   }
 }
 
@@ -62,11 +60,11 @@ body {
 @keyframes pulse-amber {
   0%, 100% {
     opacity: 0.95;
-    box-shadow: 0 0 0 0 rgba(196, 128, 18, 0.25);
+    box-shadow: 0 0 0 0 rgba(217, 138, 0, 0.25);
   }
   50% {
     opacity: 0.75;
-    box-shadow: 0 0 0 3px rgba(196, 128, 18, 0.0);
+    box-shadow: 0 0 0 3px rgba(217, 138, 0, 0.0);
   }
 }
 
@@ -113,12 +111,12 @@ body {
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(20, 35, 55, 0.122);
+  box-shadow: 0 8px 32px rgba(16, 24, 40, 0.122);
 }
 
 /* ── DIVIDER ────────────────────────────────────────────── */
 .divider {
-  border-top: 1px solid rgba(32, 53, 80, 0.06);
+  border-top: 1px solid rgba(20, 26, 34, 0.06);
   padding-top: 14px;
   margin-top: 14px;
 }
@@ -139,6 +137,6 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(ellipse at center, transparent 60%, rgba(20, 35, 55, 0.105) 100%);
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(16, 24, 40, 0.105) 100%);
   pointer-events: none;
 }

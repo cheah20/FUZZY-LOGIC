@@ -7,9 +7,9 @@
 .dashboard-chart-area {
   width: 100%;
   height: 290px;
-  background: rgba(20, 35, 55, 0.087);
+  background: rgba(16, 24, 40, 0.087);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(32, 53, 80, 0.06);
+  border: 1px solid rgba(20, 26, 34, 0.06);
   position: relative;
   overflow: hidden;
 }
@@ -19,7 +19,7 @@
   font-size: 22px;
   font-weight: 700;
   color: var(--strong-sell);
-  text-shadow: 0 0 20px rgba(217, 98, 43, 0.35);
+  text-shadow: 0 0 20px rgba(229, 68, 59, 0.35);
   letter-spacing: -0.01em;
 }
 
@@ -31,7 +31,7 @@
 
 .mi-feed-header {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(32, 53, 80, 0.06);
+  border-bottom: 1px solid rgba(20, 26, 34, 0.06);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -39,8 +39,8 @@
 
 /* ── DECISION LOGIC ─────────────────────────────────────── */
 .dl-membership-chart {
-  background: rgba(20, 35, 55, 0.105);
-  border: 1px solid rgba(32, 53, 80, 0.06);
+  background: rgba(16, 24, 40, 0.105);
+  border: 1px solid rgba(20, 26, 34, 0.06);
   border-radius: var(--radius-lg);
   padding: 12px;
 }
@@ -56,7 +56,7 @@
   font-size: 20px;
   font-weight: 700;
   color: var(--strong-sell);
-  text-shadow: 0 0 20px rgba(217, 98, 43, 0.4);
+  text-shadow: 0 0 20px rgba(229, 68, 59, 0.4);
 }
 
 .dl-signal-conf {
@@ -69,15 +69,15 @@
 .dl-conf-label {
   font-family: var(--font-mono);
   font-size: 9px;
-  color: rgba(32, 53, 80, 0.45);
+  color: rgba(20, 26, 34, 0.45);
   text-transform: uppercase;
   margin-bottom: 7px;
 }
 
 /* ── BACKTESTING ────────────────────────────────────────── */
 .bt-chart-container {
-  background: rgba(20, 35, 55, 0.07);
-  border: 1px solid rgba(32, 53, 80, 0.05);
+  background: rgba(16, 24, 40, 0.07);
+  border: 1px solid rgba(20, 26, 34, 0.05);
   border-radius: var(--radius-lg);
   padding: 14px;
 }
@@ -96,7 +96,7 @@
 .settings-api-header {
   font-family: var(--font-mono);
   font-size: 9px;
-  color: rgba(32, 53, 80, 0.45);
+  color: rgba(20, 26, 34, 0.45);
   text-transform: uppercase;
   margin-bottom: 5px;
 }
@@ -116,15 +116,15 @@
 .settings-theme-btn {
   flex: 1;
   height: 44px;
-  background: rgba(32, 53, 80, 0.05);
+  background: rgba(20, 26, 34, 0.05);
   backdrop-filter: var(--blur-medium);
-  border: 1px solid rgba(32, 53, 80, 0.08);
+  border: 1px solid rgba(20, 26, 34, 0.08);
   border-radius: var(--radius-lg);
   cursor: pointer;
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 600;
-  color: rgba(32, 53, 80, 0.45);
+  color: rgba(20, 26, 34, 0.45);
 }
 
 .settings-theme-btn--active {
@@ -140,18 +140,18 @@
 .settings-density-btn {
   flex: 1;
   padding: 7px 2px;
-  background: rgba(32, 53, 80, 0.04);
-  border: 1px solid rgba(32, 53, 80, 0.07);
+  background: rgba(20, 26, 34, 0.04);
+  border: 1px solid rgba(20, 26, 34, 0.07);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-family: var(--font-sans);
   font-size: 10px;
-  color: rgba(32, 53, 80, 0.45);
+  color: rgba(20, 26, 34, 0.45);
 }
 
 .settings-density-btn--active {
-  background: rgba(32, 53, 80, 0.09);
-  border-color: rgba(32, 53, 80, 0.18);
+  background: rgba(20, 26, 34, 0.09);
+  border-color: rgba(20, 26, 34, 0.18);
   color: var(--gold-soft);
   font-weight: 600;
 }
@@ -169,19 +169,19 @@
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 400;
-  color: rgba(32, 53, 80, 0.45);
+  color: rgba(20, 26, 34, 0.45);
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .settings-nav-item:hover {
   color: var(--white-soft);
-  background: rgba(32, 53, 80, 0.04);
+  background: rgba(20, 26, 34, 0.04);
 }
 
 .settings-nav-item--active {
   color: var(--white-soft);
-  background: rgba(32, 53, 80, 0.06);
+  background: rgba(20, 26, 34, 0.06);
   font-weight: 500;
 }
 
@@ -196,7 +196,7 @@
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 400;
-  color: rgba(32, 53, 80, 0.45);
+  color: rgba(20, 26, 34, 0.45);
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -215,12 +215,12 @@
 /* ── DANGER INSET QUOTE ─────────────────────────────────── */
 .settings-quote {
   padding: 12px;
-  background: rgba(20, 35, 55, 0.07);
-  border-left: 2px solid rgba(32, 53, 80, 0.18);
+  background: rgba(16, 24, 40, 0.07);
+  border-left: 2px solid rgba(20, 26, 34, 0.18);
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
   font-family: var(--font-mono);
   font-size: 10px;
-  color: rgba(32, 53, 80, 0.45);
+  color: rgba(20, 26, 34, 0.45);
   font-style: italic;
   line-height: 1.7;
 }

@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateDashboardMetrics(data);
             if (data.chart_data) drawPriceChart(data.chart_data);
             updateExpertPanel(data);
-            setAnalyzeStatus(ticker + ' — ' + data.source, 'ok');
+            setAnalyzeStatus(ticker + ' · ' + data.source, 'ok');
             localStorage.setItem('astdss:lastTicker', ticker);
 
         } catch (err) {
@@ -54,23 +54,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function setAnalyzeStatus(msg, type) {
         if (!analyzeStatus) return;
         const colors = { ok: 'var(--synced-green)', error: 'var(--strong-sell)',
-                         warn: 'var(--optimal-processing)', info: 'rgba(32, 53, 80, 0.45)' };
+                         warn: 'var(--optimal-processing)', info: 'rgba(20, 26, 34, 0.45)' };
         analyzeStatus.textContent = msg;
         analyzeStatus.style.color = colors[type] || colors.info;
     }
 
     // Update stat cards
     function updateDashboardMetrics(d) {
-        _setEl('live-ticker-label', d.ticker + ' PRICE');
+        _setEl('live-ticker-label', d.ticker);
         _setEl('live-price',  _fmt(d.price));
         _setEl('live-rsi',    d.rsi != null  ? d.rsi.toFixed(1)  : '—');
         _setEl('live-atr',    d.atr  != null ? 'ATR ' + d.atr.toFixed(2) : '—');
-        _setEl('live-source', d.source ? d.source.replace(/yfinance/, 'LIVE') : 'LIVE');
+        _setEl('live-source', d.source ? d.source.replace(/yfinance/, 'Live') : 'Live');
+        const pin = document.getElementById('decision-pin');
+        if (pin && typeof d.expert_score === 'number') {
+            const pos = Math.max(0, Math.min(100, (d.expert_score + 2) / 4 * 100));
+            pin.style.left = pos.toFixed(1) + '%';
+        }
 
         const sigEl  = document.getElementById('live-signal');
         const regEl  = document.getElementById('live-regime');
         if (sigEl) {
-            sigEl.textContent = (d.expert_label || '—').toUpperCase();
+            sigEl.textContent = d.expert_label || '—';
             sigEl.style.color = _signalColor(d.expert_label);
         }
         if (regEl) regEl.textContent = d.regime_display || '';
@@ -78,8 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         _setEl('agg-signal', (d.expert_label || '—').toUpperCase());
         const aggScore = document.getElementById('agg-score');
         if (aggScore) {
-            aggScore.textContent = 'score ' + (d.expert_score >= 0 ? '+' : '') +
-                d.expert_score.toFixed(3) + ' · ' + (d.regime_display || '');
+            aggScore.textContent = 'score ' + (d.expert_score >= 0 ? '+' : '') + d.expert_score.toFixed(3);
         }
     }
 
@@ -90,95 +94,112 @@ document.addEventListener('DOMContentLoaded', () => {
         const regimeBadge = document.getElementById('dash-regime-badge');
         if (regimeBadge && d.regime_display) regimeBadge.textContent = d.regime_display;
 
-        // Input display bars (MASKED state)
-        if (d.active_features && d.masked_features) {
-            document.querySelectorAll('[id^="input-bar-"]').forEach(bar => {
-                const feat = bar.dataset.feature;
-                if (feat) {
-                    const masked = d.masked_features.includes(feat);
-                    bar.style.opacity = masked ? '0.25' : '1';
-                }
-            });
+        // indicator rows, same data the server used for the first render
+        const rows = document.getElementById('dash-inputs');
+        if (rows && d.input_display) {
+            rows.innerHTML = d.input_display.map(r => `
+    <div class="input-row${r.active ? '' : ' is-masked'}">
+      <div class="input-row__top">
+        <span class="input-row__name">${r.label}${r.active ? '' : ' · Masked'}</span>
+        <span class="input-row__val" style="color:${r.color}">${r.value}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-bar__fill" style="width:${r.pct}%;background:${r.color};opacity:${r.active ? 1 : 0.35};"></div></div>
+    </div>`).join('');
+        }
+
+        // bottom "Expert reasoning" tab
+        const tags = (list, cls) => list && list.length
+            ? list.map(f => `<span class="badge ${cls}" style="margin:0 4px 4px 0;">${f}</span>`).join('')
+            : '<span style="color:var(--text-faint);">none</span>';
+        _setEl('dash-rule', d.triggered_rule || '');
+        if (typeof d.regime_confidence === 'number') _setEl('dash-conf', Math.round(d.regime_confidence * 100));
+        const act = document.getElementById('dash-active');
+        if (act) act.innerHTML = tags(d.active_features, 'badge--synced');
+        const msk = document.getElementById('dash-masked');
+        if (msk) msk.innerHTML = tags(d.masked_features, 'badge--idle');
+        const flc = document.getElementById('dash-flc');
+        if (flc && d.expert_label) {
+            flc.innerHTML = `<b style="color:${_signalColor(d.expert_label)};">${d.expert_label}</b> ` +
+                `<span style="color:var(--text-muted);">(${d.expert_score >= 0 ? '+' : ''}${d.expert_score.toFixed(2)})</span>`;
         }
     }
 
-    // Price line chart (SVG)
+    // Price chart: candles when open/high/low are there, a line otherwise
+    let lastChart = null;
+    window.addEventListener('resize', () => { if (lastChart) drawPriceChart(lastChart); });
+
     function drawPriceChart(cd) {
         const container = document.getElementById('live-chart-container');
         if (!container || !cd.close || !cd.close.length) return;
+        lastChart = cd;
 
-        const W = 700, H = 280, PAD = 20, VPAD = 30;
-        const closes  = cd.close;
+        const box = container.getBoundingClientRect();
+        const W = Math.round(box.width) || 1000, H = Math.round(box.height) || 400, AXIS = 72, VOL_H = 60, TOP = 18;
+        const closes = cd.close;
+        const n = closes.length;
+        const hasOhlc = cd.open && cd.high && cd.low && cd.open.length === n;
+        const highs = hasOhlc ? cd.high : closes;
+        const lows = hasOhlc ? cd.low : closes;
         const volumes = cd.volume || [];
-        const n       = closes.length;
+        const up = '#12a46b', down = '#e5443b', grid = '#eef0f3', label = '#a5adb8';
 
-        const minP = Math.min(...closes);
-        const maxP = Math.max(...closes);
-        const rng  = maxP - minP || 1;
+        const maxP = Math.max(...highs), minP = Math.min(...lows);
+        const rng = maxP - minP || 1;
+        const plotW = W - AXIS, plotH = H - VOL_H - TOP - 20;
+        const step = plotW / n;
+        const x = i => i * step + step / 2;
+        const y = p => TOP + (maxP - p) / rng * plotH;
 
-        // Map price -> Y (SVG Y is inverted)
-        const py = p => PAD + (1 - (p - minP) / rng) * (H - PAD * 2 - VPAD);
-        const px = i => (i / (n - 1)) * W;
-
-        // Build SVG polyline points
-        let pts = closes.map((p, i) => px(i).toFixed(1) + ',' + py(p).toFixed(1)).join(' ');
-        let first = closes[0], last = closes[n - 1];
-        let isUp  = last >= first;
-        let lineColor = isUp ? 'var(--synced-green)' : 'var(--strong-sell)';
-
-        // Volume bars (bottom strip)
-        let volBars = '';
-        const VH = VPAD - 4, VY0 = H - VH - 2;
-        volumes.forEach((v, i) => {
-            const bw  = Math.max(1, W / n - 1);
-            const bh  = Math.round(v / 100 * VH);
-            const bx  = px(i) - bw / 2;
-            const col = i > 0 && closes[i] >= closes[i - 1]
-                ? 'rgba(63, 111, 182, 0.35)' : 'rgba(217, 98, 43, 0.3)';
-            volBars += `<rect x="${bx.toFixed(1)}" y="${(VY0 + VH - bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh}" fill="${col}" rx="0.5"/>`;
-        });
-
-        // Price area gradient fill
-        let areaPath = `M${px(0).toFixed(1)},${py(closes[0]).toFixed(1)} `;
-        closes.forEach((p, i) => { if (i > 0) areaPath += `L${px(i).toFixed(1)},${py(p).toFixed(1)} `; });
-        areaPath += `L${W},${py(closes[n-1]).toFixed(1)} L${W},${H} L0,${H} Z`;
-
-        // Current price label
-        const lastX  = px(n - 1).toFixed(1);
-        const lastY  = py(last).toFixed(1);
-        const priceTag = `<line x1="0" y1="${lastY}" x2="${W}" y2="${lastY}" stroke="${lineColor}" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.4"/>` +
-            `<rect x="${W - 80}" y="${parseFloat(lastY) - 10}" width="78" height="18" rx="3" fill="#ffffff" stroke="${lineColor}" stroke-width="0.8"/>` +
-            `<text x="${W - 41}" y="${parseFloat(lastY) + 3.5}" text-anchor="middle" fill="${lineColor}" style="font:700 9px 'Roboto Mono'">${_fmt(last)}</text>`;
-
-        // Date labels (first, mid, last)
-        let dateLbls = '';
-        if (cd.dates && cd.dates.length) {
-            [[0, cd.dates[0]], [Math.floor(n/2), cd.dates[Math.floor(n/2)]], [n-1, cd.dates[n-1]]]
-                .forEach(([i, d]) => {
-                    if (!d) return;
-                    const x = px(i).toFixed(1);
-                    dateLbls += `<text x="${x}" y="${H - 2}" text-anchor="middle" fill="rgba(32, 53, 80, 0.45)" style="font:8px 'Roboto Mono'">${d.slice(5)}</text>`;
-                });
+        let out = '';
+        for (let g = 0; g <= 5; g++) {
+            const gy = TOP + g * plotH / 5;
+            const val = maxP - g * rng / 5;
+            out += `<line x1="0" x2="${plotW}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="${grid}"/>`;
+            out += `<text x="${plotW + 8}" y="${(gy + 4).toFixed(1)}" fill="${label}" style="font:11px Roboto">${_fmt(val)}</text>`;
         }
 
-        container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%" preserveAspectRatio="none">
-  <defs>
-    <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${lineColor}" stop-opacity=".18"/>
-      <stop offset="100%" stop-color="${lineColor}" stop-opacity="0"/>
-    </linearGradient>
-    <pattern id="chartGrid" width="70" height="56" patternUnits="userSpaceOnUse">
-      <line x1="70" y1="0" x2="70" y2="${H}" stroke="#c9ccd1" stroke-width="1" stroke-dasharray="4 4"/>
-      <line x1="0" y1="56" x2="${W}" y2="56" stroke="#c9ccd1" stroke-width="1" stroke-dasharray="4 4"/>
-    </pattern>
-  </defs>
-  <rect width="${W}" height="${H}" fill="url(#chartGrid)"/>
-  ${volBars}
-  <path d="${areaPath}" fill="url(#priceGrad)"/>
-  <polyline points="${pts}" fill="none" stroke="${lineColor}" stroke-width="1.8" stroke-linejoin="round"/>
-  ${priceTag}
-  ${dateLbls}
-</svg>`;
+        closes.forEach((c, i) => {
+            const prev = i > 0 ? closes[i - 1] : c;
+            const o = hasOhlc ? cd.open[i] : prev;
+            const col = c >= o ? up : down;
+            if (hasOhlc) {
+                out += `<line x1="${x(i).toFixed(1)}" x2="${x(i).toFixed(1)}" y1="${y(cd.high[i]).toFixed(1)}" y2="${y(cd.low[i]).toFixed(1)}" stroke="${col}"/>`;
+                const top = y(Math.max(o, c)), h = Math.max(1, Math.abs(y(o) - y(c)));
+                out += `<rect x="${(x(i) - step * 0.32).toFixed(1)}" y="${top.toFixed(1)}" width="${(step * 0.64).toFixed(1)}" height="${h.toFixed(1)}" fill="${col}"/>`;
+            }
+            if (volumes[i] != null) {
+                const vh = volumes[i] / 100 * VOL_H;
+                out += `<rect x="${(x(i) - step * 0.32).toFixed(1)}" y="${(H - 20 - vh).toFixed(1)}" width="${(step * 0.64).toFixed(1)}" height="${vh.toFixed(1)}" fill="${col}" opacity="0.3"/>`;
+            }
+        });
+
+        if (!hasOhlc) {
+            const pts = closes.map((c, i) => x(i).toFixed(1) + ',' + y(c).toFixed(1)).join(' ');
+            out += `<polyline points="${pts}" fill="none" stroke="${closes[n - 1] >= closes[0] ? up : down}" stroke-width="1.8"/>`;
+        }
+
+        // 20-day moving average
+        let ma = '';
+        for (let i = 19; i < n; i++) {
+            const avg = closes.slice(i - 19, i + 1).reduce((a, b) => a + b, 0) / 20;
+            ma += x(i).toFixed(1) + ',' + y(avg).toFixed(1) + ' ';
+        }
+        if (ma) out += `<polyline points="${ma}" fill="none" stroke="#f0a020" stroke-width="1.6"/>`;
+
+        // last price tag on the axis
+        const last = closes[n - 1], ly = y(last);
+        const lastCol = last >= (hasOhlc ? cd.open[n - 1] : closes[n - 2] || last) ? up : down;
+        out += `<line x1="0" x2="${plotW}" y1="${ly.toFixed(1)}" y2="${ly.toFixed(1)}" stroke="${lastCol}" stroke-dasharray="3 3" opacity="0.6"/>`;
+        out += `<rect x="${plotW + 2}" y="${(ly - 10).toFixed(1)}" width="${AXIS - 4}" height="20" rx="2" fill="${lastCol}"/>`;
+        out += `<text x="${plotW + 8}" y="${(ly + 4).toFixed(1)}" fill="#fff" style="font:500 11px Roboto">${_fmt(last)}</text>`;
+
+        if (cd.dates && cd.dates.length) {
+            [0, Math.floor(n / 3), Math.floor(2 * n / 3), n - 1].forEach(i => {
+                if (cd.dates[i]) out += `<text x="${x(i).toFixed(1)}" y="${H - 4}" text-anchor="middle" fill="${label}" style="font:11px Roboto">${cd.dates[i].slice(5)}</text>`;
+            });
+        }
+
+        container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%">${out}</svg>`;
     }
 
 
@@ -215,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.style.color = '';
             });
             btn.classList.add('bt-period-btn--active');
-            btn.style.background    = 'rgba(32, 53, 80, 0.108)';
-            btn.style.borderColor   = 'rgba(32, 53, 80, 0.18)';
+            btn.style.background    = 'rgba(20, 26, 34, 0.108)';
+            btn.style.borderColor   = 'rgba(20, 26, 34, 0.18)';
             btn.style.color         = 'var(--gold-soft)';
             _updateEvalPeriod();
         });
@@ -250,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             displayBacktestResults(data);
-            _btStatus('Done — ' + data.total_bars + ' bars (' + activePeriod.toUpperCase() + ')', 'ok');
+            _btStatus('Done: ' + data.total_bars + ' bars, ' + activePeriod.toUpperCase(), 'ok');
 
         } catch (err) {
             _btStatus('Network error. Is the server running?', 'error');
@@ -340,13 +361,13 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="section-header__title">BASELINE vs EXPERT</span>
               <span class="badge ${ew ? 'badge--synced' : 'badge--idle'}" style="margin-left:auto;font-size:8px;">${ew ? 'EXPERT WINS' : 'BASELINE WINS'}</span>
             </div>
-            <div style="font-family:var(--font-mono);font-size:8px;color:rgba(32, 53, 80, 0.45);line-height:1.5;margin-bottom:12px;">
+            <div style="font-family:var(--font-mono);font-size:8px;color:rgba(20, 26, 34, 0.45);line-height:1.5;margin-bottom:12px;">
               The Human Expert Layer changes and explains decisions under risky/extreme market regimes — it is not guaranteed to outperform the baseline on every dataset or window.
             </div>
             <div style="margin-bottom:10px;">
               <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
-                <span style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;">Total Return</span>
-                <span style="font:8px var(--font-mono);color:rgba(32, 53, 80, 0.45);">B&H ${def(d.buy_hold_return, '%')}</span>
+                <span style="font:9px var(--font-mono);color:rgba(20, 26, 34, 0.45);text-transform:uppercase;">Total Return</span>
+                <span style="font:8px var(--font-mono);color:rgba(20, 26, 34, 0.45);">B&H ${def(d.buy_hold_return, '%')}</span>
               </div>
               <div style="display:flex;justify-content:space-between;">
                 <span style="font:600 11px var(--font-mono);color:${d.expert.total_return>=0?'var(--synced-green)':'var(--strong-sell)'}">${def(d.expert.total_return,'%')}</span>
@@ -354,21 +375,21 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>${bar(d.expert.total_return, d.baseline.total_return)}
             </div>
             <div style="margin-bottom:10px;">
-              <div style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;margin-bottom:2px;">Win Rate</div>
+              <div style="font:9px var(--font-mono);color:rgba(20, 26, 34, 0.45);text-transform:uppercase;margin-bottom:2px;">Win Rate</div>
               <div style="display:flex;justify-content:space-between;">
                 <span style="font:600 11px var(--font-mono);color:var(--gold-soft)">${(d.expert.win_rate||0).toFixed(1)}%</span>
                 <span style="font:11px var(--font-mono);color:var(--secondary)">${(d.baseline.win_rate||0).toFixed(1)}%</span>
               </div>${bar(d.expert.win_rate||0, d.baseline.win_rate||0)}
             </div>
             <div style="margin-bottom:10px;">
-              <div style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;margin-bottom:2px;">Sharpe Ratio</div>
+              <div style="font:9px var(--font-mono);color:rgba(20, 26, 34, 0.45);text-transform:uppercase;margin-bottom:2px;">Sharpe Ratio</div>
               <div style="display:flex;justify-content:space-between;">
                 <span style="font:600 11px var(--font-mono);color:var(--gold-soft)">${(d.expert.sharpe||0).toFixed(3)}</span>
                 <span style="font:11px var(--font-mono);color:var(--secondary)">${(d.baseline.sharpe||0).toFixed(3)}</span>
               </div>${bar(Math.abs(d.expert.sharpe||0), Math.abs(d.baseline.sharpe||0))}
             </div>
-            <div style="padding:8px 10px;background:rgba(63, 111, 182, 0.05);border:1px solid rgba(63, 111, 182, 0.12);border-radius:var(--radius-md);">
-              <span style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);">Expert vs Buy &amp; Hold</span>
+            <div style="padding:8px 10px;background:rgba(18, 164, 107, 0.05);border:1px solid rgba(18, 164, 107, 0.12);border-radius:var(--radius-md);">
+              <span style="font:9px var(--font-mono);color:rgba(20, 26, 34, 0.45);">Expert vs Buy &amp; Hold</span>
               <span style="float:right;font:700 11px var(--font-mono);color:${(d.expert.total_return-d.buy_hold_return)>=0?'var(--synced-green)':'var(--strong-sell)'}">${def(d.expert.total_return-d.buy_hold_return,'%')}</span>
             </div>`;
         }
@@ -378,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dateDiv && d.dates && d.dates.length) {
             const n = d.dates.length;
             const lbls = [d.dates[0], d.dates[Math.floor(n / 2)], d.dates[n - 1]];
-            dateDiv.innerHTML = lbls.map(dt => `<span style="font-family:var(--font-mono);font-size:8px;color:rgba(32, 53, 80, 0.45);">${dt ? dt.slice(0,7) : ''}</span>`).join('');
+            dateDiv.innerHTML = lbls.map(dt => `<span style="font-family:var(--font-mono);font-size:8px;color:rgba(20, 26, 34, 0.45);">${dt ? dt.slice(0,7) : ''}</span>`).join('');
         }
     }
 
@@ -409,25 +430,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Zero line
         const zeroY = vy(0).toFixed(1);
-        const zeroLine = `<line x1="0" y1="${zeroY}" x2="${W}" y2="${zeroY}" stroke="rgba(32, 53, 80, 0.12)" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+        const zeroLine = `<line x1="0" y1="${zeroY}" x2="${W}" y2="${zeroY}" stroke="rgba(20, 26, 34, 0.12)" stroke-width="0.8" stroke-dasharray="4,3"/>`;
 
         // Grid
         const grid = `<pattern id="btGrid" width="70" height="45" patternUnits="userSpaceOnUse">
-            <line x1="70" y1="0" x2="70" y2="${H}" stroke="rgba(32, 53, 80, 0.03)" stroke-width="1"/>
-            <line x1="0" y1="45" x2="${W}" y2="45" stroke="rgba(32, 53, 80, 0.03)" stroke-width="1"/>
+            <line x1="70" y1="0" x2="70" y2="${H}" stroke="rgba(20, 26, 34, 0.03)" stroke-width="1"/>
+            <line x1="0" y1="45" x2="${W}" y2="45" stroke="rgba(20, 26, 34, 0.03)" stroke-width="1"/>
         </pattern>`;
 
         // Split line
         const splitX = (d.split_index / n * W).toFixed(1);
-        const splitLine = `<line x1="${splitX}" y1="0" x2="${splitX}" y2="${H}" stroke="rgba(32, 53, 80, 0.12)" stroke-width="0.8" stroke-dasharray="3,3"/>
-            <text x="${parseFloat(splitX) + 4}" y="14" fill="rgba(32, 53, 80, 0.45)" style="font:7px 'Roboto Mono'">OOS 30%</text>`;
+        const splitLine = `<line x1="${splitX}" y1="0" x2="${splitX}" y2="${H}" stroke="rgba(20, 26, 34, 0.12)" stroke-width="0.8" stroke-dasharray="3,3"/>
+            <text x="${parseFloat(splitX) + 4}" y="14" fill="rgba(20, 26, 34, 0.45)" style="font:7px Roboto">OOS 30%</text>`;
 
         container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%" preserveAspectRatio="none">
   <defs>${grid}</defs>
   <rect width="${W}" height="${H}" fill="url(#btGrid)"/>
   ${zeroLine}
   ${splitLine}
-  ${toPath(bah,      'rgba(32, 53, 80, 0.45)', '4,3', 1.2)}
+  ${toPath(bah,      'rgba(20, 26, 34, 0.45)', '4,3', 1.2)}
   ${toPath(baseline, 'var(--secondary)',       '',    1.6)}
   ${toPath(expert,   'var(--gold-soft)',        '',    2.2)}
 </svg>`;
@@ -445,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function _btStatus(msg, type) {
         if (!btStatusEl) return;
         const colors = { ok: 'var(--synced-green)', error: 'var(--strong-sell)',
-                         warn: 'var(--optimal-processing)', info: 'rgba(32, 53, 80, 0.45)' };
+                         warn: 'var(--optimal-processing)', info: 'rgba(20, 26, 34, 0.45)' };
         btStatusEl.textContent = msg;
         btStatusEl.style.color = colors[type] || colors.info;
     }
@@ -477,8 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clockEl = document.querySelector('[data-clock]');
     if (clockEl) {
         const tick = () => {
-            clockEl.textContent = 'LATEST REFRESH: ' +
-                new Date().toUTCString().slice(17, 25) + ' UTC';
+            clockEl.textContent = new Date().toUTCString().slice(17, 25) + ' UTC';
         };
         tick();
         setInterval(tick, 1000);
@@ -578,8 +598,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(ctr);
         }
         const t = document.createElement('div');
-        const clr = {success:'rgba(63, 111, 182, 0.92)',warn:'rgba(196, 128, 18, 0.92)',error:'rgba(217, 98, 43, 0.92)',info:'rgba(63, 111, 182, 0.88)',demo:'rgba(32, 53, 80, 0.81)'};
-        t.style.cssText = 'padding:10px 16px;background:'+( clr[type]||clr.info)+';color:#ffffff;border-radius:12px;font:600 11px "Roboto Mono",monospace;opacity:0;transition:opacity 0.25s;max-width:340px;cursor:pointer;pointer-events:auto;box-shadow:0 8px 24px rgba(20, 35, 55, 0.14);';
+        const clr = {success:'rgba(18, 164, 107, 0.92)',warn:'rgba(217, 138, 0, 0.92)',error:'rgba(229, 68, 59, 0.92)',info:'rgba(18, 164, 107, 0.88)',demo:'rgba(20, 26, 34, 0.81)'};
+        t.style.cssText = 'padding:10px 16px;background:'+( clr[type]||clr.info)+';color:#ffffff;border-radius:12px;font:600 11px "Roboto Mono",monospace;opacity:0;transition:opacity 0.25s;max-width:340px;cursor:pointer;pointer-events:auto;box-shadow:0 8px 24px rgba(16, 24, 40, 0.14);';
         t.textContent = msg;
         ctr.appendChild(t);
         setTimeout(() => { t.style.opacity = '1'; }, 10);
@@ -601,10 +621,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.style.color       = '';
             });
             this.classList.add('tf-btn--active');
-            this.style.background  = 'rgba(32, 53, 80, 0.108)';
-            this.style.borderColor = 'rgba(32, 53, 80, 0.18)';
+            this.style.background  = 'rgba(20, 26, 34, 0.108)';
+            this.style.borderColor = 'rgba(20, 26, 34, 0.18)';
             this.style.color       = 'var(--gold-soft)';
-            showToast('Chart timeframe: ' + this.dataset.tf.toUpperCase() + ' — refreshing…', 'info', 1800);
+            showToast('Chart timeframe: ' + this.dataset.tf.toUpperCase(), 'info', 1800);
         });
     });
 
@@ -614,10 +634,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let paused = false;
         btnPause.addEventListener('click', () => {
             paused = !paused;
-            btnPause.textContent = paused ? '▶ RESUME SYSTEM' : '⏸ PAUSE SYSTEM';
-            btnPause.style.borderColor  = paused ? 'rgba(196, 128, 18, 0.3)' : '';
+            btnPause.textContent = paused ? 'Resume system' : 'Pause system';
+            btnPause.style.borderColor  = paused ? 'rgba(217, 138, 0, 0.3)' : '';
             btnPause.style.color        = paused ? 'var(--optimal-processing)' : '';
-            showToast(paused ? 'System paused — pipeline halted' : 'System resumed — pipeline active', paused ? 'warn' : 'success');
+            showToast(paused ? 'System paused' : 'System running again', paused ? 'warn' : 'success');
         });
     }
 
@@ -626,10 +646,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnOverride) {
         btnOverride.addEventListener('click', () => {
             btnOverride.disabled = true;
-            showToast('Override submitted to Execution Agent — awaiting confirmation…', 'warn', 4000);
+            showToast('Override sent to the execution agent…', 'warn', 4000);
             setTimeout(() => {
                 btnOverride.disabled = false;
-                showToast('Override acknowledged. No real trade executed (demo mode).', 'demo', 4000);
+                showToast('Override noted. Demo only, no real trade.', 'demo', 4000);
             }, 2200);
         });
     }
@@ -642,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Routing order to Execution Agent…', 'info', 1800);
             setTimeout(() => {
                 btnExecTrade.disabled = false;
-                showToast('Order submitted (demo mode — no real trade executed).', 'demo', 4000);
+                showToast('Order sent. Demo only, no real trade.', 'demo', 4000);
             }, 1600);
         });
     }
@@ -723,10 +743,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (label) {
                 label.textContent = d.is_live
                     ? `LIVE / CACHED FINANCE NEWS VIA ${(d.source || '').toUpperCase()}`
-                    : 'DEMO SAMPLE FEED — add MARKETAUX_API_KEY to enable live finance news';
+                    : 'Demo feed. Add MARKETAUX_API_KEY to .env for live news.';
                 label.style.color = d.is_live ? 'var(--semantic-buy)' : 'var(--text-muted)';
             }
-            if (dot) dot.style.background = d.is_live ? '' : 'rgba(32, 53, 80, 0.45)';
+            if (dot) dot.style.background = d.is_live ? '' : 'rgba(20, 26, 34, 0.45)';
             if (upd) upd.textContent = 'Updated ' + (d.last_updated || '').replace('T', ' ');
         }
 
@@ -743,8 +763,8 @@ document.addEventListener('DOMContentLoaded', () => {
             badge.className   = 'badge ' + (d.is_live ? 'badge--synced' : 'badge--idle');
 
             if (updated) updated.textContent = d.is_live
-                ? `Live/cached finance headlines via ${d.source} — updated ${(d.last_updated || '').replace('T', ' ')}`
-                : `Demo sample feed — updated ${(d.last_updated || '').replace('T', ' ')}`;
+                ? `Headlines from ${d.source}, updated ${(d.last_updated || '').replace('T', ' ')}`
+                : `Demo feed, updated ${(d.last_updated || '').replace('T', ' ')}`;
 
             const brief = d.ai_brief || {};
             if (briefEl) briefEl.textContent = brief.text || 'No brief available.';
@@ -811,7 +831,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const miFiltBtn = document.getElementById('mi-filters-btn');
         if (miFiltBtn) {
             miFiltBtn.addEventListener('click', () => {
-                showToast('Advanced filters: coming in next update (demo)', 'demo', 2500);
+                showToast('Advanced filters are not built yet.', 'demo', 2500);
             });
         }
 
@@ -825,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (valEl) {
                 const v = 40 + Math.floor(Math.random() * 40);
                 valEl.textContent = v;
-                if (lblEl) lblEl.textContent = v > 65 ? 'GREED PREVAILING' : v > 45 ? 'NEUTRAL MARKET' : 'FEAR PREVAILING';
+                if (lblEl) lblEl.textContent = v > 65 ? 'Mostly greed' : v > 45 ? 'Neutral' : 'Mostly fear';
             }
         }, 15000);
     }
@@ -843,8 +863,8 @@ document.addEventListener('DOMContentLoaded', () => {
             p.style.cssText = 'position:absolute;inset:0;background:rgba(255, 255, 255, 0.94);backdrop-filter:blur(8px);z-index:10;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-lg);animation:fadeIn .25s ease;';
             p.innerHTML = '<div style="text-align:center;padding:24px;max-width:400px;">' +
                 '<div style="font-family:var(--font-mono);font-size:10px;color:var(--gold-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">' + title + '</div>' +
-                '<div style="font-family:var(--font-mono);font-size:11px;color:rgba(32, 53, 80, 0.6);line-height:1.8;">' + content + '</div>' +
-                '<button onclick="this.closest(\'[style*=\\\"position:absolute\\\"]\').remove();document.querySelectorAll(\'.tab-bar__item\').forEach(b=>b.classList.remove(\'tab-bar__item--active\'));document.querySelectorAll(\'.tab-bar__item\')[0].classList.add(\'tab-bar__item--active\')" style="margin-top:16px;font-family:var(--font-mono);font-size:10px;padding:8px 16px;background:rgba(32, 53, 80, 0.108);border:1px solid rgba(32, 53, 80, 0.225);border-radius:var(--radius-lg);color:var(--gold-soft);cursor:pointer;"> Back to Fuzzification</button>' +
+                '<div style="font-family:var(--font-mono);font-size:11px;color:rgba(20, 26, 34, 0.6);line-height:1.8;">' + content + '</div>' +
+                '<button onclick="this.closest(\'[style*=\\\"position:absolute\\\"]\').remove();document.querySelectorAll(\'.tab-bar__item\').forEach(b=>b.classList.remove(\'tab-bar__item--active\'));document.querySelectorAll(\'.tab-bar__item\')[0].classList.add(\'tab-bar__item--active\')" style="margin-top:16px;font-family:var(--font-mono);font-size:10px;padding:8px 16px;background:rgba(20, 26, 34, 0.108);border:1px solid rgba(20, 26, 34, 0.225);border-radius:var(--radius-lg);color:var(--gold-soft);cursor:pointer;"> Back to Fuzzification</button>' +
                 '</div>';
             p.dataset.tabPanel = '1';
             return p;
@@ -898,7 +918,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     dlExec.disabled = false;
                     const sig = document.getElementById('agg-signal')?.textContent || 'current signal';
-                    showToast('Trade executed: ' + sig + ' (demo mode — no real order sent).', 'demo', 4000);
+                    showToast('Trade executed: ' + sig + '. Demo only, no real order.', 'demo', 4000);
                 }, 1500);
             });
         }
@@ -968,11 +988,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btnConnTest.addEventListener('click', () => {
             btnConnTest.disabled     = true;
             btnConnTest.textContent  = 'TESTING CONNECTIONS…';
-            showToast('Running API connectivity test…', 'info', 2000);
+            showToast('Checking connections…', 'info', 2000);
             setTimeout(() => {
                 btnConnTest.disabled    = false;
                 btnConnTest.textContent = 'RUN GLOBAL CONNECTION TEST';
-                showToast('Bloomberg: ACTIVE  |  Reuters: TIMEOUT  |  Binance WS: ACTIVE', 'warn', 5000);
+                showToast('Demo only. Prices come from Yahoo Finance; news and the LLM need keys in .env.', 'warn', 5000);
             }, 2400);
         });
     }
@@ -997,14 +1017,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         el.addEventListener('click', function () {
             isOn = !isOn;
-            el.style.background = isOn ? 'var(--primary)' : 'rgba(32, 53, 80, 0.12)';
+            el.style.background = isOn ? 'var(--primary)' : 'rgba(20, 26, 34, 0.12)';
             el.style.transition  = 'background 0.3s';
             if (thumb) {
                 thumb.style.left       = isOn ? '21px' : '3px';
-                thumb.style.background = isOn ? 'var(--on-primary)' : 'rgba(32, 53, 80, 0.5)';
+                thumb.style.background = isOn ? 'var(--on-primary)' : 'rgba(20, 26, 34, 0.5)';
                 thumb.style.transition = 'left 0.3s, background 0.3s';
             }
-            showToast(label + (isOn ? ' enabled' : ' disabled') + ' — demo mode, no server change', 'demo', 2800);
+            showToast(label + (isOn ? ' enabled' : ' disabled') + ' (demo, nothing saved)', 'demo', 2800);
         });
     });
 
@@ -1019,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.classList.add('settings-theme-btn--active');
             this.style.borderColor = 'var(--gold-soft)';
             this.style.color       = 'var(--gold-soft)';
-            showToast('Theme: ' + this.textContent.trim() + ' (demo — applied locally)', 'demo', 2500);
+            showToast('Theme: ' + this.textContent.trim() + ' (demo, this browser only)', 'demo', 2500);
         });
     });
 
@@ -1033,8 +1053,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.style.color       = '';
             });
             this.classList.add('settings-density-btn--active');
-            this.style.background  = 'rgba(32, 53, 80, 0.09)';
-            this.style.borderColor = 'rgba(32, 53, 80, 0.18)';
+            this.style.background  = 'rgba(20, 26, 34, 0.09)';
+            this.style.borderColor = 'rgba(20, 26, 34, 0.18)';
             this.style.color       = 'var(--gold-soft)';
             this.style.fontWeight  = '600';
             showToast('Layout: ' + this.textContent.trim() + ' density selected (demo)', 'demo', 2500);
@@ -1061,7 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inp.addEventListener('change', () => {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
-                showToast('Setting updated (saved locally — demo mode)', 'demo', 2200);
+                showToast('Setting changed (demo, this browser only)', 'demo', 2200);
             }, 800);
         });
     });
@@ -1092,7 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const vr       = e.expert_validation_result || {};
                     const status   = vr.status || '—';
                     const stab     = e.stability_score != null ? (e.stability_score * 100).toFixed(0) + '%' : '—';
-                    const col      = statusColor[status] || 'rgba(32, 53, 80, 0.45)';
+                    const col      = statusColor[status] || 'rgba(20, 26, 34, 0.45)';
                     return `<tr>
                         <td>${ts}</td>
                         <td style="color:var(--gold-soft);">${label} (${score})</td>
@@ -1105,6 +1125,55 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(() => { if (count) count.textContent = 'Unavailable'; });
     }
     loadAgenticLog();
+
+
+    // Watchlist: click a row to analyse that ticker
+    document.querySelectorAll('.watch-row[data-ticker]').forEach(row => {
+        row.addEventListener('click', () => {
+            if (!tickerInput || !analyzeBtn) return;
+            document.querySelectorAll('.watch-row').forEach(r => r.classList.remove('is-active'));
+            row.classList.add('is-active');
+            tickerInput.value = row.dataset.ticker;
+            analyzeBtn.click();
+        });
+    });
+
+    // Dashboard bottom tabs
+    document.querySelectorAll('[data-desk-tab]').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const name = tab.dataset.deskTab;
+            document.querySelectorAll('[data-desk-tab]').forEach(t => t.classList.toggle('is-on', t === tab));
+            document.querySelectorAll('[data-desk-pane]').forEach(p => { p.hidden = p.dataset.deskPane !== name; });
+        });
+    });
+
+    // Number keys 1-7 jump between pages (ignored while typing)
+    const pages = ['/', '/market-intelligence', '/decision-logic', '/backtesting', '/agentic', '/walkthrough', '/settings'];
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+        const i = parseInt(e.key, 10);
+        if (i >= 1 && i <= pages.length && location.pathname !== pages[i - 1]) location.href = pages[i - 1];
+    });
+
+    // Show the hidden menu once on the first visit so people know it is there
+    if (appSidebar && window.matchMedia('(min-width: 768px)').matches) {
+        let seen = false;
+        try { seen = localStorage.getItem('nt-menu-seen') === '1'; } catch (err) { seen = true; }
+        if (!seen) {
+            appSidebar.classList.add('sidebar--peek');
+            setTimeout(() => appSidebar.classList.remove('sidebar--peek'), 1600);
+            try { localStorage.setItem('nt-menu-seen', '1'); } catch (err) { /* private mode */ }
+        }
+    }
+
+    // Top bar clock
+    const topClock = document.getElementById('topbar-clock');
+    if (topClock) {
+        const tickTop = () => { topClock.textContent = new Date().toTimeString().slice(0, 8); };
+        tickTop();
+        setInterval(tickTop, 1000);
+    }
 
 });
 

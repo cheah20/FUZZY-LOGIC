@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ASTDSS Terminal — {% block title %}Dashboard{% endblock %}</title>
+    <title>{% block title %}Dashboard{% endblock %} · NeuralTrade</title>
     <link rel="shortcut icon" href="data:,">
     <link
       rel="stylesheet"
@@ -12,16 +12,15 @@
     {% block extra_css %}{% endblock %}
   </head>
   <body>
-    <!-- APP SHELL (§4.1): body → app-shell → sidebar + main-area -->
     <div class="app-shell">
-      <!-- MOBILE SIDEBAR BACKDROP (shown only <768px, via #mobile-nav-toggle) -->
+      <!-- dark backdrop behind the menu on phones -->
       <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 
-      <!-- SIDEBAR -->
+      <!-- side menu: hidden at the left edge, slides out on hover -->
       <aside class="sidebar" id="app-sidebar">
         <div class="sidebar-header">
-          <div class="sidebar-title">ASTDSS Terminal</div>
-          <div class="sidebar-subtitle">Active Session: Multi-Agent</div>
+          <div class="sidebar-title">NeuralTrade</div>
+          <div class="sidebar-subtitle">Fuzzy logic trading desk</div>
         </div>
 
         <nav class="nav-items">
@@ -36,6 +35,7 @@
               <rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
             Dashboard
+            <kbd>1</kbd>
           </a>
           <a
             href="/market-intelligence"
@@ -46,6 +46,7 @@
               <path d="M12 3v9l5 3" />
             </svg>
             Market Intelligence
+            <kbd>2</kbd>
           </a>
           <a
             href="/decision-logic"
@@ -58,6 +59,7 @@
               />
             </svg>
             Decision Logic
+            <kbd>3</kbd>
           </a>
           <a
             href="/backtesting"
@@ -67,6 +69,7 @@
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
             Backtesting
+            <kbd>4</kbd>
           </a>
           <a
             href="/agentic"
@@ -78,6 +81,7 @@
               <circle cx="12" cy="12" r="7" stroke-dasharray="2 2"/>
             </svg>
             Agentic Layer
+            <kbd>5</kbd>
           </a>
           <a
             href="/walkthrough"
@@ -89,6 +93,7 @@
               <path d="M3 17l9 5 9-5"/>
             </svg>
             Tutorial
+            <kbd>6</kbd>
           </a>
           <a
             href="/settings"
@@ -101,10 +106,12 @@
               />
             </svg>
             Settings
+            <kbd>7</kbd>
           </a>
         </nav>
 
         <div class="sidebar-footer">
+          <p class="sidebar-hint">Press 1–7 to switch pages.</p>
           <button class="btn-execute" id="btn-execute-trade">
             <svg
               style="width: 15px; height: 15px; fill: currentColor"
@@ -117,9 +124,7 @@
         </div>
       </aside>
 
-      <!-- MAIN AREA -->
       <div class="main-area">
-        <!-- TOPBAR -->
         <header class="topbar">
           <div class="topbar-left">
             <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open navigation" title="Menu">
@@ -129,62 +134,20 @@
                 <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
-            <div class="topbar-logo">ASTDSS</div>
+            <div class="topbar-logo">NeuralTrade<small>{% block page_name %}Trading desk{% endblock %}</small></div>
             {% block header_status %}
             <div class="topbar-status">
               <span class="status-dot"></span>
-              LIVE ANALYSIS SESSION
+              Market data live
             </div>
             {% endblock %}
           </div>
 
           {% block header_right %}
           <div class="topbar-right">
-            <button class="btn-icon" title="Network">
-              <svg
-                viewBox="0 0 24 24"
-                style="
-                  width: 16px;
-                  height: 16px;
-                  stroke: currentColor;
-                  fill: none;
-                  stroke-width: 1.5;
-                "
-              >
-                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-                <circle cx="12" cy="20" r="1" fill="currentColor" />
-              </svg>
-            </button>
-            <button class="btn-icon" title="Signal">
-              <svg
-                viewBox="0 0 24 24"
-                style="
-                  width: 16px;
-                  height: 16px;
-                  stroke: currentColor;
-                  fill: none;
-                  stroke-width: 1.5;
-                "
-              >
-                <path d="M1.5 8.5a18 18 0 0 1 21 0" />
-                <path d="M5 12a13 13 0 0 1 14 0" />
-                <path d="M8.5 15.5a8 8 0 0 1 7 0" />
-                <circle cx="12" cy="19" r="1" fill="currentColor" />
-              </svg>
-            </button>
+            <span class="topbar-clock" id="topbar-clock">--:--:--</span>
             <button class="btn-avatar" title="User">
-              <svg
-                viewBox="0 0 24 24"
-                style="
-                  width: 16px;
-                  height: 16px;
-                  stroke: var(--gold-soft);
-                  fill: none;
-                  stroke-width: 1.5;
-                "
-              >
+              <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: var(--gold-soft); fill: none; stroke-width: 1.5">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-2.667 3.582-4 8-4s8 1.333 8 4" />
               </svg>
@@ -193,14 +156,11 @@
           {% endblock %}
         </header>
 
-        <!-- PAGE SCROLL (Vertical overflow management) -->
         <div class="page-scroll">
           <div class="page-layout">{% block content %}{% endblock %}</div>
         </div>
       </div>
-      <!-- /main-area -->
     </div>
-    <!-- /app-shell -->
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
