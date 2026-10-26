@@ -83,7 +83,7 @@ content %}
             gap: 6px;
             font-family: var(--font-mono);
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(32, 53, 80, 0.5);
           "
         >
           <span
@@ -121,7 +121,7 @@ content %}
       </div>
       <div style="display: flex; gap: 6px">
         <button class="btn-secondary tf-btn" data-tf="1m">1M</button>
-        <button class="btn-secondary tf-btn tf-btn--active" data-tf="5m" style="background:rgba(255,228,201,.12);border-color:rgba(255,228,201,.2);color:var(--gold-soft);">5M</button>
+        <button class="btn-secondary tf-btn tf-btn--active" data-tf="5m" style="background:rgba(32, 53, 80, 0.108);border-color:rgba(32, 53, 80, 0.18);color:var(--gold-soft);">5M</button>
         <button class="btn-secondary tf-btn" data-tf="15m">15M</button>
       </div>
     </div>
@@ -141,7 +141,7 @@ content %}
               y1="0"
               x2="70"
               y2="280"
-              stroke="rgba(255,255,255,.04)"
+              stroke="rgba(32, 53, 80, 0.04)"
               stroke-width="1"
             />
             <line
@@ -149,7 +149,7 @@ content %}
               y1="56"
               x2="700"
               y2="56"
-              stroke="rgba(255,255,255,.04)"
+              stroke="rgba(32, 53, 80, 0.04)"
               stroke-width="1"
             />
           </pattern>
@@ -159,8 +159,8 @@ content %}
           x="350"
           y="140"
           text-anchor="middle"
-          fill="rgba(255,255,255,.25)"
-          style="font:11px 'JetBrains Mono';text-transform:uppercase;letter-spacing:.08em;"
+          fill="rgba(32, 53, 80, 0.45)"
+          style="font:11px 'Roboto Mono';text-transform:uppercase;letter-spacing:.08em;"
         >
           Analyze a ticker above to load the live chart
         </text>
@@ -215,12 +215,12 @@ content %}
       </div>
 
       <!-- Regime + confidence -->
-      <div style="padding:8px 10px;background:rgba(0,0,0,.18);border-radius:var(--radius-md);margin-bottom:8px;">
+      <div style="padding:8px 10px;background:rgba(20, 35, 55, 0.063);border-radius:var(--radius-md);margin-bottom:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
           <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;">Triggered Rule</span>
           <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--gold-soft);">{{ (expert_data.regime_confidence*100)|int }}%</span>
         </div>
-        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(255,255,255,.5);">{{ expert_data.triggered_rule }}</div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:rgba(32, 53, 80, 0.5);">{{ expert_data.triggered_rule }}</div>
       </div>
 
       <!-- Active / Masked feature badges -->
@@ -228,7 +228,7 @@ content %}
         <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--semantic-buy);text-transform:uppercase;margin-bottom:4px;">Active</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;">
           {% for f in expert_data.active_features %}
-          <span style="font-family:var(--font-mono);font-size:var(--text-xs);padding:2px 7px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:9999px;color:var(--semantic-buy);">{{ f }}</span>
+          <span style="font-family:var(--font-mono);font-size:var(--text-xs);padding:2px 7px;background:rgba(63, 111, 182, 0.1);border:1px solid rgba(63, 111, 182, 0.2);border-radius:9999px;color:var(--semantic-buy);">{{ f }}</span>
           {% endfor %}
           {% if not expert_data.active_features %}
           <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">none</span>
@@ -239,7 +239,7 @@ content %}
         <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--semantic-sell);text-transform:uppercase;margin-bottom:4px;">Masked</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;">
           {% for f in expert_data.masked_features %}
-          <span style="font-family:var(--font-mono);font-size:var(--text-xs);padding:2px 7px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15);border-radius:9999px;color:rgba(239,68,68,.7);">{{ f }}</span>
+          <span style="font-family:var(--font-mono);font-size:var(--text-xs);padding:2px 7px;background:rgba(217, 98, 43, 0.07);border:1px solid rgba(217, 98, 43, 0.15);border-radius:9999px;color:rgba(217, 98, 43, 0.7);">{{ f }}</span>
           {% endfor %}
           {% if not expert_data.masked_features %}
           <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">none</span>
@@ -248,7 +248,7 @@ content %}
       </div>
 
       <!-- Final signal row -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(248,187,111,.06);border:1px solid rgba(248,187,111,.14);border-radius:var(--radius-md);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(32, 53, 80, 0.054);border:1px solid rgba(32, 53, 80, 0.126);border-radius:var(--radius-md);">
         <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;">FLC Signal</span>
         <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:{% if 'Sell' in expert_data.fuzzy_label %}var(--semantic-sell){% elif 'Buy' in expert_data.fuzzy_label %}var(--semantic-buy){% else %}var(--white-soft){% endif %};">
           {{ expert_data.fuzzy_label|upper }}
@@ -296,7 +296,7 @@ content %}
           style="
             font-family: var(--font-mono);
             font-size: 10px;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(32, 53, 80, 0.45);
             text-transform: uppercase;
           "
           >{{ row.label }}{% if not row.active %} (masked){% endif %}</span
@@ -331,7 +331,7 @@ content %}
           style="
             font-family: var(--font-mono);
             font-size: 10px;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(32, 53, 80, 0.45);
             text-transform: uppercase;
           "
           >{{ label }}</span

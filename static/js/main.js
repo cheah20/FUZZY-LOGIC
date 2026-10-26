@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setAnalyzeStatus(msg, type) {
         if (!analyzeStatus) return;
         const colors = { ok: 'var(--synced-green)', error: 'var(--strong-sell)',
-                         warn: 'var(--optimal-processing)', info: 'rgba(255,255,255,.4)' };
+                         warn: 'var(--optimal-processing)', info: 'rgba(32, 53, 80, 0.45)' };
         analyzeStatus.textContent = msg;
         analyzeStatus.style.color = colors[type] || colors.info;
     }
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const bh  = Math.round(v / 100 * VH);
             const bx  = px(i) - bw / 2;
             const col = i > 0 && closes[i] >= closes[i - 1]
-                ? 'rgba(16,185,129,.35)' : 'rgba(239,68,68,.30)';
+                ? 'rgba(63, 111, 182, 0.35)' : 'rgba(217, 98, 43, 0.3)';
             volBars += `<rect x="${bx.toFixed(1)}" y="${(VY0 + VH - bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh}" fill="${col}" rx="0.5"/>`;
         });
 
@@ -147,8 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const lastX  = px(n - 1).toFixed(1);
         const lastY  = py(last).toFixed(1);
         const priceTag = `<line x1="0" y1="${lastY}" x2="${W}" y2="${lastY}" stroke="${lineColor}" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.4"/>` +
-            `<rect x="${W - 80}" y="${parseFloat(lastY) - 10}" width="78" height="18" rx="3" fill="rgba(0,0,0,.7)" stroke="${lineColor}" stroke-width="0.8"/>` +
-            `<text x="${W - 41}" y="${parseFloat(lastY) + 3.5}" text-anchor="middle" fill="${lineColor}" style="font:700 9px 'JetBrains Mono'">${_fmt(last)}</text>`;
+            `<rect x="${W - 80}" y="${parseFloat(lastY) - 10}" width="78" height="18" rx="3" fill="#ffffff" stroke="${lineColor}" stroke-width="0.8"/>` +
+            `<text x="${W - 41}" y="${parseFloat(lastY) + 3.5}" text-anchor="middle" fill="${lineColor}" style="font:700 9px 'Roboto Mono'">${_fmt(last)}</text>`;
 
         // Date labels (first, mid, last)
         let dateLbls = '';
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .forEach(([i, d]) => {
                     if (!d) return;
                     const x = px(i).toFixed(1);
-                    dateLbls += `<text x="${x}" y="${H - 2}" text-anchor="middle" fill="rgba(255,255,255,.25)" style="font:8px 'JetBrains Mono'">${d.slice(5)}</text>`;
+                    dateLbls += `<text x="${x}" y="${H - 2}" text-anchor="middle" fill="rgba(32, 53, 80, 0.45)" style="font:8px 'Roboto Mono'">${d.slice(5)}</text>`;
                 });
         }
 
@@ -168,8 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <stop offset="100%" stop-color="${lineColor}" stop-opacity="0"/>
     </linearGradient>
     <pattern id="chartGrid" width="70" height="56" patternUnits="userSpaceOnUse">
-      <line x1="70" y1="0" x2="70" y2="${H}" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
-      <line x1="0" y1="56" x2="${W}" y2="56" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+      <line x1="70" y1="0" x2="70" y2="${H}" stroke="#c9ccd1" stroke-width="1" stroke-dasharray="4 4"/>
+      <line x1="0" y1="56" x2="${W}" y2="56" stroke="#c9ccd1" stroke-width="1" stroke-dasharray="4 4"/>
     </pattern>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#chartGrid)"/>
@@ -215,8 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.style.color = '';
             });
             btn.classList.add('bt-period-btn--active');
-            btn.style.background    = 'rgba(255,228,201,.12)';
-            btn.style.borderColor   = 'rgba(255,228,201,.20)';
+            btn.style.background    = 'rgba(32, 53, 80, 0.108)';
+            btn.style.borderColor   = 'rgba(32, 53, 80, 0.18)';
             btn.style.color         = 'var(--gold-soft)';
             _updateEvalPeriod();
         });
@@ -340,13 +340,13 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="section-header__title">BASELINE vs EXPERT</span>
               <span class="badge ${ew ? 'badge--synced' : 'badge--idle'}" style="margin-left:auto;font-size:8px;">${ew ? 'EXPERT WINS' : 'BASELINE WINS'}</span>
             </div>
-            <div style="font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,.25);line-height:1.5;margin-bottom:12px;">
+            <div style="font-family:var(--font-mono);font-size:8px;color:rgba(32, 53, 80, 0.45);line-height:1.5;margin-bottom:12px;">
               The Human Expert Layer changes and explains decisions under risky/extreme market regimes — it is not guaranteed to outperform the baseline on every dataset or window.
             </div>
             <div style="margin-bottom:10px;">
               <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
-                <span style="font:9px var(--font-mono);color:rgba(255,255,255,.4);text-transform:uppercase;">Total Return</span>
-                <span style="font:8px var(--font-mono);color:rgba(255,255,255,.25);">B&H ${def(d.buy_hold_return, '%')}</span>
+                <span style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;">Total Return</span>
+                <span style="font:8px var(--font-mono);color:rgba(32, 53, 80, 0.45);">B&H ${def(d.buy_hold_return, '%')}</span>
               </div>
               <div style="display:flex;justify-content:space-between;">
                 <span style="font:600 11px var(--font-mono);color:${d.expert.total_return>=0?'var(--synced-green)':'var(--strong-sell)'}">${def(d.expert.total_return,'%')}</span>
@@ -354,21 +354,21 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>${bar(d.expert.total_return, d.baseline.total_return)}
             </div>
             <div style="margin-bottom:10px;">
-              <div style="font:9px var(--font-mono);color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:2px;">Win Rate</div>
+              <div style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;margin-bottom:2px;">Win Rate</div>
               <div style="display:flex;justify-content:space-between;">
                 <span style="font:600 11px var(--font-mono);color:var(--gold-soft)">${(d.expert.win_rate||0).toFixed(1)}%</span>
                 <span style="font:11px var(--font-mono);color:var(--secondary)">${(d.baseline.win_rate||0).toFixed(1)}%</span>
               </div>${bar(d.expert.win_rate||0, d.baseline.win_rate||0)}
             </div>
             <div style="margin-bottom:10px;">
-              <div style="font:9px var(--font-mono);color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:2px;">Sharpe Ratio</div>
+              <div style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);text-transform:uppercase;margin-bottom:2px;">Sharpe Ratio</div>
               <div style="display:flex;justify-content:space-between;">
                 <span style="font:600 11px var(--font-mono);color:var(--gold-soft)">${(d.expert.sharpe||0).toFixed(3)}</span>
                 <span style="font:11px var(--font-mono);color:var(--secondary)">${(d.baseline.sharpe||0).toFixed(3)}</span>
               </div>${bar(Math.abs(d.expert.sharpe||0), Math.abs(d.baseline.sharpe||0))}
             </div>
-            <div style="padding:8px 10px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.12);border-radius:var(--radius-md);">
-              <span style="font:9px var(--font-mono);color:rgba(255,255,255,.4);">Expert vs Buy &amp; Hold</span>
+            <div style="padding:8px 10px;background:rgba(63, 111, 182, 0.05);border:1px solid rgba(63, 111, 182, 0.12);border-radius:var(--radius-md);">
+              <span style="font:9px var(--font-mono);color:rgba(32, 53, 80, 0.45);">Expert vs Buy &amp; Hold</span>
               <span style="float:right;font:700 11px var(--font-mono);color:${(d.expert.total_return-d.buy_hold_return)>=0?'var(--synced-green)':'var(--strong-sell)'}">${def(d.expert.total_return-d.buy_hold_return,'%')}</span>
             </div>`;
         }
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dateDiv && d.dates && d.dates.length) {
             const n = d.dates.length;
             const lbls = [d.dates[0], d.dates[Math.floor(n / 2)], d.dates[n - 1]];
-            dateDiv.innerHTML = lbls.map(dt => `<span style="font-family:var(--font-mono);font-size:8px;color:rgba(255,255,255,.25);">${dt ? dt.slice(0,7) : ''}</span>`).join('');
+            dateDiv.innerHTML = lbls.map(dt => `<span style="font-family:var(--font-mono);font-size:8px;color:rgba(32, 53, 80, 0.45);">${dt ? dt.slice(0,7) : ''}</span>`).join('');
         }
     }
 
@@ -409,25 +409,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Zero line
         const zeroY = vy(0).toFixed(1);
-        const zeroLine = `<line x1="0" y1="${zeroY}" x2="${W}" y2="${zeroY}" stroke="rgba(255,255,255,.12)" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+        const zeroLine = `<line x1="0" y1="${zeroY}" x2="${W}" y2="${zeroY}" stroke="rgba(32, 53, 80, 0.12)" stroke-width="0.8" stroke-dasharray="4,3"/>`;
 
         // Grid
         const grid = `<pattern id="btGrid" width="70" height="45" patternUnits="userSpaceOnUse">
-            <line x1="70" y1="0" x2="70" y2="${H}" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
-            <line x1="0" y1="45" x2="${W}" y2="45" stroke="rgba(255,255,255,.03)" stroke-width="1"/>
+            <line x1="70" y1="0" x2="70" y2="${H}" stroke="rgba(32, 53, 80, 0.03)" stroke-width="1"/>
+            <line x1="0" y1="45" x2="${W}" y2="45" stroke="rgba(32, 53, 80, 0.03)" stroke-width="1"/>
         </pattern>`;
 
         // Split line
         const splitX = (d.split_index / n * W).toFixed(1);
-        const splitLine = `<line x1="${splitX}" y1="0" x2="${splitX}" y2="${H}" stroke="rgba(255,255,255,.12)" stroke-width="0.8" stroke-dasharray="3,3"/>
-            <text x="${parseFloat(splitX) + 4}" y="14" fill="rgba(255,255,255,.3)" style="font:7px 'JetBrains Mono'">OOS 30%</text>`;
+        const splitLine = `<line x1="${splitX}" y1="0" x2="${splitX}" y2="${H}" stroke="rgba(32, 53, 80, 0.12)" stroke-width="0.8" stroke-dasharray="3,3"/>
+            <text x="${parseFloat(splitX) + 4}" y="14" fill="rgba(32, 53, 80, 0.45)" style="font:7px 'Roboto Mono'">OOS 30%</text>`;
 
         container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%" preserveAspectRatio="none">
   <defs>${grid}</defs>
   <rect width="${W}" height="${H}" fill="url(#btGrid)"/>
   ${zeroLine}
   ${splitLine}
-  ${toPath(bah,      'rgba(255,255,255,.22)', '4,3', 1.2)}
+  ${toPath(bah,      'rgba(32, 53, 80, 0.45)', '4,3', 1.2)}
   ${toPath(baseline, 'var(--secondary)',       '',    1.6)}
   ${toPath(expert,   'var(--gold-soft)',        '',    2.2)}
 </svg>`;
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function _btStatus(msg, type) {
         if (!btStatusEl) return;
         const colors = { ok: 'var(--synced-green)', error: 'var(--strong-sell)',
-                         warn: 'var(--optimal-processing)', info: 'rgba(255,255,255,.4)' };
+                         warn: 'var(--optimal-processing)', info: 'rgba(32, 53, 80, 0.45)' };
         btStatusEl.textContent = msg;
         btStatusEl.style.color = colors[type] || colors.info;
     }
@@ -578,8 +578,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(ctr);
         }
         const t = document.createElement('div');
-        const clr = {success:'rgba(16,185,129,.92)',warn:'rgba(245,158,11,.92)',error:'rgba(239,68,68,.92)',info:'rgba(124,208,255,.88)',demo:'rgba(248,187,111,.90)'};
-        t.style.cssText = 'padding:10px 16px;background:'+( clr[type]||clr.info)+';color:#0d0d0f;border-radius:12px;font:600 11px "JetBrains Mono",monospace;opacity:0;transition:opacity 0.25s;max-width:340px;cursor:pointer;pointer-events:auto;box-shadow:0 8px 24px rgba(0,0,0,.4);';
+        const clr = {success:'rgba(63, 111, 182, 0.92)',warn:'rgba(196, 128, 18, 0.92)',error:'rgba(217, 98, 43, 0.92)',info:'rgba(63, 111, 182, 0.88)',demo:'rgba(32, 53, 80, 0.81)'};
+        t.style.cssText = 'padding:10px 16px;background:'+( clr[type]||clr.info)+';color:#ffffff;border-radius:12px;font:600 11px "Roboto Mono",monospace;opacity:0;transition:opacity 0.25s;max-width:340px;cursor:pointer;pointer-events:auto;box-shadow:0 8px 24px rgba(20, 35, 55, 0.14);';
         t.textContent = msg;
         ctr.appendChild(t);
         setTimeout(() => { t.style.opacity = '1'; }, 10);
@@ -601,8 +601,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.style.color       = '';
             });
             this.classList.add('tf-btn--active');
-            this.style.background  = 'rgba(255,228,201,.12)';
-            this.style.borderColor = 'rgba(255,228,201,.20)';
+            this.style.background  = 'rgba(32, 53, 80, 0.108)';
+            this.style.borderColor = 'rgba(32, 53, 80, 0.18)';
             this.style.color       = 'var(--gold-soft)';
             showToast('Chart timeframe: ' + this.dataset.tf.toUpperCase() + ' — refreshing…', 'info', 1800);
         });
@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnPause.addEventListener('click', () => {
             paused = !paused;
             btnPause.textContent = paused ? '▶ RESUME SYSTEM' : '⏸ PAUSE SYSTEM';
-            btnPause.style.borderColor  = paused ? 'rgba(245,158,11,.3)' : '';
+            btnPause.style.borderColor  = paused ? 'rgba(196, 128, 18, 0.3)' : '';
             btnPause.style.color        = paused ? 'var(--optimal-processing)' : '';
             showToast(paused ? 'System paused — pipeline halted' : 'System resumed — pipeline active', paused ? 'warn' : 'success');
         });
@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : 'DEMO SAMPLE FEED — add MARKETAUX_API_KEY to enable live finance news';
                 label.style.color = d.is_live ? 'var(--semantic-buy)' : 'var(--text-muted)';
             }
-            if (dot) dot.style.background = d.is_live ? '' : 'rgba(255,255,255,.25)';
+            if (dot) dot.style.background = d.is_live ? '' : 'rgba(32, 53, 80, 0.45)';
             if (upd) upd.textContent = 'Updated ' + (d.last_updated || '').replace('T', ' ');
         }
 
@@ -840,11 +840,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Tab content panels — create overlay panels for Rule Evaluation & Defuzzification
         function buildTabPanel(title, content) {
             const p = document.createElement('div');
-            p.style.cssText = 'position:absolute;inset:0;background:rgba(13,11,10,.88);backdrop-filter:blur(8px);z-index:10;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-lg);animation:fadeIn .25s ease;';
+            p.style.cssText = 'position:absolute;inset:0;background:rgba(255, 255, 255, 0.94);backdrop-filter:blur(8px);z-index:10;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-lg);animation:fadeIn .25s ease;';
             p.innerHTML = '<div style="text-align:center;padding:24px;max-width:400px;">' +
                 '<div style="font-family:var(--font-mono);font-size:10px;color:var(--gold-soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">' + title + '</div>' +
-                '<div style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,.6);line-height:1.8;">' + content + '</div>' +
-                '<button onclick="this.closest(\'[style*=\\\"position:absolute\\\"]\').remove();document.querySelectorAll(\'.tab-bar__item\').forEach(b=>b.classList.remove(\'tab-bar__item--active\'));document.querySelectorAll(\'.tab-bar__item\')[0].classList.add(\'tab-bar__item--active\')" style="margin-top:16px;font-family:var(--font-mono);font-size:10px;padding:8px 16px;background:rgba(248,187,111,.12);border:1px solid rgba(248,187,111,.25);border-radius:var(--radius-lg);color:var(--gold-soft);cursor:pointer;"> Back to Fuzzification</button>' +
+                '<div style="font-family:var(--font-mono);font-size:11px;color:rgba(32, 53, 80, 0.6);line-height:1.8;">' + content + '</div>' +
+                '<button onclick="this.closest(\'[style*=\\\"position:absolute\\\"]\').remove();document.querySelectorAll(\'.tab-bar__item\').forEach(b=>b.classList.remove(\'tab-bar__item--active\'));document.querySelectorAll(\'.tab-bar__item\')[0].classList.add(\'tab-bar__item--active\')" style="margin-top:16px;font-family:var(--font-mono);font-size:10px;padding:8px 16px;background:rgba(32, 53, 80, 0.108);border:1px solid rgba(32, 53, 80, 0.225);border-radius:var(--radius-lg);color:var(--gold-soft);cursor:pointer;"> Back to Fuzzification</button>' +
                 '</div>';
             p.dataset.tabPanel = '1';
             return p;
@@ -924,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dot = this.querySelector('.radio-dot');
                 if (dot) {
                     dot.classList.add('radio-dot--checked');
-                    dot.innerHTML = '<svg viewBox="0 0 12 12" style="width:8px;height:8px;" fill="none"><path d="M2 6l3 3 5-5" stroke="#472a00" stroke-width="1.5" stroke-linecap="round"/></svg>';
+                    dot.innerHTML = '<svg viewBox="0 0 12 12" style="width:8px;height:8px;" fill="none"><path d="M2 6l3 3 5-5" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/></svg>';
                 }
                 const ticker = this.dataset.ticker;
                 const tickerEl = document.getElementById('bt-ticker');
@@ -997,11 +997,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         el.addEventListener('click', function () {
             isOn = !isOn;
-            el.style.background = isOn ? 'var(--primary)' : 'rgba(255,255,255,.12)';
+            el.style.background = isOn ? 'var(--primary)' : 'rgba(32, 53, 80, 0.12)';
             el.style.transition  = 'background 0.3s';
             if (thumb) {
                 thumb.style.left       = isOn ? '21px' : '3px';
-                thumb.style.background = isOn ? 'var(--on-primary)' : 'rgba(255,255,255,.5)';
+                thumb.style.background = isOn ? 'var(--on-primary)' : 'rgba(32, 53, 80, 0.5)';
                 thumb.style.transition = 'left 0.3s, background 0.3s';
             }
             showToast(label + (isOn ? ' enabled' : ' disabled') + ' — demo mode, no server change', 'demo', 2800);
@@ -1033,8 +1033,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.style.color       = '';
             });
             this.classList.add('settings-density-btn--active');
-            this.style.background  = 'rgba(248,187,111,.1)';
-            this.style.borderColor = 'rgba(248,187,111,.2)';
+            this.style.background  = 'rgba(32, 53, 80, 0.09)';
+            this.style.borderColor = 'rgba(32, 53, 80, 0.18)';
             this.style.color       = 'var(--gold-soft)';
             this.style.fontWeight  = '600';
             showToast('Layout: ' + this.textContent.trim() + ' density selected (demo)', 'demo', 2500);
@@ -1092,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const vr       = e.expert_validation_result || {};
                     const status   = vr.status || '—';
                     const stab     = e.stability_score != null ? (e.stability_score * 100).toFixed(0) + '%' : '—';
-                    const col      = statusColor[status] || 'rgba(255,255,255,.4)';
+                    const col      = statusColor[status] || 'rgba(32, 53, 80, 0.45)';
                     return `<tr>
                         <td>${ts}</td>
                         <td style="color:var(--gold-soft);">${label} (${score})</td>

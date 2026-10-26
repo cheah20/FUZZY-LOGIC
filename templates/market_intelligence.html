@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block title %}Market Intelligence{% endblock %} {%
 block header_status %}
 <div class="topbar-status" style="gap: 20px">
-  <span style="color: rgba(255, 255, 255, 0.8); font-weight: 500"
+  <span style="color: rgba(32, 53, 80, 0.8); font-weight: 500"
     >NETWORK: ACTIVE</span
   >
   <span>UPTIME: 99.98%</span>
@@ -17,7 +17,7 @@ block header_status %}
         transform: translateY(-50%);
         width: 14px;
         height: 14px;
-        stroke: rgba(255, 255, 255, 0.3);
+        stroke: rgba(32, 53, 80, 0.45);
         fill: none;
         stroke-width: 1.5;
       "
@@ -142,7 +142,7 @@ block header_status %}
         style="
           font-family: var(--font-mono);
           font-size: 10px;
-          color: rgba(255, 255, 255, 0.3);
+          color: rgba(32, 53, 80, 0.45);
         "
         >UTC CLOCK: 14:28:45 UTC</span
       >
@@ -188,15 +188,15 @@ block header_status %}
         <svg viewBox="0 0 160 90" style="width: 100%; max-width: 200px">
           <defs>
             <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#EF4444" />
-              <stop offset="40%" stop-color="#f59e0b" />
-              <stop offset="100%" stop-color="#10B981" />
+              <stop offset="0%" stop-color="#d9622b" />
+              <stop offset="40%" stop-color="#c48012" />
+              <stop offset="100%" stop-color="#3f6fb6" />
             </linearGradient>
           </defs>
           <path
             d="M 15 80 A 65 65 0 0 1 145 80"
             fill="none"
-            stroke="rgba(255,255,255,.07)"
+            stroke="rgba(32, 53, 80, 0.07)"
             stroke-width="10"
             stroke-linecap="round"
           />
@@ -222,31 +222,31 @@ block header_status %}
           <text
             x="8"
             y="95"
-            fill="rgba(255,255,255,.3)"
-            style="font: 8px &quot;JetBrains Mono&quot;"
+            fill="rgba(32, 53, 80, 0.45)"
+            style="font: 8px &quot;Roboto Mono&quot;"
           >
             FEAR
           </text>
           <text
             x="70"
             y="95"
-            fill="rgba(255,255,255,.3)"
-            style="font: 8px &quot;JetBrains Mono&quot;"
+            fill="rgba(32, 53, 80, 0.45)"
+            style="font: 8px &quot;Roboto Mono&quot;"
           >
             NEUTRAL
           </text>
           <text
             x="130"
             y="95"
-            fill="rgba(255,255,255,.3)"
-            style="font: 8px &quot;JetBrains Mono&quot;"
+            fill="rgba(32, 53, 80, 0.45)"
+            style="font: 8px &quot;Roboto Mono&quot;"
           >
             GREED
           </text>
         </svg>
         <div class="sentiment-gauge__value" id="mi-sentiment-value">68</div>
         <div class="sentiment-gauge__label" id="mi-sentiment-label">GREED PREVAILING</div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,.25);margin-top:4px;text-align:center;">simulated demo value</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(32, 53, 80, 0.45);margin-top:4px;text-align:center;">simulated demo value</div>
       </div>
     </div>
 
@@ -259,7 +259,7 @@ block header_status %}
         {% for num, name, pct, color, bar_w in [('#01','Yield Curve
         Inversion','+12.4%','var(--gold-soft)','40%'),('#02','AI Compute
         Squeeze','+42.1%','var(--semantic-buy)','68%'),('#03','Digital Assets
-        Flow','-2.4%','rgba(255,255,255,.3)','8%')] %}
+        Flow','-2.4%','rgba(32, 53, 80, 0.45)','8%')] %}
         <div
           class="asset-option{% if loop.first %} asset-option--active{% endif %}"
         >
@@ -267,7 +267,7 @@ block header_status %}
             style="
               font-family: var(--font-mono);
               font-size: 10px;
-              color: rgba(255, 255, 255, 0.3);
+              color: rgba(32, 53, 80, 0.45);
               min-width: 28px;
             "
             >{{ num }}</span
@@ -278,7 +278,7 @@ block header_status %}
                 font-family: var(--font-sans);
                 font-size: 12px;
                 font-weight: 500;
-                color: rgba(255, 255, 255, 0.8);
+                color: rgba(32, 53, 80, 0.8);
                 margin-bottom: 5px;
               "
             >
@@ -333,7 +333,7 @@ block header_status %}
         style="
           font-family: var(--font-sans);
           font-size: 13px;
-          color: rgba(255, 255, 255, 0.45);
+          color: rgba(32, 53, 80, 0.45);
         "
       >
         Processing market signals…

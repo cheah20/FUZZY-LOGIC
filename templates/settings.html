@@ -3,7 +3,7 @@ header_status %}
 <div style="display: flex; align-items: center; gap: 12px">
   <div
     style="
-      font: 600 15px &quot;Hanken Grotesk&quot;;
+      font: 600 15px &quot;Roboto&quot;;
       color: var(--on-surface);
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -12,12 +12,12 @@ header_status %}
     ASTDSS
   </div>
   <div
-    style="width: 1px; height: 16px; background: rgba(255, 255, 255, 0.15)"
+    style="width: 1px; height: 16px; background: rgba(32, 53, 80, 0.15)"
   ></div>
   <div
     class="label-mono"
     style="
-      color: rgba(255, 255, 255, 0.35);
+      color: rgba(32, 53, 80, 0.45);
       text-transform: uppercase;
       font-size: 10px;
     "
@@ -77,7 +77,7 @@ header_status %}
       ></span>
       <div
         style="
-          font: 600 13px &quot;Hanken Grotesk&quot;;
+          font: 600 13px &quot;Roboto&quot;;
           color: var(--on-surface);
         "
       >
@@ -87,7 +87,7 @@ header_status %}
     <div
       class="label-mono"
       style="
-        color: rgba(255, 255, 255, 0.25);
+        color: rgba(32, 53, 80, 0.45);
         font-size: 9px;
         padding-left: 16px;
         margin-bottom: 18px;
@@ -109,7 +109,7 @@ header_status %}
     <div>
       <div
         style="
-          font: 500 15px &quot;Hanken Grotesk&quot;;
+          font: 500 15px &quot;Roboto&quot;;
           color: var(--on-surface);
           margin-bottom: 3px;
         "
@@ -119,7 +119,7 @@ header_status %}
       <div
         class="label-mono"
         style="
-          color: rgba(255, 255, 255, 0.3);
+          color: rgba(32, 53, 80, 0.45);
           font-size: 10px;
           text-transform: uppercase;
         "
@@ -130,7 +130,7 @@ header_status %}
 
     <!-- Demo Disclaimer -->
     <div class="muted-box" style="margin-bottom:0;">
-      <div class="label-mono" style="text-transform:none;font-size:10px;color:rgba(255,255,255,.4);line-height:1.6;">
+      <div class="label-mono" style="text-transform:none;font-size:10px;color:rgba(32, 53, 80, 0.45);line-height:1.6;">
         ⚠ DEMO CONFIGURATION PANEL. Controls below are illustrative — toggles, sliders, and API key fields give visual feedback only and do not persist to a backend. The real, functional system controls are the fuzzy engine, expert layer, and backtester (see Decision Logic / Backtesting pages).
       </div>
     </div>
@@ -146,13 +146,13 @@ header_status %}
             margin-bottom: 18px;
           "
         >
-          <span style="color: rgba(255, 255, 255, 0.35); font-size: 13px"
+          <span style="color: rgba(32, 53, 80, 0.45); font-size: 13px"
             >✦</span
           >
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.4);
+              color: rgba(32, 53, 80, 0.45);
               text-transform: uppercase;
               font-size: 10px;
               letter-spacing: 0.1em;
@@ -165,8 +165,8 @@ header_status %}
           {% for agent in system_config.agents %}
           <div
             style="
-              background: rgba(255, 255, 255, 0.03);
-              border: 1px solid rgba(255, 255, 255, 0.07);
+              background: rgba(32, 53, 80, 0.03);
+              border: 1px solid rgba(32, 53, 80, 0.07);
               border-radius: var(--radius-lg);
               padding: 14px;
             "
@@ -181,7 +181,7 @@ header_status %}
             >
               <div
                 style="
-                  font: 500 12px &quot;Hanken Grotesk&quot;;
+                  font: 500 12px &quot;Roboto&quot;;
                   color: var(--on-surface);
                 "
               >
@@ -189,17 +189,17 @@ header_status %}
               </div>
               <!-- Toggle -->
               <div
-                style="width:38px;height:20px;border-radius:10px;background:{% if agent.status != 'STANDBY' %}var(--primary){% else %}rgba(255,255,255,.12){% endif %};position:relative;cursor:pointer;transition:background .3s;"
+                style="width:38px;height:20px;border-radius:10px;background:{% if agent.status != 'STANDBY' %}var(--primary){% else %}rgba(32, 53, 80, 0.12){% endif %};position:relative;cursor:pointer;transition:background .3s;"
               >
                 <div
-                  style="width:14px;height:14px;border-radius:50%;background:{% if agent.status != 'STANDBY' %}var(--on-primary){% else %}rgba(255,255,255,.5){% endif %};position:absolute;top:3px;left:{% if agent.status != 'STANDBY' %}21px{% else %}3px{% endif %};transition:left .3s;"
+                  style="width:14px;height:14px;border-radius:50%;background:{% if agent.status != 'STANDBY' %}var(--on-primary){% else %}rgba(32, 53, 80, 0.5){% endif %};position:absolute;top:3px;left:{% if agent.status != 'STANDBY' %}21px{% else %}3px{% endif %};transition:left .3s;"
                 ></div>
               </div>
             </div>
             <div
               class="label-mono"
               style="
-                color: rgba(255, 255, 255, 0.3);
+                color: rgba(32, 53, 80, 0.45);
                 font-size: 9px;
                 margin-bottom: 10px;
               "
@@ -209,7 +209,7 @@ header_status %}
             <div
               class="label-mono"
               style="
-                color: rgba(255, 255, 255, 0.3);
+                color: rgba(32, 53, 80, 0.45);
                 font-size: 9px;
                 text-transform: uppercase;
                 margin-bottom: 5px;
@@ -245,11 +245,11 @@ header_status %}
             </div>
             <div style="display: flex; align-items: center; gap: 5px">
               <span
-                style="width:6px;height:6px;border-radius:50%;display:inline-block;background:{% if agent.status == 'SYNCED' %}var(--semantic-buy){% elif agent.status == 'INFERENCING...' %}var(--semantic-warning){% elif agent.status == 'SCANNING' %}var(--secondary){% else %}rgba(255,255,255,.2){% endif %};{% if agent.status == 'INFERENCING...' %}animation:pulse 1.5s infinite;{% endif %}"
+                style="width:6px;height:6px;border-radius:50%;display:inline-block;background:{% if agent.status == 'SYNCED' %}var(--semantic-buy){% elif agent.status == 'INFERENCING...' %}var(--semantic-warning){% elif agent.status == 'SCANNING' %}var(--secondary){% else %}rgba(32, 53, 80, 0.45){% endif %};{% if agent.status == 'INFERENCING...' %}animation:pulse 1.5s infinite;{% endif %}"
               ></span>
               <div
                 class="label-mono"
-                style="font-size:var(--text-xs);color:{% if agent.status == 'SYNCED' %}var(--semantic-buy){% elif agent.status == 'INFERENCING...' %}var(--semantic-warning){% elif agent.status == 'SCANNING' %}var(--secondary){% else %}rgba(255,255,255,.3){% endif %};"
+                style="font-size:var(--text-xs);color:{% if agent.status == 'SYNCED' %}var(--semantic-buy){% elif agent.status == 'INFERENCING...' %}var(--semantic-warning){% elif agent.status == 'SCANNING' %}var(--secondary){% else %}rgba(32, 53, 80, 0.45){% endif %};"
               >
                 {{ agent.status }}
               </div>
@@ -268,13 +268,13 @@ header_status %}
             margin-bottom: 18px;
           "
         >
-          <span style="color: rgba(255, 255, 255, 0.35); font-size: 13px"
+          <span style="color: rgba(32, 53, 80, 0.45); font-size: 13px"
             >≡</span
           >
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.4);
+              color: rgba(32, 53, 80, 0.45);
               text-transform: uppercase;
               font-size: 10px;
               letter-spacing: 0.1em;
@@ -295,7 +295,7 @@ header_status %}
           >
             <div
               class="label-mono"
-              style="color: rgba(255, 255, 255, 0.7); font-size: 11px"
+              style="color: rgba(32, 53, 80, 0.7); font-size: 11px"
             >
               {{ label }}
             </div>
@@ -319,15 +319,15 @@ header_status %}
           style="
             margin-top: 8px;
             padding: 12px;
-            background: rgba(0, 0, 0, 0.2);
-            border-left: 2px solid rgba(255, 228, 201, 0.2);
+            background: rgba(20, 35, 55, 0.07);
+            border-left: 2px solid rgba(32, 53, 80, 0.18);
             border-radius: 0 var(--radius-md) var(--radius-md) 0;
           "
         >
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.4);
+              color: rgba(32, 53, 80, 0.45);
               font-size: 10px;
               font-style: italic;
               line-height: 1.7;
@@ -356,7 +356,7 @@ header_status %}
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.4);
+              color: rgba(32, 53, 80, 0.45);
               text-transform: uppercase;
               font-size: 10px;
             "
@@ -370,7 +370,7 @@ header_status %}
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.3);
+              color: rgba(32, 53, 80, 0.45);
               font-size: 9px;
               text-transform: uppercase;
               margin-bottom: 5px;
@@ -393,7 +393,7 @@ header_status %}
               👁
             </button>
             <button
-              style="padding:8px 12px;background:{% if status == 'ACTIVE' %}rgba(16,185,129,.1){% else %}rgba(239,68,68,.1){% endif %};border:1px solid {% if status == 'ACTIVE' %}rgba(16,185,129,.2){% else %}rgba(239,68,68,.2){% endif %};border-radius:var(--radius-md);color:{% if status == 'ACTIVE' %}var(--semantic-buy){% else %}var(--semantic-sell){% endif %};font-family:var(--font-mono);font-size:var(--text-xs);cursor:pointer;white-space:nowrap;text-transform:uppercase;"
+              style="padding:8px 12px;background:{% if status == 'ACTIVE' %}rgba(63, 111, 182, 0.1){% else %}rgba(217, 98, 43, 0.1){% endif %};border:1px solid {% if status == 'ACTIVE' %}rgba(63, 111, 182, 0.2){% else %}rgba(217, 98, 43, 0.2){% endif %};border-radius:var(--radius-md);color:{% if status == 'ACTIVE' %}var(--semantic-buy){% else %}var(--semantic-sell){% endif %};font-family:var(--font-mono);font-size:var(--text-xs);cursor:pointer;white-space:nowrap;text-transform:uppercase;"
             >
               {{ status }}
             </button>
@@ -429,7 +429,7 @@ header_status %}
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.4);
+              color: rgba(32, 53, 80, 0.45);
               text-transform: uppercase;
               font-size: 10px;
             "
@@ -441,7 +441,7 @@ header_status %}
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.3);
+              color: rgba(32, 53, 80, 0.45);
               font-size: 9px;
               text-transform: uppercase;
               margin-bottom: 6px;
@@ -458,7 +458,7 @@ header_status %}
             />
             <span
               class="label-mono"
-              style="color: rgba(255, 255, 255, 0.4); font-size: 11px"
+              style="color: rgba(32, 53, 80, 0.45); font-size: 11px"
               >%</span
             >
           </div>
@@ -467,7 +467,7 @@ header_status %}
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.3);
+              color: rgba(32, 53, 80, 0.45);
               font-size: 9px;
               text-transform: uppercase;
               margin-bottom: 6px;
@@ -490,8 +490,8 @@ header_status %}
         >
           <div
             style="
-              font: 500 12px &quot;Hanken Grotesk&quot;;
-              color: rgba(255, 255, 255, 0.7);
+              font: 500 12px &quot;Roboto&quot;;
+              color: rgba(32, 53, 80, 0.7);
             "
           >
             Multi-Factor Auth
@@ -535,7 +535,7 @@ header_status %}
           <div
             class="label-mono"
             style="
-              color: rgba(255, 255, 255, 0.4);
+              color: rgba(32, 53, 80, 0.45);
               text-transform: uppercase;
               font-size: 10px;
             "
@@ -551,7 +551,7 @@ header_status %}
         <div
           class="label-mono"
           style="
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(32, 53, 80, 0.45);
             font-size: 9px;
             text-transform: uppercase;
             margin-bottom: 8px;

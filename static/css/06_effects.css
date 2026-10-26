@@ -22,29 +22,21 @@
    version keeps the trading-desk atmosphere (monitors, desk lamp, world
    clock map) but removes the competing colour detail at the source. */
 body {
-  background:
-    /* Warm amber glow — top-left corner (kept subtle, brand-aligned) */
-    radial-gradient(ellipse 72% 55% at 14% 8%,  rgba(255, 140, 50, 0.05) 0%, transparent 64%),
-    /* Subtle top-center highlight */
-    radial-gradient(ellipse 45% 30% at 50% 0%,  rgba(255, 200, 120, 0.03) 0%, transparent 55%),
-    /* Overlay kept moderate since the image itself is now pre-muted */
-    linear-gradient(150deg, rgba(8, 6, 4, 0.62) 0%, rgba(10, 7, 4, 0.55) 48%, rgba(10, 7, 5, 0.65) 100%),
-    url('/static/img/bg-muted.jpeg') center center / cover no-repeat fixed,
-    /* Rich warm fallback when no image */
-    linear-gradient(150deg, #120e09 0%, #0f0c08 35%, #110e0a 65%, #130f0b 100%);
+  /* Flat light-grey canvas (Forex terminal style) — no photo background */
+  background: var(--bg-main);
 }
 
 /* ── GLOW EFFECTS ───────────────────────────────────────── */
 .glow-gold {
-  box-shadow: 0 0 28px rgba(248, 187, 111, 0.18);
+  box-shadow: 0 0 28px rgba(32, 53, 80, 0.162);
 }
 
 .glow-red {
-  text-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  text-shadow: 0 0 20px rgba(217, 98, 43, 0.35);
 }
 
 .glow-green {
-  text-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+  text-shadow: 0 0 12px rgba(63, 111, 182, 0.25);
 }
 
 /* ── PULSE ANIMATION ──────────────────────────────────────
@@ -55,11 +47,11 @@ body {
 @keyframes pulse {
   0%, 100% {
     opacity: 0.95;
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.25);
+    box-shadow: 0 0 0 0 rgba(63, 111, 182, 0.25);
   }
   50% {
     opacity: 0.75;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 3px rgba(63, 111, 182, 0.0);
   }
 }
 
@@ -70,11 +62,11 @@ body {
 @keyframes pulse-amber {
   0%, 100% {
     opacity: 0.95;
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.25);
+    box-shadow: 0 0 0 0 rgba(196, 128, 18, 0.25);
   }
   50% {
     opacity: 0.75;
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0);
+    box-shadow: 0 0 0 3px rgba(196, 128, 18, 0.0);
   }
 }
 
@@ -121,12 +113,12 @@ body {
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 32px rgba(20, 35, 55, 0.122);
 }
 
 /* ── DIVIDER ────────────────────────────────────────────── */
 .divider {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(32, 53, 80, 0.06);
   padding-top: 14px;
   margin-top: 14px;
 }
@@ -142,10 +134,11 @@ body {
 }
 
 .vignette::after {
+  display: none;
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.3) 100%);
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(20, 35, 55, 0.105) 100%);
   pointer-events: none;
 }

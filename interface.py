@@ -67,15 +67,15 @@ def get_expert_reasoning_data(
 
     def _bar_color(feat: str, val: float) -> str:
         if feat not in active:
-            return "rgba(255,255,255,0.18)"   # muted = masked
+            return "rgba(32, 53, 80, 0.18)"   # muted = masked
         if feat == "rsi":
-            if val > 70: return "#EF4444"
-            if val < 30: return "#10B981"
-            return "#7cd0ff"
+            if val > 70: return "#d9622b"
+            if val < 30: return "#3f6fb6"
+            return "#203550"
         if feat in ("macd_hist", "sentiment"):
-            if val > 0.05:  return "#10B981"
-            if val < -0.05: return "#EF4444"
-            return "rgba(255,255,255,0.4)"
+            if val > 0.05:  return "#3f6fb6"
+            if val < -0.05: return "#d9622b"
+            return "rgba(32, 53, 80, 0.45)"
         return "var(--gold-soft)"
 
     # Normalise raw values to 0–100 for progress bars

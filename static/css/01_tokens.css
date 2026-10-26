@@ -1,80 +1,72 @@
 /* ============================================================
    01_tokens.css — Design Tokens (ARCHITECTURE.md §5.1, §6)
-   ASTDSS Terminal — Luxury Trading Design System
+   ASTDSS Terminal — Light "Forex Terminal" Design System
+   Light grey canvas, white panels, navy condensed headings,
+   orange = Sell, blue = Buy, dashed chart grids.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* ── COLOR SYSTEM (§6.1) ────────────────────────────────── */
-  --bg-main: #0f0d0a;
-  --bg-glass: rgba(35, 30, 26, 0.38);
+  /* ── COLOR SYSTEM ───────────────────────────────────────── */
+  --bg-main: #e8e9eb;          /* light grey canvas */
+  --bg-glass: #ffffff;         /* panels are solid white */
+  --bg-raised: #f4f5f7;        /* inner rows / inputs */
+  --bg-row: #e4e6ea;           /* price strip grey */
 
-  /* Single brand accent — gold is the ONLY highlight colour.
-     Do not introduce a second "important" colour (e.g. blue) that
-     competes with gold for attention. */
-  --gold-soft: #f8bb6f;
-  --gold-bright: #ffd089;
-  --orange-glow: #ff9f43;
+  /* Brand accent — deep navy (the "FOREX" heading colour).
+     The old gold variable names are kept so templates don't break. */
+  --gold-soft: #203550;
+  --gold-bright: #2b4569;
+  --orange-glow: #d9622b;
 
-  --white-soft: #f3f3f3;
-  --panel-border: rgba(255, 220, 180, 0.12);
-  --panel-border-top: rgba(255, 228, 200, 0.20);
-  --shadow-glass:
-    0 18px 45px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 0 38px rgba(248, 187, 111, 0.08);
+  --navy: #203550;
+  --white-soft: #203550;       /* was light text; now primary dark text */
+  --panel-border: #d7dade;
+  --panel-border-top: #d7dade;
+  --grid-line: #c9ccd1;
+  --shadow-glass: 0 1px 2px rgba(20, 35, 55, 0.06), 0 6px 18px rgba(20, 35, 55, 0.06);
 
-  /* ── NEUTRAL TEXT HIERARCHY ──────────────────────────────
-     One consistent ladder instead of ad-hoc rgba(255,255,255,.NN)
-     scattered through templates. Use these for ALL label/body text. */
-  --text-main:   rgba(243, 243, 243, 0.92);
-  --text-muted:  rgba(243, 243, 243, 0.58);
-  --text-subtle: rgba(243, 243, 243, 0.38);
-  --text-faint:  rgba(243, 243, 243, 0.24);
+  /* ── NEUTRAL TEXT HIERARCHY ─────────────────────────────── */
+  --text-main:   #1f2a37;
+  --text-muted:  #5d6876;
+  --text-subtle: #8a93a0;
+  --text-faint:  #aeb5bf;
 
-  /* ── SEMANTIC COLOURS — meaning only, never decoration ───
-     Use ONLY for: profit/loss, buy/sell, approved/rejected,
-     warning/pending. Never to "colour-code" a panel category. */
-  --semantic-buy: #10B981;
-  --semantic-sell: #EF4444;
-  --semantic-warning: #F59E0B;
-  --semantic-neutral: rgba(243, 243, 243, 0.72);
+  /* ── SEMANTIC COLOURS — meaning only ───────────────────── */
+  --semantic-buy: #3f6fb6;     /* Buy button blue */
+  --semantic-sell: #d9622b;    /* Sell button orange */
+  --semantic-warning: #c48012;
+  --semantic-neutral: #5d6876;
 
-  /* Legacy aliases (kept so existing templates don't break —
-     now point at the semantic tokens above instead of separate values) */
-  --primary: #ffe4c9;
-  --on-primary: #472a00;
-  --primary-container: #ffc174;
-  --secondary: rgba(124, 208, 255, 0.55); /* demoted: muted technical accent only, never a highlight */
-  --on-secondary: #00344a;
+  /* Legacy aliases */
+  --primary: #203550;
+  --on-primary: #ffffff;
+  --primary-container: #203550;
+  --secondary: #3f6fb6;
+  --on-secondary: #ffffff;
   --strong-sell: var(--semantic-sell);
   --optimal-processing: var(--semantic-warning);
   --synced-green: var(--semantic-buy);
-  --on-surface: #e2e2e2;
+  --on-surface: #1f2a37;
 
-  /* ── BLUR SYSTEM (§6.2) ─────────────────────────────────── */
-  /* Hierarchy of three levels so not everything looks equally
-     "in focus". Saturation lowered across the board — the old
-     140-165% values made the busy background bleed through too
-     vividly and fight with foreground semantic colours. */
-  --blur-soft: blur(10px) saturate(105%);     /* inner cards / chips */
-  --blur-medium: blur(18px) saturate(110%);   /* main glass-panels */
-  --blur-premium: blur(22px) saturate(115%);  /* app shell: sidebar/topbar */
+  /* ── BLUR SYSTEM — flat design, no glass ───────────────── */
+  --blur-soft: none;
+  --blur-medium: none;
+  --blur-premium: none;
 
-  /* ── RADIUS SYSTEM (§6.3) ───────────────────────────────── */
-  --radius-sm: 10px;
-  --radius-md: 18px;
-  --radius-lg: 28px;
-  --radius-xl: 40px;
+  /* ── RADIUS SYSTEM — near-square, like the terminal UI ─── */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
 
   /* ── TYPOGRAPHY ─────────────────────────────────────────── */
-  --font-mono: "JetBrains Mono", monospace;
-  --font-sans: "Hanken Grotesk", sans-serif;
+  --font-mono: "Roboto Mono", monospace;
+  --font-sans: "Roboto", sans-serif;
+  --font-display: "Oswald", "Roboto", sans-serif;
 
-  /* ── TYPE SCALE ─────────────────────────────────────────────
-     Replaces one-off inline font-size:7px/8px/9px. 10px is the
-     floor for any text — below that it's unreadable at a glance. */
+  /* ── TYPE SCALE ─────────────────────────────────────────── */
   --text-xs: 10px;
   --text-sm: 12px;
   --text-md: 14px;
