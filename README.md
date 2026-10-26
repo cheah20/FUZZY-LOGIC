@@ -1,13 +1,13 @@
-# ASTDSS Terminal
+# NeuralTrade
 
-**Adaptive Stock Trading Decision Support System — Fuzzy Logic, Human Expert Rules and an Agentic AI Layer**
+**Fuzzy Logic Stock Trading Decision Support System**
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.1-000000?logo=flask&logoColor=white)
 ![NumPy](https://img.shields.io/badge/NumPy-013243?logo=numpy&logoColor=white)
 ![Status](https://img.shields.io/badge/status-completed-3f6fb6)
 
-ASTDSS Terminal is a web-based decision support system that analyses a stock or crypto ticker and suggests **Buy, Sell or Hold**. It explains *why* it reached that decision, and compares itself with a simple baseline and with buy-and-hold. A Mamdani fuzzy logic engine does the core reasoning. A rule-based Human Expert layer decides which inputs to trust in each market condition, and an AI model (DeepSeek) may propose adjustments — but every AI proposal must pass a Human Expert Validation Gate. The AI never makes the final call on its own.
+NeuralTrade is a web-based decision support system that analyses a stock or crypto ticker and suggests **Buy, Sell or Hold**. It explains *why* it reached that decision, and compares itself with a simple baseline and with buy-and-hold. A Mamdani fuzzy logic engine does the core reasoning. A rule-based Human Expert layer decides which inputs to trust in each market condition, and an AI model (DeepSeek) may propose adjustments — but every AI proposal must pass a Human Expert Validation Gate. The AI never makes the final call on its own.
 
 Undergraduate Fuzzy Logic course project (PA3: Agentic Fuzzy Logic), developed May – June 2026.
 
@@ -31,7 +31,7 @@ Undergraduate Fuzzy Logic course project (PA3: Agentic Fuzzy Logic), developed M
 
 Technical indicators such as RSI, MACD and ATR often disagree, and their meaning depends on the market situation. A strong news event can make every chart signal irrelevant, while in a calm market the indicators matter most. Rigid "if RSI < 30 then buy" rules ignore this.
 
-ASTDSS handles the uncertainty with fuzzy logic. Each indicator is turned into degrees of membership (for example, RSI is 0.7 "oversold" and 0.3 "neutral"), 26 fuzzy rules combine them, and centroid defuzzification turns the result into a trading signal. On top of this, a Human Expert layer detects the market regime and masks or re-weights inputs, following how professional traders focus on different information in different conditions.
+NeuralTrade handles the uncertainty with fuzzy logic. Each indicator is turned into degrees of membership (for example, RSI is 0.7 "oversold" and 0.3 "neutral"), 26 fuzzy rules combine them, and centroid defuzzification turns the result into a trading signal. On top of this, a Human Expert layer detects the market regime and masks or re-weights inputs, following how professional traders focus on different information in different conditions.
 
 The agentic layer adds an LLM that reads the full market context and proposes a small shift to the fuzzy score. A deterministic validation gate, built from 16 literature-based expert rules, approves, modifies or rejects each proposal, and every run is logged for review.
 
@@ -260,7 +260,7 @@ Which paper supports which rule: [docs/research/README_RESEARCH.md](docs/researc
 
 ---
 
-**Project:** ASTDSS Terminal — Adaptive Stock Trading Decision Support System
+**Project:** NeuralTrade — Fuzzy Logic Stock Trading Decision Support System
 **Project Type:** Undergraduate Fuzzy Logic course project (PA3)
 **Development Period:** May – June 2026
 **Status:** Completed
