@@ -1,13 +1,6 @@
-{% extends "base.html" %} {% block title %}Decision Logic{% endblock %} {% block
-header_status %}
-<div style="display: flex; align-items: center; gap: 14px">
-  <div style="font:600 15px 'Roboto', sans-serif;color:var(--white-soft);text-transform:uppercase;letter-spacing:0.08em;">
-    ASTDSS TERMINAL
-  </div>
-  <div style="width: 1px; height: 18px; background: rgba(32, 53, 80, 0.15)"></div>
-  <div class="label-xs">ACTIVE SESSION: MULTI-AGENT</div>
-</div>
-{% endblock %} {% block header_right %}
+{% extends "base.html" %} {% block title %}Decision Logic{% endblock %}
+{% block page_name %}Decision Logic{% endblock %}
+  {% block header_right %}
 <!-- Tab bar -->
 <div class="tab-bar" style="margin-left: auto">
   {% for tab in [('Fuzzification',True),('Rule
@@ -25,11 +18,11 @@ header_status %}
 </div>
 {% endblock %} {% block content %}
 <div class="decision-grid">
-  <!-- LEFT: Expert Reasoning Panel (Human Expert Layer) — given the full column height since it has the most content -->
+  <!-- left column: why the expert layer chose these inputs -->
   <div class="glass-panel glass-panel--gold flex-col overflow-hidden" style="flex:1;overflow-y:auto;">
     {% if expert_data %}
     <div class="panel-header">
-      <span class="label-xs" style="color:var(--gold-soft);">EXPERT REASONING PANEL</span>
+      <span class="label-xs" style="color:var(--gold-soft);">Expert Reasoning Panel</span>
       <span class="badge badge--processing">{{ expert_data.regime_display }}</span>
     </div>
 
@@ -71,7 +64,7 @@ header_status %}
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
         <span class="label-sm" style="text-transform:capitalize;min-width:70px;">{{ feat }}</span>
         <div class="progress-bar" style="flex: 1; height: 4px">
-          <div class="progress-bar__fill" style="width:{{ (wt*100)|int }}%;background:{% if wt > 0 %}var(--gold-soft){% else %}rgba(32, 53, 80, 0.15){% endif %};"></div>
+          <div class="progress-bar__fill" style="width:{{ (wt*100)|int }}%;background:{% if wt > 0 %}var(--gold-soft){% else %}rgba(20, 26, 34, 0.15){% endif %};"></div>
         </div>
         <span class="label-xs" style="text-transform:none;color:{% if wt > 0 %}var(--gold-soft){% else %}var(--text-faint){% endif %};min-width:32px;text-align:right;">{{ (wt*100)|int }}%</span>
       </div>
@@ -80,7 +73,7 @@ header_status %}
 
     <!-- Output Tendency -->
     <div class="evidence-box evidence-box--gold">
-      <span class="label-xs">Expert Tendency: </span>
+      <span class="label-xs">Tendency: </span>
       <span class="label-sm" style="text-transform:none;color:var(--gold-soft);font-weight:600;">{{ expert_data.output_tendency }}</span>
     </div>
 
@@ -93,7 +86,7 @@ header_status %}
         </div>
       </div>
       <div style="text-align:right;">
-        <div class="label-xs" style="margin-bottom:3px;">Score / Conf</div>
+        <div class="label-xs" style="margin-bottom:3px;">Score / confidence</div>
         <div class="label-sm" style="text-transform:none;color:var(--gold-soft);font-weight:600;">
           {{ '%+.3f'|format(expert_data.fuzzy_score) }} &nbsp;/&nbsp; {{ (expert_data.confidence * 100)|int }}%
         </div>
@@ -113,33 +106,33 @@ header_status %}
             Membership Functions
           </div>
           <div class="label-xs" style="text-transform:none;">
-            Visualizing fuzzy logic sets for 'RSI Intensity'
+            RSI sets: oversold, neutral, overbought
           </div>
         </div>
       </div>
 
       <div class="dl-membership-chart">
         <svg viewBox="0 0 300 170" style="width: 100%; height: 160px">
-          <line x1="0" y1="30" x2="300" y2="30" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1" />
-          <line x1="0" y1="80" x2="300" y2="80" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1" />
-          <line x1="0" y1="130" x2="300" y2="130" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1" />
-          <line x1="75" y1="0" x2="75" y2="155" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1" />
-          <line x1="150" y1="0" x2="150" y2="155" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1" />
-          <line x1="225" y1="0" x2="225" y2="155" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1" />
+          <line x1="0" y1="30" x2="300" y2="30" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
+          <line x1="0" y1="80" x2="300" y2="80" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
+          <line x1="0" y1="130" x2="300" y2="130" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
+          <line x1="75" y1="0" x2="75" y2="155" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
+          <line x1="150" y1="0" x2="150" y2="155" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
+          <line x1="225" y1="0" x2="225" y2="155" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
           <!-- Oversold set: semantic-buy green (oversold = potential reversal-up, not a "blue" decoration) -->
-          <path d="M 10,130 L 60,28 L 110,130" fill="rgba(63, 111, 182, 0.06)" stroke="#3f6fb6" stroke-width="1.8" />
+          <path d="M 10,130 L 60,28 L 110,130" fill="rgba(18, 164, 107, 0.06)" stroke="#12a46b" stroke-width="1.8" />
           <!-- Neutral set: gold, matches brand accent -->
-          <path d="M 85,130 L 150,28 L 215,130" fill="rgba(32, 53, 80, 0.054)" stroke="#203550" stroke-width="1.8" />
+          <path d="M 85,130 L 150,28 L 215,130" fill="rgba(20, 26, 34, 0.054)" stroke="#141a22" stroke-width="1.8" />
           <!-- Overbought set: semantic-sell red -->
-          <path d="M 195,130 L 248,28 L 300,130" fill="rgba(217, 98, 43, 0.06)" stroke="#d9622b" stroke-width="1.8" />
-          <line x1="224" y1="28" x2="224" y2="138" stroke="rgba(32, 53, 80, 0.45)" stroke-width="1.5" stroke-dasharray="4,3" />
-          <circle cx="224" cy="88" r="4.5" fill="#203550" opacity=".85" />
-          <rect x="175" y="58" width="80" height="34" rx="5" fill="rgba(255, 255, 255, 0.94)" stroke="rgba(32, 53, 80, 0.12)" />
-          <text x="215" y="72" text-anchor="middle" fill="#203550" style="font:10px 'Roboto Mono'">μ(OVB)</text>
-          <text x="215" y="86" text-anchor="middle" fill="#203550" style="font:11px 'Roboto Mono';font-weight:600">0.68</text>
-          <text x="30" y="150" text-anchor="middle" fill="rgba(32, 53, 80, 0.45)" style="font:10px 'Roboto Mono'">OVERSOLD</text>
-          <text x="148" y="150" text-anchor="middle" fill="rgba(32, 53, 80, 0.45)" style="font:10px 'Roboto Mono'">NEUTRAL</text>
-          <text x="248" y="150" text-anchor="middle" fill="#d9622b" style="font:10px 'Roboto Mono';font-weight:700">OVERBOUGHT</text>
+          <path d="M 195,130 L 248,28 L 300,130" fill="rgba(229, 68, 59, 0.06)" stroke="#e5443b" stroke-width="1.8" />
+          <line x1="224" y1="28" x2="224" y2="138" stroke="rgba(20, 26, 34, 0.45)" stroke-width="1.5" stroke-dasharray="4,3" />
+          <circle cx="224" cy="88" r="4.5" fill="#141a22" opacity=".85" />
+          <rect x="175" y="58" width="80" height="34" rx="5" fill="rgba(255, 255, 255, 0.94)" stroke="rgba(20, 26, 34, 0.12)" />
+          <text x="215" y="72" text-anchor="middle" fill="#141a22" style="font:10px 'Roboto Mono'">μ(OVB)</text>
+          <text x="215" y="86" text-anchor="middle" fill="#141a22" style="font:11px 'Roboto Mono';font-weight:600">0.68</text>
+          <text x="30" y="150" text-anchor="middle" fill="rgba(20, 26, 34, 0.45)" style="font:10px 'Roboto Mono'">Oversold</text>
+          <text x="148" y="150" text-anchor="middle" fill="rgba(20, 26, 34, 0.45)" style="font:10px 'Roboto Mono'">Neutral</text>
+          <text x="248" y="150" text-anchor="middle" fill="#e5443b" style="font:10px 'Roboto Mono';font-weight:700">Overbought</text>
         </svg>
       </div>
     </div>
@@ -148,7 +141,6 @@ header_status %}
     <div class="glass-panel glass-panel--inset">
       <div class="panel-header" style="margin-bottom:10px;">
         <span class="label-xs">COGNITION STREAM</span>
-        <span class="badge badge--synced">AGENT SYNCED</span>
       </div>
       <div class="log-stream">
         {% if expert_data and expert_data.rule_firings %}
@@ -177,7 +169,7 @@ header_status %}
     <!-- Input Variables (compact — moved here; doesn't need a full column to itself) -->
     <div class="glass-panel flex-col" style="flex-shrink:0;">
       <div class="section-header">
-        <span class="section-header__title">INPUT VARIABLES</span>
+        <span class="section-header__title">Inputs</span>
       </div>
 
       {% set inputs = expert_data.input_display if expert_data and expert_data.input_display else [] %}
@@ -199,28 +191,15 @@ header_status %}
       </div>
       {% endfor %}
 
-      <!-- Fuzzy Engine Status -->
-      <div class="evidence-box evidence-box--warning" style="display:flex;align-items:center;gap:10px;margin-bottom:0;">
-        <span
-          class="pulse-amber"
-          style="width:8px;height:8px;border-radius:50%;background:var(--semantic-warning);display:inline-block;flex-shrink:0;"
-        ></span>
-        <div>
-          <div class="label-xs" style="color:var(--semantic-warning);margin-bottom:2px;">
-            FUZZY ENGINE ACTIVE
-          </div>
-          <div class="label-xs" style="text-transform:none;">Sampling: 100ms</div>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- RIGHT: Rule Matrix + Signal -->
+  <!-- right column: rules that fired and the final signal -->
   <div class="flex-col flex-col-gap-md" style="min-height: 0">
     <div class="glass-panel flex-1 overflow-y-auto">
       <div class="panel-header">
-        <span class="label-xs">RULE MATRIX</span>
-        <span class="badge badge--processing">{{ expert_data.rules_fired if expert_data else fuzzy_logic_data.rules_active }} ACTIVE</span>
+        <span class="label-xs">Rules fired</span>
+        <span class="badge badge--processing">{{ expert_data.rules_fired if expert_data else fuzzy_logic_data.rules_active }}</span>
       </div>
 
       <div class="flex-col flex-col-gap-sm">
@@ -230,9 +209,9 @@ header_status %}
           {% if loop.index <= 5 %}
           <div class="rule-card {% if rf.strength > 0.15 %}rule-card--firing{% else %}rule-card--idle{% endif %}">
             <div class="rule-card__header">
-              <span class="rule-card__id">RULE {{ '%02d'|format(loop.index) }}</span>
+              <span class="rule-card__id">Rule {{ '%02d'|format(loop.index) }}</span>
               <span class="badge {% if rf.strength > 0.15 %}badge--processing{% else %}badge--idle{% endif %}">
-                {% if rf.strength > 0.15 %}FIRING ({{ '%.2f'|format(rf.strength) }}){% else %}WEAK{% endif %}
+                {% if rf.strength > 0.15 %}Firing ({{ '%.2f'|format(rf.strength) }}){% else %}Weak{% endif %}
               </span>
             </div>
             <div class="rule-card__body">
@@ -240,7 +219,7 @@ header_status %}
               <strong style="color:{% if 'Sell' in rf.consequent %}var(--semantic-sell){% elif 'Buy' in rf.consequent %}var(--semantic-buy){% else %}var(--white-soft){% endif %};">
                 {{ rf.consequent }}
               </strong>
-              <span class="label-xs" style="text-transform:none;"> &mdash; strength {{ '%.3f'|format(rf.strength) }}</span>
+              <span class="label-xs" style="text-transform:none;"> · strength {{ '%.3f'|format(rf.strength) }}</span>
             </div>
           </div>
           {% endif %}
@@ -249,8 +228,8 @@ header_status %}
           <!-- Fallback static examples when no expert_data -->
           <div class="rule-card rule-card--idle">
             <div class="rule-card__header">
-              <span class="rule-card__id">RULE 04</span>
-              <span class="badge badge--idle">EXAMPLE</span>
+              <span class="rule-card__id">Rule 04</span>
+              <span class="badge badge--idle">Example</span>
             </div>
             <div class="rule-card__body">
               IF RSI is <em>Overbought</em> AND Vol is <em>Low</em><br/>
@@ -267,19 +246,19 @@ header_status %}
     <div class="glass-panel {% if 'Sell' in sig_label %}glass-panel--danger{% elif 'Buy' in sig_label %}glass-panel--gold{% else %}glass-panel--inset{% endif %}" style="padding: 16px 20px">
       <div class="dl-signal-agg">
         <div>
-          <div class="dl-conf-label">AGGREGATED SIGNAL</div>
-          <div class="dl-signal-name" style="color:{% if 'Sell' in sig_label %}var(--semantic-sell){% elif 'Buy' in sig_label %}var(--gold-soft){% else %}var(--white-soft){% endif %};">
-            {{ sig_label|upper }}
+          <div class="dl-conf-label">Signal</div>
+          <div class="dl-signal-name" style="color:{% if 'Sell' in sig_label %}var(--semantic-sell){% elif 'Buy' in sig_label %}var(--semantic-buy){% else %}var(--white-soft){% endif %};">
+            {{ sig_label }}
           </div>
         </div>
         <div style="text-align: right">
-          <div class="dl-conf-label">CONFIDENCE</div>
+          <div class="dl-conf-label">Confidence</div>
           <div class="dl-signal-conf">{{ sig_conf }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Floating execute btn -->
+    <!-- execute button -->
     <button id="dl-execute-trade" class="btn-execute" style="border-radius: var(--radius-lg)">
       <svg style="width: 14px; height: 14px; fill: currentColor" viewBox="0 0 24 24">
         <path d="M8 5v14l11-7z" />

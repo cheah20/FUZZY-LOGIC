@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Backtesting{% endblock %}
+{% block page_name %}Backtesting{% endblock %}
+
 
 {% block header_status %}
 <div class="bt-breadcrumb">
@@ -12,20 +14,18 @@
 {% block content %}
 <div class="config-main">
 
-  <!-- LEFT CONFIG -->
+  <!-- settings for the run -->
   <div class="glass-panel flex-col overflow-y-auto">
     <div class="section-header">
       <span class="section-header__title">BACKTEST CONFIG</span>
     </div>
-    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);margin-bottom:20px;">Session: Multi-Agent v5.0-EXPERT</div>
 
-    <!-- TICKER INPUT -->
-    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">BACKTEST TICKER</div>
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);margin-bottom:8px;">Ticker</div>
     <input
       id="bt-ticker"
       class="glass-input"
       type="text"
-      placeholder="AAPL, TSLA, MSFT, BTC..."
+      placeholder="AAPL, TSLA, BTC"
       value="AAPL"
       style="margin-bottom:6px;text-transform:uppercase;"
       autocomplete="off"
@@ -34,27 +34,27 @@
       {% for label in ['1Y','2Y','3Y'] %}
       <button class="btn-secondary bt-period-btn {% if label == '2Y' %}bt-period-btn--active{% endif %}"
               data-period="{{ label | lower }}"
-              style="flex:1;{% if label == '2Y' %}background:rgba(32, 53, 80, 0.108);border-color:rgba(32, 53, 80, 0.18);color:var(--gold-soft);{% endif %}">
+              style="flex:1;{% if label == '2Y' %}background:rgba(20, 26, 34, 0.108);border-color:rgba(20, 26, 34, 0.18);color:var(--gold-soft);{% endif %}">
         {{ label }}
       </button>
       {% endfor %}
     </div>
 
-    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">EVALUATION PERIOD <span style="color:var(--text-faint);text-transform:none;">(follows 1Y/2Y/3Y above)</span></div>
-    <div style="background:rgba(20, 35, 55, 0.077);border:1px solid rgba(32, 53, 80, 0.07);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);margin-bottom:8px;">Date range</div>
+    <div style="background:rgba(16, 24, 40, 0.077);border:1px solid rgba(20, 26, 34, 0.07);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;">
       <div class="config-field">
-        <span class="config-field__label">Start Date</span>
+        <span class="config-field__label">From</span>
         <span class="config-field__value" id="bt-eval-start">—</span>
       </div>
       <div class="config-field">
-        <span class="config-field__label">End Date</span>
+        <span class="config-field__label">To</span>
         <span class="config-field__value" id="bt-eval-end">—</span>
       </div>
     </div>
 
-    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">ASSET CLASS & SECTORS <span style="color:var(--text-faint);text-transform:none;">(sets ticker below)</span></div>
+    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);margin-bottom:8px;">Quick pick</div>
     <div class="flex-col flex-col-gap-sm" style="margin-bottom:20px;">
-      {% for label, ticker, active in [('Equities - AAPL','AAPL',True),('Crypto - BTC','BTC',False),('Forex - EUR/USD','EURUSD=X',False)] %}
+      {% for label, ticker, active in [('Apple (AAPL)','AAPL',True),('Bitcoin (BTC)','BTC',False),('EUR / USD','EURUSD=X',False)] %}
       <label class="asset-option{% if active %} asset-option--active{% endif %}" data-ticker="{{ ticker }}">
         <span class="asset-option__name">{{ label }}</span>
         <div class="radio-dot{% if active %} radio-dot--checked{% endif %}">
@@ -64,14 +64,7 @@
       {% endfor %}
     </div>
 
-    <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);text-transform:uppercase;margin-bottom:8px;">AGENT LOGIC DENSITY</div>
-    <input type="range" min="0" max="100" value="50" style="width:100%;margin-bottom:6px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-      <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">Low Noise</span>
-      <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">High Fidelity</span>
-    </div>
-
-    <div class="mt-auto" style="padding-top:12px;border-top:1px solid rgba(32, 53, 80, 0.05);">
+    <div class="mt-auto" style="padding-top:12px;border-top:1px solid rgba(20, 26, 34, 0.05);">
       <button id="bt-run-btn" class="btn-primary" style="width:100%;border-radius:var(--radius-lg);padding:13px;">
         <svg id="bt-run-icon" style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
         <span id="bt-run-label">Execute Backtest</span>
@@ -80,10 +73,9 @@
     </div>
   </div>
 
-  <!-- RIGHT -->
   <div class="flex-col flex-col-gap-md overflow-y-auto" style="min-height:0;">
 
-    <!-- LIVE BACKTEST RESULTS (hidden until Run Backtest is clicked) -->
+    <!-- results of a real run, hidden until the button is pressed -->
     <div id="bt-live-results" style="display:none;flex-shrink:0;">
       <!-- Ticker header -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -96,12 +88,12 @@
       <!-- Live metric cards -->
       <div class="stat-row" style="margin-bottom:12px;">
         <div class="glass-panel-high">
-          <div class="metric-label">EXPERT RETURN</div>
+          <div class="metric-label">Expert return</div>
           <div class="metric-value metric-value--gold" id="bt-expert-return">—</div>
           <div class="metric-sub" id="bt-expert-sharpe" style="margin-top:4px;">—</div>
         </div>
         <div class="glass-panel-high">
-          <div class="metric-label">BASELINE RETURN</div>
+          <div class="metric-label">Baseline return</div>
           <div class="metric-value" id="bt-baseline-return">—</div>
           <div class="metric-sub" id="bt-baseline-sharpe" style="margin-top:4px;">—</div>
         </div>
@@ -120,23 +112,23 @@
       <div class="glass-panel" style="flex-shrink:0;padding:16px 18px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div>
-            <div style="font:600 14px 'Roboto', sans-serif;color:var(--white-soft);">Equity Curve — <span id="bt-chart-ticker">—</span></div>
+            <div style="font:600 14px 'Roboto', sans-serif;color:var(--white-soft);">Equity curve · <span id="bt-chart-ticker">—</span></div>
             <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-subtle);">Expert FLC vs Baseline FLC vs Buy &amp; Hold</div>
           </div>
           <div style="display:flex;gap:14px;align-items:center;">
             <div style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:var(--gold-soft);display:inline-block;border-radius:1px;"></span><span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">Expert</span></div>
             <div style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:var(--secondary);display:inline-block;border-radius:1px;"></span><span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">Baseline</span></div>
-            <div style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:rgba(32, 53, 80, 0.45);display:inline-block;border-radius:1px;border-style:dashed;"></span><span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">B&amp;H</span></div>
+            <div style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:2px;background:rgba(20, 26, 34, 0.45);display:inline-block;border-radius:1px;border-style:dashed;"></span><span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">B&amp;H</span></div>
           </div>
         </div>
-        <div id="bt-chart-container" style="width:100%;height:180px;background:rgba(20, 35, 55, 0.07);border-radius:var(--radius-md);overflow:hidden;"></div>
+        <div id="bt-chart-container" style="width:100%;height:180px;background:rgba(16, 24, 40, 0.07);border-radius:var(--radius-md);overflow:hidden;"></div>
         <div style="display:flex;justify-content:space-between;margin-top:6px;" id="bt-date-labels"></div>
       </div>
     </div>
 
-    <!-- Top Stats (static metrics, shown when no live results) -->
+    <!-- example numbers shown before the first run -->
     <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);margin-bottom:8px;flex-shrink:0;">
-      EXAMPLE METRICS — click "Execute Backtest" (left panel) to run a real backtest and replace these with live numbers
+      Example numbers. Press Execute Backtest on the left to run a real test.
     </div>
     <div id="bt-static-stats" class="stat-row" style="flex-shrink:0;">
       <div class="glass-panel-high">
@@ -147,12 +139,12 @@
       <div class="glass-panel-high" style="border-left:2px solid var(--semantic-buy);">
         <div class="metric-label">MAX DRAWDOWN</div>
         <div class="metric-value">{{ backtesting_metrics.max_drawdown }}</div>
-        <div class="metric-sub metric-sub--green">Optimal</div>
+        <div class="metric-sub">Worst fall from a peak</div>
       </div>
       <div class="glass-panel-high">
         <div class="metric-label">WIN RATE</div>
         <div class="metric-value">{{ backtesting_metrics.win_rate }}</div>
-        <div class="metric-sub">Historical</div>
+        <div class="metric-sub">Share of winning trades</div>
       </div>
       <div class="glass-panel-high">
         <div class="metric-label" style="display:flex;align-items:center;gap:6px;">
@@ -160,7 +152,7 @@
           FUZZY-LOGIC MITIGATIONS
         </div>
         <div class="metric-value">{{ backtesting_metrics.fuzzy_logic_mitigations }}</div>
-        <div class="metric-sub">"Grey Zone" Safes</div>
+        <div class="metric-sub">Unclear signals held back</div>
       </div>
     </div><!-- /bt-static-stats -->
 
@@ -170,12 +162,12 @@
         <div>
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
             <div style="font:600 20px 'Roboto', sans-serif;color:var(--white-soft);">Cumulative Returns Comparison</div>
-            <span class="badge badge--idle" style="font-size:var(--text-xs);">ILLUSTRATIVE</span>
+            <span class="badge badge--idle" style="font-size:var(--text-xs);">Example</span>
           </div>
-          <div style="font:400 12px 'Roboto', sans-serif;color:var(--text-muted);">Conceptual diagram — not computed from live data. For real Expert vs Baseline numbers, see the panel below or run a backtest.</div>
+          <div style="font:400 12px 'Roboto', sans-serif;color:var(--text-muted);">A drawn example, not real data. Run a backtest for real numbers.</div>
         </div>
         <div style="display:flex;gap:16px;align-items:center;">
-          {% for dot, label in [('var(--gold-soft)','Fuzzy-Agentic Workflow'),('var(--secondary)','Baseline LLM'),('rgba(32, 53, 80, 0.45)','S&P 500 Index')] %}
+          {% for dot, label in [('var(--gold-soft)','Fuzzy-Agentic Workflow'),('var(--secondary)','Baseline LLM'),('rgba(20, 26, 34, 0.45)','S&P 500 Index')] %}
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="width:10px;height:10px;border-radius:50%;background:{{ dot }};display:inline-block;flex-shrink:0;"></span>
             <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">{{ label }}</span>
@@ -188,27 +180,26 @@
         <svg viewBox="0 0 760 200" style="width:100%;height:200px;">
           <defs>
             <pattern id="cg" width="126.7" height="50" patternUnits="userSpaceOnUse">
-              <line x1="126.7" y1="0" x2="126.7" y2="200" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1"/>
-              <line x1="0" y1="50" x2="760" y2="50" stroke="rgba(32, 53, 80, 0.04)" stroke-width="1"/>
+              <line x1="126.7" y1="0" x2="126.7" y2="200" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1"/>
+              <line x1="0" y1="50" x2="760" y2="50" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1"/>
             </pattern>
             <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#203550" stop-opacity=".15"/>
-              <stop offset="100%" stop-color="#203550" stop-opacity="0"/>
+              <stop offset="0%" stop-color="#141a22" stop-opacity=".15"/>
+              <stop offset="100%" stop-color="#141a22" stop-opacity="0"/>
             </linearGradient>
           </defs>
           <rect width="760" height="200" fill="url(#cg)"/>
-          <path d="M0,175 C130,170 260,162 380,158 C500,154 630,150 760,148" fill="none" stroke="rgba(32, 53, 80, 0.45)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <path d="M0,175 C130,170 260,162 380,158 C500,154 630,150 760,148" fill="none" stroke="rgba(20, 26, 34, 0.45)" stroke-width="1.5" stroke-dasharray="4,3"/>
           <path d="M0,178 C130,168 260,155 380,148 C430,142 480,155 530,148 C600,138 680,128 760,118" fill="none" stroke="var(--secondary)" stroke-width="1.8"/>
           <path d="M0,180 C130,168 260,148 380,120 C480,95 600,65 760,22" fill="none" stroke="var(--gold-soft)" stroke-width="2.2"/>
           <path d="M0,180 C130,168 260,148 380,120 C480,95 600,65 760,22 L760,200 L0,200 Z" fill="url(#ag)"/>
-          <line x1="510" y1="0" x2="510" y2="200" stroke="rgba(32, 53, 80, 0.1)" stroke-width="1" stroke-dasharray="4,3"/>
-          <rect x="516" y="38" width="195" height="52" rx="5" fill="rgba(255, 255, 255, 0.95)" stroke="rgba(32, 53, 80, 0.1)"/>
-          <text x="526" y="54" fill="rgba(32, 53, 80, 0.45)" style="font:8px 'Roboto Mono';text-transform:uppercase;">DEC 2022 MARKET VOLATILITY</text>
-          <text x="526" y="66" fill="rgba(32, 53, 80, 0.7)" style="font:9px 'Roboto Mono';">Fuzzy Logic Controller triggered</text>
-          <text x="526" y="78" fill="var(--gold-soft)" style="font:9px 'Roboto Mono';font-weight:600;">Shield Protocol.</text>
-          <text x="526" y="88" fill="rgba(32, 53, 80, 0.45)" style="font:8px 'Roboto Mono';">LLM Baseline: -8.2% decay</text>
-          {% for yr, x in [('2019','4'),('2020','130'),('2021','256'),('2022','382'),('2023','508'),('JAN 2024','680')] %}
-          <text x="{{ x }}" y="196" fill="rgba(32, 53, 80, 0.45)" style="font:9px 'Roboto Mono';">{{ yr }}</text>
+          <line x1="510" y1="0" x2="510" y2="200" stroke="rgba(20, 26, 34, 0.1)" stroke-width="1" stroke-dasharray="4,3"/>
+          <rect x="516" y="38" width="195" height="52" rx="5" fill="rgba(255, 255, 255, 0.95)" stroke="rgba(20, 26, 34, 0.1)"/>
+          <text x="526" y="54" fill="rgba(20, 26, 34, 0.45)" style="font:8px 'Roboto Mono';">Dec 2022, volatile market</text>
+          <text x="526" y="66" fill="rgba(20, 26, 34, 0.7)" style="font:9px 'Roboto Mono';">Expert layer cut exposure</text>
+          <text x="526" y="88" fill="rgba(20, 26, 34, 0.45)" style="font:8px 'Roboto Mono';">baseline kept falling</text>
+          {% for yr, x in [('2019','4'),('2020','130'),('2021','256'),('2022','382'),('2023','508'),('2024','680')] %}
+          <text x="{{ x }}" y="196" fill="rgba(20, 26, 34, 0.45)" style="font:9px 'Roboto Mono';">{{ yr }}</text>
           {% endfor %}
         </svg>
       </div>
@@ -222,14 +213,14 @@
         <!-- Backtest Trade Log -->
         <div class="glass-panel" style="padding:16px 18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;">BACKTEST TRADE LOG</span>
-            <span id="bt-log-count" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">Run backtest to load trades</span>
+            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;">Trade log</span>
+            <span id="bt-log-count" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">no trades yet</span>
           </div>
           <div class="table-scroll">
           <table class="data-table">
             <thead><tr><th>Timestamp</th><th>Exit Type</th><th>Fuzzy Signal</th><th>Outcome</th></tr></thead>
             <tbody id="bt-log-tbody">
-              <tr><td colspan="4" style="text-align:center;color:var(--text-faint);font-style:italic;padding:12px;">Run backtest above to populate trade log</td></tr>
+              <tr><td colspan="4" style="text-align:center;color:var(--text-faint);font-style:italic;padding:12px;">Trades show up here after a backtest</td></tr>
             </tbody>
           </table>
           </div>
@@ -238,14 +229,14 @@
         <!-- Real Agentic Experience Log (live from /api/agentic/experience-log) -->
         <div class="glass-panel" style="padding:16px 18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;">RECENT AGENTIC DECISIONS</span>
+            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;">Recent agentic decisions</span>
             <span id="bt-agentic-count" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);">Loading…</span>
           </div>
           <div class="table-scroll">
           <table class="data-table">
             <thead><tr><th>Timestamp</th><th>Final Decision</th><th>Validation</th><th>Stability</th></tr></thead>
             <tbody id="bt-agentic-tbody">
-              <tr><td colspan="4" style="text-align:center;color:var(--text-faint);font-style:italic;padding:12px;">No agentic runs yet — use Agentic Layer page to run analysis</td></tr>
+              <tr><td colspan="4" style="text-align:center;color:var(--text-faint);font-style:italic;padding:12px;">No agentic runs yet. Start one on the Agentic Layer page.</td></tr>
             </tbody>
           </table>
           </div>
@@ -253,18 +244,18 @@
 
       </div><!-- end left column -->
 
-      <!-- Baseline vs Expert Comparison (updated by JS after backtest) -->
+      <!-- baseline vs expert, refreshed after a run -->
       <div id="bt-cmp-panel" class="glass-panel">
         <div class="section-header" style="margin-bottom:6px;">
-          <span class="section-header__title">BASELINE vs EXPERT</span>
+          <span class="section-header__title">Baseline vs expert</span>
           {% if comparison and comparison.winner == 'expert' %}
-          <span class="badge badge--synced" style="margin-left:auto;font-size:var(--text-xs);">EXPERT WINS</span>
+          <span class="badge badge--synced" style="margin-left:auto;font-size:var(--text-xs);">Expert ahead</span>
           {% elif comparison %}
-          <span class="badge badge--idle" style="margin-left:auto;font-size:var(--text-xs);">BASELINE WINS</span>
+          <span class="badge badge--idle" style="margin-left:auto;font-size:var(--text-xs);">Baseline ahead</span>
           {% endif %}
         </div>
         <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);line-height:1.5;margin-bottom:12px;">
-          The Human Expert Layer changes and explains decisions under risky/extreme market regimes — it is not guaranteed to outperform the baseline on every dataset or window.
+          The expert layer mainly changes decisions in extreme markets. It does not beat the baseline on every ticker or period.
         </div>
 
         {% if comparison %}
@@ -283,14 +274,14 @@
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
             <div>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--gold-soft);margin-bottom:3px;">EXPERT</div>
+              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--gold-soft);margin-bottom:3px;">Expert</div>
               <div class="progress-bar" style="height:4px;margin-bottom:2px;">
                 <div class="progress-bar__fill" style="width:{{ [[(ev|abs / ([bv|abs, ev|abs]|max + 0.01) * 100)|int, 100]|min, 0]|max }}%;background:var(--gold-soft);"></div>
               </div>
               <span style="font-family:var(--font-mono);font-size:10px;color:var(--gold-soft);font-weight:600;">{{ '%+.2f'|format(ev) if unit == '%' else '%.3f'|format(ev) }}{{ unit }}</span>
             </div>
             <div>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--secondary);margin-bottom:3px;">BASELINE</div>
+              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--secondary);margin-bottom:3px;">Baseline</div>
               <div class="progress-bar" style="height:4px;margin-bottom:2px;">
                 <div class="progress-bar__fill" style="width:{{ [[(bv|abs / ([bv|abs, ev|abs]|max + 0.01) * 100)|int, 100]|min, 0]|max }}%;background:var(--secondary);"></div>
               </div>
@@ -300,22 +291,18 @@
         </div>
         {% endfor %}
 
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(63, 111, 182, 0.05);border:1px solid rgba(63, 111, 182, 0.12);border-radius:var(--radius-md);margin-top:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(18, 164, 107, 0.05);border:1px solid rgba(18, 164, 107, 0.12);border-radius:var(--radius-md);margin-top:6px;">
           <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);">Expert vs Buy &amp; Hold</span>
           <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:{% if comparison.expert_vs_bah > 0 %}var(--semantic-buy){% else %}var(--semantic-sell){% endif %};">
             {{ '%+.2f'|format(comparison.expert_vs_bah) }}%
           </span>
         </div>
         <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-faint);margin-top:8px;text-align:center;">
-          30% out-of-sample  |  {{ comparison.extreme_events_pct|int }}% extreme sentiment events
+          Last 30% of data held out · {{ comparison.extreme_events_pct|int }}% extreme sentiment days
         </div>
 
         {% else %}
-        <!-- Fallback when comparison data not available -->
-        <div style="display:flex;align-items:center;gap:7px;padding:9px 12px;background:rgba(63, 111, 182, 0.06);border:1px solid rgba(63, 111, 182, 0.15);border-radius:var(--radius-lg);">
-          <span class="status-dot"></span>
-          <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--semantic-buy);">Simulation Environment Synced</span>
-        </div>
+        <div style="font-size:var(--text-xs);color:var(--text-faint);">No comparison yet. Run a backtest first.</div>
         {% endif %}
       </div>
     </div>

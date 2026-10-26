@@ -1,87 +1,84 @@
-/* ============================================================
-   01_tokens.css — Design Tokens (ARCHITECTURE.md §5.1, §6)
-   ASTDSS Terminal — Light "Forex Terminal" Design System
-   Light grey canvas, white panels, navy condensed headings,
-   orange = Sell, blue = Buy, dashed chart grids.
-   ============================================================ */
+/* Colours, fonts and sizes used by every page.
+   Broker-style light theme: white panels on a pale grey page,
+   green for up / buy, red for down / sell, blue for actions. */
 
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* ── COLOR SYSTEM ───────────────────────────────────────── */
-  --bg-main: #e8e9eb;          /* light grey canvas */
-  --bg-glass: #ffffff;         /* panels are solid white */
-  --bg-raised: #f4f5f7;        /* inner rows / inputs */
-  --bg-row: #e4e6ea;           /* price strip grey */
+  /* page and panels */
+  --bg-main: #f2f4f7;
+  --bg-glass: #ffffff;
+  --bg-raised: #f6f7f9;
+  --bg-row: #eef0f3;
 
-  /* Brand accent — deep navy (the "FOREX" heading colour).
-     The old gold variable names are kept so templates don't break. */
-  --gold-soft: #203550;
-  --gold-bright: #2b4569;
-  --orange-glow: #d9622b;
+  /* blue for buttons, links and the active page.
+     The gold-* names are old but still used all over the templates. */
+  --gold-soft: #1557d0;
+  --gold-bright: #0f47b0;
+  --orange-glow: #e5443b;
 
-  --navy: #203550;
-  --white-soft: #203550;       /* was light text; now primary dark text */
-  --panel-border: #d7dade;
-  --panel-border-top: #d7dade;
-  --grid-line: #c9ccd1;
-  --shadow-glass: 0 1px 2px rgba(20, 35, 55, 0.06), 0 6px 18px rgba(20, 35, 55, 0.06);
+  --navy: #141a22;
+  --white-soft: #141a22;
+  --panel-border: #e4e7ec;
+  --panel-border-top: #e4e7ec;
+  --grid-line: #eef0f3;
+  --shadow-glass: 0 1px 2px rgba(16, 24, 40, 0.04);
 
-  /* ── NEUTRAL TEXT HIERARCHY ─────────────────────────────── */
-  --text-main:   #1f2a37;
+  /* text */
+  --text-main:   #141a22;
   --text-muted:  #5d6876;
-  --text-subtle: #8a93a0;
-  --text-faint:  #aeb5bf;
+  --text-subtle: #7d8794;
+  --text-faint:  #a5adb8;
 
-  /* ── SEMANTIC COLOURS — meaning only ───────────────────── */
-  --semantic-buy: #3f6fb6;     /* Buy button blue */
-  --semantic-sell: #d9622b;    /* Sell button orange */
-  --semantic-warning: #c48012;
+  /* up / down */
+  --semantic-buy: #12a46b;
+  --semantic-sell: #e5443b;
+  --semantic-warning: #d98a00;
   --semantic-neutral: #5d6876;
 
-  /* Legacy aliases */
-  --primary: #203550;
+  /* older names kept for the templates */
+  --primary: #1557d0;
   --on-primary: #ffffff;
-  --primary-container: #203550;
-  --secondary: #3f6fb6;
+  --primary-container: #1557d0;
+  --secondary: #7a5af0;
   --on-secondary: #ffffff;
   --strong-sell: var(--semantic-sell);
   --optimal-processing: var(--semantic-warning);
   --synced-green: var(--semantic-buy);
-  --on-surface: #1f2a37;
+  --on-surface: #141a22;
 
-  /* ── BLUR SYSTEM — flat design, no glass ───────────────── */
+  /* glass is only used for the side menu and the price card on the chart */
+  --glass-fill: rgba(255, 255, 255, 0.62);
+  --glass-edge: rgba(255, 255, 255, 0.9);
+  --glass-blur: blur(16px) saturate(1.4);
   --blur-soft: none;
   --blur-medium: none;
   --blur-premium: none;
 
-  /* ── RADIUS SYSTEM — near-square, like the terminal UI ─── */
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
-  --radius-xl: 4px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
 
-  /* ── TYPOGRAPHY ─────────────────────────────────────────── */
-  --font-mono: "Roboto Mono", monospace;
+  /* numbers use Roboto with fixed-width digits; real monospace only for logs and rule ids */
+  --font-mono: "Roboto", sans-serif;
+  --font-code: "Roboto Mono", monospace;
   --font-sans: "Roboto", sans-serif;
-  --font-display: "Oswald", "Roboto", sans-serif;
+  --font-display: "Roboto", sans-serif;
 
-  /* ── TYPE SCALE ─────────────────────────────────────────── */
-  --text-xs: 10px;
+  --text-xs: 11px;
   --text-sm: 12px;
   --text-md: 14px;
   --text-lg: 16px;
   --text-xl: 20px;
   --text-xxl: 26px;
 
-  /* ── SPACING ────────────────────────────────────────────── */
   --unit: 4px;
   --gap-sm: 8px;
-  --gap-md: 16px;
-  --gap-lg: 24px;
-  --gap-xl: 32px;
+  --gap-md: 12px;
+  --gap-lg: 16px;
+  --gap-xl: 24px;
 
-  /* ── LAYER Z-INDEX ──────────────────────────────────────── */
   --z-sidebar: 100;
   --z-topbar: 90;
   --z-overlay: 200;
