@@ -2,7 +2,7 @@
 
 The academic papers that ground the Human Expert Knowledge Base
 (`human_expert_kb.py`) and the fuzzy logic / feature selection design used throughout
-the ASTDSS Terminal. These papers are reference material, not runtime dependencies —
+NeuralTrade. These papers are reference material, not runtime dependencies —
 no Python module reads from this folder at runtime.
 
 The PDFs are kept on the developer's machine and are not in the repository, because
