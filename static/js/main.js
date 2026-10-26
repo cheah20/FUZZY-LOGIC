@@ -970,7 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!input) return;
             const isHidden = input.type === 'password';
             input.type     = isHidden ? 'text' : 'password';
-            this.textContent = isHidden ? '🙈' : '👁';
+            this.textContent = isHidden ? 'Hide' : 'Show';
             this.title       = isHidden ? 'Hide API key' : 'Show API key';
         });
     });
