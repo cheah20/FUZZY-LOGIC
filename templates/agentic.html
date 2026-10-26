@@ -587,7 +587,7 @@ function renderFailureDemo(d) {
   const ref = d.reflection || {};
   document.getElementById('fail-root-cause').textContent =
     (ref.root_cause || '') + ' ' + (ref.corrective_principle || '');
-  document.getElementById('fail-lesson').textContent = '💡 ' + (ref.lesson || '');
+  document.getElementById('fail-lesson').textContent = 'Lesson: ' + (ref.lesson || '');
 }
 
 // Init

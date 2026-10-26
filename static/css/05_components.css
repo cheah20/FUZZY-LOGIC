@@ -48,7 +48,7 @@
   transform: translateZ(0);
 }
 
-/* Panel variant: danger-tinted — reserve for genuinely critical states only */
+/* red-tinted panel, only for real problems */
 .glass-panel--danger {
   background: rgba(255, 255, 255, 0.94);
   border-color: rgba(229, 68, 59, 0.2);
