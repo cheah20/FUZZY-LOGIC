@@ -1,27 +1,16 @@
-"""
-agentic_pipeline.py — Agentic Analysis Pipeline
-ASTDSS Terminal — PA3 Agentic Fuzzy Trading DSS
+"""The full agentic run, from market data to the logged decision.
 
-Orchestrates the full agentic decision cycle:
-  1. Retrieve or simulate market data + indicators
-  2. Run baseline and expert fuzzy analysis (existing engine)
-  3. Build structured market context
-  4. Call LLM reasoning layer (demo or real)
-  5. Validate suggestion via Human Expert Validation Gate
-  6. Apply approved fuzzy shift (or keep expert baseline)
-  7. Compute stability score
-  8. Save structured experience log entry
-  9. Return full output dict for UI and PA3 presentation
+Steps: get data, run the baseline and expert fuzzy engines (and ANFIS),
+build the context, ask the LLM for a shift, check it with the validation
+gate, apply what was approved, score stability, write the log entry.
 
-Entry point: run_agentic_analysis(symbol, demo)
+Start with run_agentic_analysis(symbol, demo).
 """
 
 from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-
-# Label helpers
 
 _SCORE_LABELS = [
     (-2.00, -1.20, "Strong Sell"),
@@ -40,7 +29,7 @@ def _score_to_label(score: float) -> str:
 
 
 def _detect_indicator_conflict(rsi: float, macd_hist: float) -> bool:
-    """True when RSI and MACD histogram point in opposite directions at notable levels."""
+    """True when RSI and the MACD histogram clearly point opposite ways."""
     rsi_bullish  = rsi < 45
     rsi_bearish  = rsi > 55
     macd_bullish = macd_hist > 0.10
@@ -53,14 +42,10 @@ def _compute_stability_score(
     validation_result: dict,
     has_conflict: bool,
 ) -> float:
-    """
-    Compute a 0–1 stability score reflecting signal coherence and validation outcome.
+    """Stability score from 0 to 1.
 
-      Base:   expert result confidence
-      +0.10   if APPROVED (clean validation pass)
-      -0.05   if MODIFIED (partial pass)
-      -0.15   if REJECTED (fundamental violation)
-      -0.10   if indicator conflict detected
+    Starts at the expert confidence, +0.10 if approved, -0.05 if modified,
+    -0.15 if rejected, and -0.10 more when RSI and MACD disagree.
     """
     base = float(expert_result.get("confidence", 0.5))
     status = validation_result.get("status", "UNKNOWN")
@@ -77,7 +62,7 @@ def _compute_stability_score(
 
 
 def _build_reflection_note(validation_result: dict, has_conflict: bool) -> str:
-    """Generate a short reflection note for the experience log."""
+    """One-line note for the experience log."""
     status = validation_result.get("status", "UNKNOWN")
     violated = validation_result.get("violated_rules", [])
 
@@ -103,8 +88,6 @@ def _build_reflection_note(validation_result: dict, has_conflict: bool) -> str:
     return "Agentic cycle completed. No unusual conditions detected."
 
 
-# Main Pipeline
-
 def run_agentic_analysis(
     symbol: str = "AAPL",
     demo: bool = True,
@@ -113,19 +96,11 @@ def run_agentic_analysis(
     atr: Optional[float] = None,
     sentiment: Optional[float] = None,
 ) -> dict:
-    """
-    Run the full agentic analysis pipeline.
+    """Run the whole pipeline and return every stage for the UI.
 
-    Args:
-        symbol:    Ticker symbol (used for real data fetch or labelling in demo).
-        demo:      True  → simulated market data + demo LLM mode.
-                   False → attempt real yfinance data + real LLM (requires API key).
-        rsi, macd_hist, atr, sentiment:
-                   Optional override values for indicators (used when called
-                   from UI with specific inputs).
-
-    Returns:
-        Full output dict containing all pipeline stages for UI rendering.
+    demo=True uses simulated data and the demo LLM. demo=False tries yfinance
+    and the real LLM (needs an API key). rsi, macd_hist, atr and sentiment can
+    be passed in to skip the data step.
     """
     from tools import fuzzy_analysis_tool, baseline_fuzzy_tool
     from Trading_Data import get_simulated_market_snapshot, get_ticker_snapshot
@@ -135,9 +110,9 @@ def run_agentic_analysis(
     from backtester import get_backtest_evidence
     import anfis
 
-    # Step 1: Market Data
+    # 1. market data
     if rsi is not None:
-        # Caller supplied specific indicator values
+        # values given by the caller
         snapshot = {
             "rsi":        rsi,
             "macd_hist":  macd_hist or 0.0,
@@ -160,14 +135,13 @@ def run_agentic_analysis(
     _sentiment = float(snapshot.get("sentiment", 0))
     _price     = float(snapshot.get("price", 0))
 
-    # Step 2: Baseline + Expert Fuzzy Analysis
+    # 2. baseline and expert fuzzy results
     baseline_result = baseline_fuzzy_tool(_rsi, _macd_hist, _sentiment, _atr)
     expert_result   = fuzzy_analysis_tool(_rsi, _macd_hist, _sentiment, _atr, mode="expert")
 
-    # Step 2b: ANFIS — independent data-driven proposer (Jang 1993 hybrid-trained
-    # neuro-fuzzy network, see anfis.py). Runs in parallel with the expert engine;
-    # never applied directly — its suggestion still passes through the same
-    # Human Expert Validation Gate as the LLM suggestion (Step 5).
+    # 2b. ANFIS (see anfis.py). It runs next to the expert engine and is never
+    # applied directly; its result goes through the same validation gate
+    # as the LLM suggestion.
     try:
         anfis_result = anfis.predict_score(_rsi, _macd_hist, _atr)
     except Exception as exc:
@@ -183,7 +157,7 @@ def run_agentic_analysis(
 
     has_conflict = _detect_indicator_conflict(_rsi, _macd_hist)
 
-    # Step 3: Market Context
+    # 3. context for the LLM
     market_context = {
         "symbol":           symbol.upper(),
         "rsi":              _rsi,
@@ -203,21 +177,21 @@ def run_agentic_analysis(
         "demo_mode":        demo,
     }
 
-    # Step 4: LLM Reasoning
+    # 4. LLM suggestion
     llm_suggestion = generate_llm_suggestion(
         market_context=market_context,
         fuzzy_output=expert_result,
         demo=demo,
     )
 
-    # Step 5: Human Expert Validation Gate
-    # Real numeric backtest evidence (BT-001/BT-002/BT-003) from the cached
-    # Baseline vs Expert 70/30 split comparison — same numbers shown on the
-    # Backtesting page, so the gate checks actual performance, not just text.
+    # 5. validation gate
+    # backtest numbers for rules BT-001 to BT-003 come from the cached
+    # baseline vs expert comparison, the same one the Backtesting page shows,
+    # so the gate looks at real results and not only the text
     backtest_delta = get_backtest_evidence()
     validation_result = validate_llm_suggestion(llm_suggestion, market_context, backtest_delta)
 
-    # Step 6: Apply Approved Shift
+    # 6. apply the approved shift
     base_score     = expert_result.get("score", 0.0)
     base_conf      = expert_result.get("confidence", 0.5)
     applied_shift  = validation_result.get("applied_shift", {})
@@ -234,10 +208,10 @@ def run_agentic_analysis(
         "confidence": final_conf,
     }
 
-    # Step 7: Stability Score
+    # 7. stability
     stability_score = _compute_stability_score(expert_result, validation_result, has_conflict)
 
-    # Step 8: Experience Log
+    # 8. experience log
     reflection_note = _build_reflection_note(validation_result, has_conflict)
     record = build_experience_record(
         market_context=market_context,
@@ -252,20 +226,20 @@ def run_agentic_analysis(
     try:
         append_experience_log(record)
     except Exception:
-        pass  # Never let logging failure break the pipeline
+        pass  # a logging problem should never stop the run
     try:
         append_llm_text_log(record)
     except Exception:
-        pass  # Same — txt mirror is a convenience, not a hard dependency
+        pass  # same for the text copy of the log
 
-    # Step 9: Return Full Output
+    # 9. everything the UI needs
     return {
         "symbol":          symbol.upper(),
         "timestamp":       datetime.now().isoformat(timespec="seconds"),
         "demo_mode":       demo,
-        # Market state
+        # market
         "market_context":  market_context,
-        # Fuzzy analysis layers
+        # fuzzy results
         "baseline_result": {
             "score":      baseline_result.get("score", 0.0),
             "label":      baseline_result.get("label", "Hold"),
@@ -280,7 +254,7 @@ def run_agentic_analysis(
             "masked_features": expert_result.get("masked_features", []),
         },
         "anfis_result":    anfis_result,
-        # Agentic layer
+        # agentic part
         "llm_suggestion":    llm_suggestion,
         "validation_result": validation_result,
         "final_decision":    final_decision,

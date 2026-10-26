@@ -1,6 +1,5 @@
-"""
-run_test.py - Full run/train/test validation script
-Proposal: ASTDSS Interim 2 Architecture Proposal PDF
+"""Runs the fuzzy engine, the backtests and the agent pipeline end to end
+and checks the results against the test cases from the project proposal.
 """
 import warnings
 warnings.filterwarnings('ignore')
@@ -18,10 +17,10 @@ from feature_selector import select_features
 SEP = '=' * 70
 
 print(SEP)
-print('PHASE 5: FULL RUN + TRAIN + TEST (PDF Proposal Compliance)')
+print('FULL RUN, TRAIN AND TEST')
 print(SEP)
 
-# 1. Membership Function Boundary Fix
+# 1. membership function edges
 print('\n## 1. MEMBERSHIP FUNCTION BOUNDARY FIX')
 print('-' * 40)
 boundary_tests = [
@@ -40,11 +39,11 @@ for name, val, expected in boundary_tests:
     print(f'  [{"PASS" if ok else "FAIL"}] {name:<30} = {val:.4f}  (expected {expected})')
 print(f'  Result: {len(boundary_tests)-fail_count}/{len(boundary_tests)} PASS')
 
-# 2. All 8 Official Test Cases
-print('\n## 2. OFFICIAL TEST CASES (PDF + FUNCTION_CODING_PLAN)')
+# 2. the 8 test cases
+print('\n## 2. TEST CASES FROM THE PROPOSAL')
 print('-' * 40)
 test_cases = [
-    # name, inputs, expected_regime, expected_label_contains, must_differ_from_baseline
+    # name, inputs, expected regime, expected label, must differ from baseline
     ('TC1 Extreme Bearish News',    dict(rsi=25,  macd_hist=0.8,  sentiment=-0.9),          'NEWS_DRIVEN_BEARISH',  'Strong Sell', True),
     ('TC2 Neutral Technical Mkt',   dict(rsi=28,  macd_hist=0.7,  sentiment=0.0),           'TECHNICAL_DRIVEN',     'Strong Buy',  False),
     ('TC3 Conflicting RSI/MACD',    dict(rsi=75,  macd_hist=0.8,  sentiment=0.1),           'CONFLICTING_SIGNALS',  'Hold',        False),
@@ -77,7 +76,7 @@ for name, kw, exp_regime, exp_label, must_differ in test_cases:
           + (f'FAIL:{",".join(reasons)}' if reasons else ''))
 print(f'  Result: {len(test_cases)-tc_fails}/{len(test_cases)} PASS')
 
-# 3. Real yfinance Data Integration
+# 3. real yfinance data
 print('\n## 3. REAL yfinance DATA (BTC-USD 90d)')
 print('-' * 40)
 from Trading_Data import get_real_market_snapshot
@@ -93,11 +92,8 @@ print(f'  Source : {real["source"]}  Bars: {real.get("bars_used","N/A")}')
 macd_ok = abs(real['macd_hist']) <= 5.0
 print(f'  MACD in [-5,5]: {"PASS" if macd_ok else "FAIL"} ({real["macd_hist"]})')
 
-# 
-# 3b. EXTREME SENTIMENT BACKTEST (Formal Fixed Test Case)
-#     Verifies Expert FLC genuinely differs from Baseline when
-#     extreme sentiment events occur (news-driven crash/rally).
-# 
+# 3b. extreme sentiment backtest: expert must differ from baseline
+# when there are news-driven crashes and rallies
 print('\n## 3b. EXTREME SENTIMENT BACKTESTING (Fixed Test Case)')
 print('-' * 40)
 import random as _rnd, math as _math
@@ -105,7 +101,7 @@ _rnd.seed(1337)
 _prices_ext = [64000.0]
 for _ in range(250):
     _prices_ext.append(_prices_ext[-1] * (1 + _rnd.gauss(0.0002, 0.014)))
-# 20% extreme events: crash or rally
+# 20% extreme days: crash or rally
 _sents_ext = []
 for _ in range(len(_prices_ext)):
     rv = _rnd.random()
@@ -127,8 +123,8 @@ print(f'  Buy&Hold  : {_cmp["buy_and_hold_pct"]:+.2f}%')
 print(f'  Winner    : {_cmp["winner"].upper()}')
 print(f'  [{"PASS" if labels_differ else "FAIL"}] Expert differs from Baseline when extreme events present')
 
-# 4. 70/30 Backtesting (PDF §19)
-print('\n## 4. 70/30 BACKTESTING (PDF §19)')
+# 4. 70/30 backtest
+print('\n## 4. 70/30 BACKTESTING')
 print('-' * 40)
 import random
 random.seed(99)
@@ -160,7 +156,7 @@ print(f'    Delta Expert-Baseline: {res["improvements"]["total_return_pct"]:+.3f
 print(f'    Expert vs Buy-and-Hold: {res["expert_vs_buy_and_hold"]:+.2f}%')
 print(f'    Winner: {res["winner"].upper()}')
 
-# 5. 4-Agent Pipeline Training Run
+# 5. four-agent pipeline
 print('\n## 5. 4-AGENT PIPELINE (Full Training Run)')
 print('-' * 40)
 from crew import get_pipeline
@@ -182,7 +178,7 @@ for name, kw in scenarios:
     print(f'  {name:<18}: {result["final_signal"]:<10} score={cog["score"]:+.3f} '
           f'regime={regime:<25} active=[{active}]')
 
-# 6. Flask Templates with Real Data
+# 6. templates with real data
 print('\n## 6. ALL FLASK ROUTES (Real Data Render)')
 print('-' * 40)
 from flask import Flask, render_template
@@ -220,8 +216,8 @@ with app.test_request_context('/'):
         except Exception as ex:
             print(f'  [FAIL] {route:<28} {ex}')
 
-# 7. PDF §21 Supervisor Feedback Resolution Check
-print('\n## 7. PDF §21 SUPERVISOR FEEDBACK RESOLUTION')
+# 7. feedback items from the interim review
+print('\n## 7. INTERIM REVIEW FEEDBACK')
 print('-' * 40)
 checks = [
     ('ANFIS only data-driven', 'Human Expert Layer active', True),

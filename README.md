@@ -7,7 +7,7 @@
 ![NumPy](https://img.shields.io/badge/NumPy-013243?logo=numpy&logoColor=white)
 ![Status](https://img.shields.io/badge/status-completed-3f6fb6)
 
-NeuralTrade is a web-based decision support system that analyses a stock or crypto ticker and suggests **Buy, Sell or Hold**. It explains *why* it reached that decision, and compares itself with a simple baseline and with buy-and-hold. A Mamdani fuzzy logic engine does the core reasoning. A rule-based Human Expert layer decides which inputs to trust in each market condition, and an AI model (DeepSeek) may propose adjustments — but every AI proposal must pass a Human Expert Validation Gate. The AI never makes the final call on its own.
+NeuralTrade is a web app that looks at a stock or crypto ticker and suggests **Buy, Sell or Hold**, explains how it got there, and compares itself with a simple baseline and with buy-and-hold. A Mamdani fuzzy engine does the main work. A rule-based expert layer decides which inputs to trust in each kind of market. An LLM (DeepSeek) can suggest small changes, but each suggestion has to pass a rule check first, so the LLM never decides on its own.
 
 Undergraduate Fuzzy Logic course project (PA3: Agentic Fuzzy Logic), developed May – June 2026.
 
@@ -118,7 +118,7 @@ The Human Expert layer (`expert_layer.py`) detects the regime; `feature_selector
 | ANFIS neuro-fuzzy layer with hybrid learning | Done |
 | Step-by-step Tutorial page explaining the pipeline | Done |
 | Works with no API keys (demo mode for AI and news) | Done |
-| Light theme interface | Done |
+| Broker-style interface: candle chart, glass price card, side menu that slides out on hover, keys 1-7 to switch pages | Done |
 
 ## Development Timeline
 
@@ -133,7 +133,7 @@ The Human Expert layer (`expert_layer.py`) detects the regime; `feature_selector
 | 21 June 2026 | End-to-end testing and submission | Done |
 | 22 June 2026 | ANFIS neuro-fuzzy layer and full LLM prompt/response logging | Done |
 
-**Status:** completed (June 2026). Later maintenance: light theme and repository clean-up.
+**Status:** completed in June 2026. The interface and the repository were tidied up later.
 
 ## Test Results
 
@@ -187,7 +187,7 @@ Never commit your real `.env`; it is already in `.gitignore`.
 
 | Page | What it shows |
 |---|---|
-| Dashboard | Enter a ticker (e.g. `AAPL`, `BTC`) for a price chart, RSI/ATR readings and the current expert signal |
+| Dashboard | Pick a ticker from the watchlist (or type one) for a daily candle chart, the expert signal, the indicator weights and the reasoning |
 | Market Intelligence | Finance news feed and an AI market brief |
 | Decision Logic | How the fuzzy engine decided: active or masked inputs, fired rules, final signal |
 | Backtesting | Strategy vs baseline vs buy-and-hold on historical data |

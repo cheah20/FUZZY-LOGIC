@@ -1,23 +1,17 @@
-"""
-human_expert_kb.py — Human Expert Knowledge Base
-ASTDSS Terminal — PA3 Agentic Fuzzy Trading DSS
+"""The rules the validation gate uses to check LLM suggestions.
 
-Knowledge is captured from peer-reviewed technical analysis literature and
-professional trading research. The LLM's proposed adjustments are validated
-against these rules before any fuzzy output is modified.
-
-Sources:
-  [W78]  Wilder, J.W. (1978). New Concepts in Technical Trading Systems.
-  [A05]  Appel, G. (2005). Technical Analysis: Power Tools for Active Investors.
-  [M99]  Murphy, J.J. (1999). Technical Analysis of the Financial Markets.
-  [B02]  Bollinger, J. (2002). Bollinger on Bollinger Bands.
-  [S66]  Sharpe, W. (1966). Mutual Fund Performance. Journal of Business.
-  [P08]  Pardo, R. (2008). The Evaluation and Optimization of Trading Strategies.
-  [E93]  Elder, A. (1993). Trading for a Living.
+Taken from these books and papers:
+  [W78] Wilder (1978), New Concepts in Technical Trading Systems
+  [A05] Appel (2005), Technical Analysis: Power Tools for Active Investors
+  [M99] Murphy (1999), Technical Analysis of the Financial Markets
+  [B02] Bollinger (2002), Bollinger on Bollinger Bands
+  [S66] Sharpe (1966), Mutual Fund Performance, Journal of Business
+  [P08] Pardo (2008), The Evaluation and Optimization of Trading Strategies
+  [E93] Elder (1993), Trading for a Living
 """
 
 KNOWLEDGE_BASE = [
-    # RSI Rules
+    # RSI
     {
         "id": "RSI-001",
         "category": "RSI",
@@ -65,7 +59,7 @@ KNOWLEDGE_BASE = [
         "system_action": "CAP confidence at 0.60 if RSI is the only cited evidence",
     },
 
-    # MACD Rules
+    # MACD
     {
         "id": "MACD-001",
         "category": "MACD",
@@ -113,7 +107,7 @@ KNOWLEDGE_BASE = [
         "system_action": "REQUIRE RSI or BB confirmation for MACD-only strong signals",
     },
 
-    # ATR Rules
+    # ATR
     {
         "id": "ATR-001",
         "category": "ATR",
@@ -149,7 +143,7 @@ KNOWLEDGE_BASE = [
         "system_action": "APPROVE risk_penalty increase for high ATR; REJECT direction calls from ATR alone",
     },
 
-    # Bollinger Band Rules
+    # Bollinger Bands
     {
         "id": "BB-001",
         "category": "Bollinger Bands",
@@ -197,7 +191,7 @@ KNOWLEDGE_BASE = [
         "system_action": "BOOST sell_confidence for upper-band touch + RSI overbought combination",
     },
 
-    # Multi-Indicator Confirmation
+    # more than one indicator
     {
         "id": "MULTI-001",
         "category": "Multi-Indicator Confirmation",
@@ -216,7 +210,7 @@ KNOWLEDGE_BASE = [
         "system_action": "CAP confidence at 0.60 for single-indicator signals; APPROVE multi-indicator",
     },
 
-    # Backtesting Validation Rules
+    # backtesting
     {
         "id": "BT-001",
         "category": "Backtesting Validation",
@@ -268,7 +262,7 @@ KNOWLEDGE_BASE = [
         "system_action": "FLAG OVERFITTING_RISK if train improves but test degrades; reduce shift 50%",
     },
 
-    # System Governance
+    # governance
     {
         "id": "SYS-001",
         "category": "System Governance",
@@ -282,12 +276,12 @@ KNOWLEDGE_BASE = [
             "This rule is always active. Any suggestion that bypasses or overrides the "
             "validation gate must be immediately rejected. The validation gate is non-optional."
         ),
-        "source_name": "ASTDSS PA3 Design Principle — Literature-Grounded Human Expert Validated DSS",
+        "source_name": "NeuralTrade design rule: the LLM suggests, the expert rules decide",
         "system_action": "ENFORCE KB validation for all LLM suggestions; no bypass permitted",
     },
 ]
 
-# Category index for quick lookup
+# rules grouped by category
 _KB_BY_CATEGORY: dict[str, list] = {}
 for rule in KNOWLEDGE_BASE:
     cat = rule["category"]
@@ -297,27 +291,27 @@ _KB_BY_ID: dict[str, dict] = {rule["id"]: rule for rule in KNOWLEDGE_BASE}
 
 
 def get_knowledge_base() -> list:
-    """Return the full knowledge base."""
+    """The whole knowledge base."""
     return KNOWLEDGE_BASE
 
 
 def get_rule_by_id(rule_id: str) -> dict | None:
-    """Return a specific rule by its ID (e.g. 'RSI-001')."""
+    """One rule by id, e.g. 'RSI-001'."""
     return _KB_BY_ID.get(rule_id)
 
 
 def get_rules_by_category(category: str) -> list:
-    """Return all rules in a given category."""
+    """Every rule in one category."""
     return _KB_BY_CATEGORY.get(category, [])
 
 
 def get_categories() -> list[str]:
-    """Return all distinct categories in the KB."""
+    """List of categories."""
     return list(_KB_BY_CATEGORY.keys())
 
 
 def get_kb_summary() -> dict:
-    """Return a compact summary for UI display."""
+    """Short summary for the UI."""
     return {
         "total_rules": len(KNOWLEDGE_BASE),
         "categories": get_categories(),

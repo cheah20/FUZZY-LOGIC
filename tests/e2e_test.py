@@ -1,13 +1,11 @@
-"""
-e2e_test.py — End-to-End Smooth Flow Test
-Run: python e2e_test.py
-Tests every route, API endpoint, agent run, and data flow.
+"""End-to-end check of every page, API route, agent run and data flow.
+Run: python tests/e2e_test.py
 """
 import warnings, json, time, sys
 from pathlib import Path
 warnings.filterwarnings('ignore')
 
-# Import the actual Flask app
+# the real Flask app
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import app as flask_app
@@ -33,10 +31,10 @@ def check(label, condition, detail='', warn_only=False):
         print(f'  {FAIL} {label}' + (f'  {detail}' if detail else ''))
 
 print(SEP)
-print('E2E SYSTEM SMOOTH-FLOW TEST')
+print('END-TO-END TEST')
 print(SEP)
 
-# 1. PAGE ROUTES
+# 1. pages
 print('\n## 1. PAGE ROUTES (HTTP GET)')
 print('-' * 40)
 pages = ['/', '/market-intelligence', '/decision-logic', '/backtesting', '/settings']
@@ -49,7 +47,7 @@ for url in pages:
     size = len(html)
     check(f'GET {url:<28} {resp.status_code}  {size:>7,} chars  {ms:.0f}ms', ok)
 
-# 2. API ENDPOINTS
+# 2. API routes
 print('\n## 2. REST API ENDPOINTS')
 print('-' * 40)
 
@@ -93,7 +91,7 @@ for url, _, expected_keys in api_tests:
     else:
         check(f'GET {url[:55]:<56} {resp.status_code}', False)
 
-# 3. EXPERT REASONING DATA QUALITY
+# 3. expert reasoning data
 print('\n## 3. EXPERT REASONING DATA QUALITY')
 print('-' * 40)
 
@@ -121,7 +119,7 @@ check('all 19 required fields present',      len([k for k in [
     'expert_rules','reference_sources','input_display'
 ] if k not in data]) == 0)
 
-# 4. BASELINE vs EXPERT DIFFERENTIATION
+# 4. baseline and expert must differ
 print('\n## 4. BASELINE vs EXPERT DIFFERENTIATION')
 print('-' * 40)
 resp = client.get('/api/expert/compare?rsi=25&macd_hist=0.8&sentiment=-0.9')
@@ -138,7 +136,7 @@ cmp2  = json.loads(resp2.data)
 check('TC3 Conflicting: Expert toward Hold', abs(cmp2['expert']['score']) < abs(cmp2['baseline']['score']),
       f'expert={cmp2["expert"]["score"]:+.3f} base={cmp2["baseline"]["score"]:+.3f}')
 
-# 5. ALL 6 REGIMES END-TO-END via API
+# 5. all six regimes through the API
 print('\n## 5. ALL 6 REGIME TRANSITIONS (API end-to-end)')
 print('-' * 40)
 regime_tests = [
@@ -155,7 +153,7 @@ for url, expected in regime_tests:
     got  = data.get('regime', '?')
     check(f'{expected:<25} via API',         got == expected, f'got={got}')
 
-# 6. AGENT PIPELINE COGNITION via API
+# 6. agent pipeline through the API
 print('\n## 6. COGNITION AGENT (API /api/expert/cognition)')
 print('-' * 40)
 scenarios = [
@@ -170,7 +168,7 @@ for name, params, exp_label in scenarios:
     check(f'{name:<30} -> {exp_label:<12}', got == exp_label,
           f'got={got} score={data.get("score",0):+.3f}')
 
-# 7. MARKET DATA REFRESHES
+# 7. market data refresh
 print('\n## 7. MARKET DATA REFRESH (3 consecutive requests)')
 print('-' * 40)
 prices = []
@@ -183,8 +181,8 @@ check('Price is numeric',                    all(isinstance(p, (int, float)) for
 check('Price in realistic range',            all(50000 < p < 100000 for p in prices),
       str(prices))
 
-# 8. DECISION LOGIC PAGE WITH REAL DATA
-print('\n## 8. DECISION LOGIC PAGE — Content Checks')
+# 8. Decision Logic page
+print('\n## 8. DECISION LOGIC PAGE')
 print('-' * 40)
 resp = client.get('/decision-logic')
 html = resp.data.decode('utf-8', errors='replace')
@@ -204,8 +202,8 @@ dl_checks = [
 for name, cond in dl_checks:
     check(name, cond)
 
-# 9. BACKTESTING ROUTE
-print('\n## 9. BACKTESTING ROUTE — Content Checks')
+# 9. Backtesting page
+print('\n## 9. BACKTESTING PAGE')
 print('-' * 40)
 resp = client.get('/backtesting')
 html = resp.data.decode('utf-8', errors='replace')
@@ -220,7 +218,7 @@ bt_checks = [
 for name, cond in bt_checks:
     check(name, cond)
 
-# 10. STRESS: RAPID API CALLS
+# 10. many quick API calls
 print('\n## 10. STRESS TEST (20 rapid API calls)')
 print('-' * 40)
 import random
@@ -242,13 +240,13 @@ check(f'All 20 stress calls succeeded',          stress_ok == 20, f'{stress_ok}/
 check(f'Total time < 5000ms',                    total_ms < 5000, f'{total_ms:.0f}ms total')
 check(f'Average < 250ms/call',                   total_ms / 20 < 250, f'{total_ms/20:.0f}ms avg')
 
-# FINAL SUMMARY
+# summary
 print()
 print(SEP)
 total = results['pass'] + results['fail'] + results['warn']
 print(f'RESULT: {results["pass"]}/{total} PASS  |  {results["fail"]} FAIL  |  {results["warn"]} WARN')
 if results['fail'] == 0:
-    print('STATUS: SYSTEM SMOOTH — ALL CHECKS PASSED')
+    print('STATUS: ALL CHECKS PASSED')
 else:
     print(f'STATUS: {results["fail"]} ISSUE(S) NEED ATTENTION')
 print(SEP)

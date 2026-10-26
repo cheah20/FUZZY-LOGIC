@@ -1,21 +1,6 @@
-"""
-tools.py ─ CrewAI Agent Tools / Fuzzy Analysis Bridge
-ASTDSS Terminal — Neuro-Symbolic Trading DSS
+"""Small functions the cognition agent calls to run the fuzzy analysis.
 
-Purpose:
-  Provides tool functions that CrewAI agents (or the standalone
-  pipeline) call to perform fuzzy logic analysis. This is the bridge
-  between the Cognition Agent and the Fuzzy Logic Controller.
-
-  When CrewAI is fully integrated, agents will use these as @tool
-  decorated functions. For now, they work as standalone callables.
-
-Tools:
-  - fuzzy_analysis_tool()      → Full expert-adjusted FLC analysis
-  - baseline_fuzzy_tool()      → Baseline FLC (for comparison)
-  - market_regime_tool()       → Detect current market regime
-  - feature_selection_tool()   → Get feature weights/masking
-  - compare_modes_tool()       → Baseline vs Expert side-by-side
+They are plain functions now and could become CrewAI tools later.
 """
 
 from __future__ import annotations
@@ -31,32 +16,11 @@ def fuzzy_analysis_tool(
     *,
     mode: str = "expert",
 ) -> Dict:
-    """
-    Primary fuzzy analysis tool called by the Cognition Agent.
-    
-    Runs the full expert-adjusted pipeline:
-      expert_layer → feature_selector → fuzzy_engine
-    
-    Args:
-        rsi: RSI value (0–100)
-        macd_hist: MACD histogram value
-        sentiment: Sentiment score (-1 to +1)
-        atr: Optional ATR normalised value (0–10)
-        mode: "baseline" or "expert"
-    
-    Returns:
-        {
-            "score": float,           # Crisp defuzzified score (-2 to +2)
-            "label": str,             # "Strong Sell" / "Sell" / "Hold" / "Buy" / "Strong Buy"
-            "confidence": float,      # 0.0–1.0
-            "market_regime": {...},   # Regime detection result
-            "active_features": [...], # Features with weight > 0
-            "masked_features": [...], # Features with weight = 0
-            "weights": {...},         # Feature weight map
-            "reason": str,            # Human-readable explanation
-            "rule_firings": [...],    # Which fuzzy rules fired
-            "mode": str               # "baseline" or "expert"
-        }
+    """Full analysis for the cognition agent: expert layer, feature
+    selection, fuzzy engine.
+
+    Returns score (-2..2), label, confidence, market_regime, active and
+    masked features, weights, reason, rule_firings and mode.
     """
     from fuzzy_engine import compute_full_pipeline
 
@@ -68,7 +32,7 @@ def fuzzy_analysis_tool(
         mode=mode,
     )
 
-    # Format for CrewAI agent consumption
+    # shape the result for the agent
     formatted = {
         "score": result.get("score", 0.0),
         "label": result.get("label", "Hold"),
@@ -93,10 +57,7 @@ def baseline_fuzzy_tool(
     sentiment: float,
     atr: Optional[float] = None,
 ) -> Dict:
-    """
-    Baseline FLC tool — for comparison against expert mode.
-    All inputs treated equally; no feature masking.
-    """
+    """Baseline result for comparison: every input counts the same."""
     from fuzzy_engine import compute_score
 
     result = compute_score(rsi, macd_hist, sentiment, atr)
@@ -116,10 +77,7 @@ def market_regime_tool(
     sentiment: float,
     atr: Optional[float] = None,
 ) -> Dict:
-    """
-    Detect the current market regime using human expert heuristics.
-    Called by the Cognition Agent to understand market context.
-    """
+    """Market regime, using the expert rules."""
     from expert_layer import detect_market_regime
     return detect_market_regime(rsi, macd_hist, sentiment, atr)
 
@@ -130,10 +88,7 @@ def feature_selection_tool(
     sentiment: float,
     atr: Optional[float] = None,
 ) -> Dict:
-    """
-    Get feature selection based on market regime.
-    Returns active/masked features with weights.
-    """
+    """Active and masked features with their weights for a regime."""
     from expert_layer import detect_market_regime
     from feature_selector import select_features
 
@@ -148,10 +103,7 @@ def compare_modes_tool(
     sentiment: float,
     atr: Optional[float] = None,
 ) -> Dict:
-    """
-    Compare baseline FLC vs expert-adjusted FLC side-by-side.
-    Used for backtesting comparison and UI display.
-    """
+    """Baseline and expert results side by side."""
     baseline = baseline_fuzzy_tool(rsi, macd_hist, sentiment, atr)
     expert = fuzzy_analysis_tool(rsi, macd_hist, sentiment, atr, mode="expert")
 
@@ -166,7 +118,7 @@ def compare_modes_tool(
     }
 
 
-# Tool metadata for UI display / CrewAI registration
+# list of tools for the UI
 
 TOOL_REGISTRY = [
     {

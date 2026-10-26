@@ -1,9 +1,6 @@
-/* ============================================================
-   03_shell.css — App Shell Layout (ARCHITECTURE.md §4.1)
-   Root structure: body → app-shell → sidebar + main-area
-   ============================================================ */
+/* Page frame: side menu, top bar and the scrolling page area. */
 
-/* ── APP SHELL ──────────────────────────────────────────── */
+/* app shell */
 .app-shell {
   display: flex;
   height: 100vh;
@@ -13,7 +10,7 @@
   position: relative;
 }
 
-/* ── SIDEBAR (§7 Layout Components) ─────────────────────── */
+/* sidebar */
 .sidebar {
   width: 240px;
   min-width: 240px;
@@ -70,7 +67,7 @@
   letter-spacing: 0.05em;
 }
 
-/* ── SIDEBAR NAV ────────────────────────────────────────── */
+/* sidebar nav */
 .nav-items {
   flex: 1;
   display: flex;
@@ -121,7 +118,7 @@
   margin-top: auto;
 }
 
-/* ── MAIN AREA ──────────────────────────────────────────── */
+/* main area */
 .main-area {
   flex: 1;
   display: flex;
@@ -130,7 +127,7 @@
   min-width: 0;
 }
 
-/* ── TOPBAR (§7) ────────────────────────────────────────── */
+/* topbar */
 .topbar {
   height: 60px;
   min-height: 60px;
@@ -163,7 +160,7 @@
   gap: 24px;
 }
 
-/* ── MOBILE NAV TOGGLE — hidden on desktop/tablet, shown <768px (§8) ── */
+/* menu button, phones only */
 .mobile-nav-toggle {
   display: none;
   align-items: center;
@@ -182,7 +179,7 @@
   background: rgba(20, 26, 34, 0.06);
 }
 
-/* ── MOBILE SIDEBAR BACKDROP — dims page behind the open sidebar overlay ── */
+/* dark layer behind the open menu on phones */
 .sidebar-backdrop {
   display: none;
   position: fixed;
@@ -217,7 +214,7 @@
   margin-left: auto;
 }
 
-/* ── PAGE SCROLL — Vertical overflow management (§4.1) ──── */
+/* scrolling page area */
 .page-scroll {
   flex: 1;
   overflow-y: auto;
@@ -228,11 +225,8 @@
   flex-direction: column;
 }
 
-/* ── PAGE LAYOUT — Responsive page structure (§4.1) ─────── */
-/* flex:1 lets full-height pages (decision-grid, config-main,
-   settings-grid) stretch to fill the viewport without calc().
-   Multi-row pages (dashboard, market) stack naturally as
-   flex-column children — behaviour is identical to block. */
+/* page content */
+/* flex: 1 lets the full-height pages fill the screen without calc() */
 .page-layout {
   padding: 28px 32px;
   max-width: 100%;
@@ -242,7 +236,7 @@
   flex-direction: column;
 }
 
-/* ── STATUS INDICATOR ───────────────────────────────────── */
+/* status indicator */
 .status-dot {
   width: 7px;
   height: 7px;
@@ -253,8 +247,7 @@
   animation: statusPulse 2s ease-in-out infinite;
 }
 
-/* Subtle — this dot means "system genuinely live", not decoration.
-   Slowed and softened so it reads peripherally without demanding attention. */
+/* slow, soft pulse: the dot means live data, it should not grab attention */
 @keyframes statusPulse {
   0%, 100% {
     opacity: 0.9;

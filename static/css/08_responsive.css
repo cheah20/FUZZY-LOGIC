@@ -1,9 +1,6 @@
-/* ============================================================
-   08_responsive.css — Responsive Breakpoints (§8)
-   ASTDSS Terminal — Adaptive scaling system
-   ============================================================ */
+/* Breakpoints for smaller and larger screens. */
 
-/* ── DESKTOP XL (>= 1920px) ─────────────────────────────── */
+/* desktop xl (> 1920px) */
 @media (min-width: 1920px) {
   .sidebar {
     width: 260px;
@@ -19,12 +16,12 @@
   }
 }
 
-/* ── DESKTOP (1440px - 1919px) ──────────────────────────── */
+/* desktop (1440px - 1919px) */
 @media (min-width: 1440px) and (max-width: 1919px) {
-  /* Default values already set */
+  /* defaults already fit */
 }
 
-/* ── LAPTOP (1200px - 1439px) ───────────────────────────── */
+/* laptop (1200px - 1439px) */
 @media (min-width: 1200px) and (max-width: 1439px) {
   .stat-row {
     grid-template-columns: repeat(4, 1fr);
@@ -47,7 +44,7 @@
   }
 }
 
-/* ── TABLET (768px - 1199px) ────────────────────────────── */
+/* tablet (768px - 1199px) */
 @media (min-width: 768px) and (max-width: 1199px) {
   .sidebar {
     width: 72px;
@@ -113,10 +110,9 @@
   }
 }
 
-/* ── MOBILE (< 768px) ───────────────────────────────────── */
+/* mobile (< 768px) */
 @media (max-width: 767px) {
-  /* Sidebar becomes a slide-in overlay (toggled via #mobile-nav-toggle)
-     instead of disappearing entirely — mobile users still need navigation. */
+  /* on phones the menu slides in over the page when the menu button is pressed */
   .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
@@ -203,7 +199,7 @@
   }
 }
 
-/* ── ZOOM TOLERANCE (125% browser zoom) ─────────────────── */
+/* 125% browser zoom */
 @media (-webkit-device-pixel-ratio: 1.25) {
   html {
     -webkit-text-size-adjust: 100%;

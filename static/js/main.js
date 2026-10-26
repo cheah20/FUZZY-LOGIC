@@ -1,9 +1,8 @@
-// ASTDSS Terminal — Main Interaction Layer
-// Handles: ticker analysis, live chart, backtest run, DOM updates, clock
+// Page behaviour for every NeuralTrade page.
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // SECTION 1 — LIVE ANALYSIS (Dashboard)
+    // Dashboard: analyse a ticker
 
     const tickerInput   = document.getElementById('ticker-input');
     const analyzeBtn    = document.getElementById('analyze-btn');
@@ -59,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyzeStatus.style.color = colors[type] || colors.info;
     }
 
-    // Update stat cards
+    // price card and signal
     function updateDashboardMetrics(d) {
         _setEl('live-ticker-label', d.ticker);
         _setEl('live-price',  _fmt(d.price));
@@ -87,10 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Expert Reasoning Panel live update
+    // decision panel and bottom tabs
     function updateExpertPanel(d) {
-        // Regime badge (unique id — a generic class selector here would match
-        // the Agent Pipeline's "Cognition: Processing" badge instead)
+        // regime badge by id; a class selector would also hit the pipeline badge
         const regimeBadge = document.getElementById('dash-regime-badge');
         if (regimeBadge && d.regime_display) regimeBadge.textContent = d.regime_display;
 
@@ -203,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 2 — BACKTESTING
+    // Backtesting
 
     const btRunBtn     = document.getElementById('bt-run-btn');
     const btTickerEl   = document.getElementById('bt-ticker');
@@ -211,10 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btLivePanel  = document.getElementById('bt-live-results');
     const btStaticPanel= document.getElementById('bt-static-stats');
 
-    // Period selector buttons
+    // 1Y / 2Y / 3Y buttons
     let activePeriod = '2y';
 
-    // Evaluation Period dates — real, computed from today (not hardcoded demo dates)
+    // date range from today
     function _updateEvalPeriod() {
         const years = parseInt(activePeriod, 10) || 2;
         const end   = new Date();
@@ -281,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayBacktestResults(d) {
-        // Show live panel, hide static
+        // show the real results, hide the example numbers
         if (btLivePanel)  btLivePanel.style.display  = 'block';
         if (btStaticPanel) btStaticPanel.style.display = 'none';
 
@@ -304,20 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
             winnerBadge.className   = 'badge ' + (isExpertBetter ? 'badge--synced' : 'badge--idle');
         }
 
-        // Color the expert return
+        // colour of the expert return
         const expRetEl = document.getElementById('bt-expert-return');
         if (expRetEl) expRetEl.style.color = d.expert.total_return >= 0 ? 'var(--synced-green)' : 'var(--strong-sell)';
 
-        // Draw equity curve chart
+        // equity chart
         drawEquityCurve(d);
 
-        // Update Backtest Trade Log
+        // trade log
         const logTbody   = document.getElementById('bt-log-tbody');
         const logCount   = document.getElementById('bt-log-count');
         const closeTrades = (d.expert.trades || []).filter(t => t.type === 'close');
         if (logTbody && closeTrades.length) {
-            // Most recent trades first — a demo audience wants to see what just
-            // happened, not the oldest trades from years ago.
+            // newest trades first
             const sample = closeTrades.slice(-5).reverse();
             logTbody.innerHTML = sample.map((t) => {
                 const dt = d.dates[t.bar_index] || '—';
@@ -335,10 +332,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
             if (logCount) logCount.textContent = `Showing ${sample.length} most recent of ${closeTrades.length} trades`;
         }
-        // Refresh the real agentic log panel after backtest completes
+        // reload the agentic log once the backtest is done
         loadAgenticLog();
 
-        // Update BASELINE vs EXPERT comparison panel
+        // baseline vs expert panel
         const cmpPanel = document.getElementById('bt-cmp-panel');
         if (cmpPanel) {
             const ew  = d.expert.total_return >= d.baseline.total_return;
@@ -362,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="badge ${ew ? 'badge--synced' : 'badge--idle'}" style="margin-left:auto;font-size:8px;">${ew ? 'EXPERT WINS' : 'BASELINE WINS'}</span>
             </div>
             <div style="font-family:var(--font-mono);font-size:8px;color:rgba(20, 26, 34, 0.45);line-height:1.5;margin-bottom:12px;">
-              The Human Expert Layer changes and explains decisions under risky/extreme market regimes — it is not guaranteed to outperform the baseline on every dataset or window.
+              The expert layer mainly changes decisions in extreme markets. It does not beat the baseline on every ticker or period.
             </div>
             <div style="margin-bottom:10px;">
               <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
@@ -394,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }
 
-        // Date labels
+        // dates
         const dateDiv = document.getElementById('bt-date-labels');
         if (dateDiv && d.dates && d.dates.length) {
             const n = d.dates.length;
@@ -428,17 +425,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linejoin="round"${dashArr ? ` stroke-dasharray="${dashArr}"` : ''}/>`;
         };
 
-        // Zero line
+        // zero line
         const zeroY = vy(0).toFixed(1);
         const zeroLine = `<line x1="0" y1="${zeroY}" x2="${W}" y2="${zeroY}" stroke="rgba(20, 26, 34, 0.12)" stroke-width="0.8" stroke-dasharray="4,3"/>`;
 
-        // Grid
+        // grid
         const grid = `<pattern id="btGrid" width="70" height="45" patternUnits="userSpaceOnUse">
             <line x1="70" y1="0" x2="70" y2="${H}" stroke="rgba(20, 26, 34, 0.03)" stroke-width="1"/>
             <line x1="0" y1="45" x2="${W}" y2="45" stroke="rgba(20, 26, 34, 0.03)" stroke-width="1"/>
         </pattern>`;
 
-        // Split line
+        // train / test split
         const splitX = (d.split_index / n * W).toFixed(1);
         const splitLine = `<line x1="${splitX}" y1="0" x2="${splitX}" y2="${H}" stroke="rgba(20, 26, 34, 0.12)" stroke-width="0.8" stroke-dasharray="3,3"/>
             <text x="${parseFloat(splitX) + 4}" y="14" fill="rgba(20, 26, 34, 0.45)" style="font:7px Roboto">OOS 30%</text>`;
@@ -472,10 +469,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 3 — PASSIVE UTILITIES (clock, market data poll, etc.)
+    // Shared bits: menu, clock, price refresh
 
-    // Mobile sidebar toggle (<768px — sidebar is hidden by default and
-    // slides in as an overlay when this button is pressed)
+    // menu button on phones (below 768px the menu slides in over the page)
     const mobileNavToggle = document.getElementById('mobile-nav-toggle');
     const appSidebar      = document.getElementById('app-sidebar');
     const sidebarBackdrop = document.getElementById('sidebar-backdrop');
@@ -494,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // System clock
+    // clock
     const clockEl = document.querySelector('[data-clock]');
     if (clockEl) {
         const tick = () => {
@@ -504,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(tick, 1000);
     }
 
-    // Auto-refresh BTC price every 10s (only when no ticker has been analyzed)
+    // refresh the BTC price every 10 s until the user analyses a ticker
     let userAnalyzed = false;
     if (analyzeBtn) {
         analyzeBtn.addEventListener('click', () => { userAnalyzed = true; }, { once: true });
@@ -523,14 +519,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 10000);
     }
 
-    // Button press feedback (all buttons)
+    // small press effect on buttons
     document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(0.97)'; });
         btn.addEventListener('mouseup',   () => { btn.style.transform = ''; });
         btn.addEventListener('mouseleave',() => { btn.style.transform = ''; });
     });
 
-    // Ticker input: force uppercase as user types
+    // ticker in capitals
     if (tickerInput) {
         tickerInput.addEventListener('input', () => {
             const pos = tickerInput.selectionStart;
@@ -539,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Range input live value display
+    // show slider values
     document.querySelectorAll('input[type="range"]').forEach(input => {
         input.addEventListener('input', function () {
             const label = this.parentElement.querySelector('[data-range-value]');
@@ -547,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Decision Logic tab bar
+    // Decision Logic tabs
     const tabBar = document.querySelector('.tab-bar');
     if (tabBar) {
         tabBar.querySelectorAll('.tab-bar__item').forEach(btn => {
@@ -559,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 4 — HELPERS
+    // helpers
 
     function _setEl(id, text) {
         const el = document.getElementById(id);
@@ -585,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Toast notifications — every button should give at least one visible response
+    // small pop-up messages
 
     function showToast(msg, type, duration) {
         type     = type     || 'info';
@@ -609,9 +605,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 6 — DASHBOARD PAGE INTERACTIONS
+    // Dashboard buttons
 
-    // Timeframe buttons (1M / 5M / 15M)
+    // timeframe buttons
     document.querySelectorAll('.tf-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('.tf-btn').forEach(b => {
@@ -628,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // PAUSE SYSTEM
+    // pause
     const btnPause = document.getElementById('btn-pause');
     if (btnPause) {
         let paused = false;
@@ -641,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // EXECUTE OVERRIDE
+    // override
     const btnOverride = document.getElementById('btn-override');
     if (btnOverride) {
         btnOverride.addEventListener('click', () => {
@@ -654,7 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Sidebar Execute Trade
+    // Execute Trade in the menu
     const btnExecTrade = document.getElementById('btn-execute-trade');
     if (btnExecTrade) {
         btnExecTrade.addEventListener('click', () => {
@@ -668,13 +664,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 7 — MARKET INTELLIGENCE PAGE INTERACTIONS
+    // Market Intelligence
 
     const miFeedContainer = document.getElementById('mi-feed-container');
     if (miFeedContainer) {
 
         const miSearch = document.getElementById('mi-search');
-        let mnArticles     = [];   // current article list from /api/market-news (real or demo)
+        let mnArticles     = [];   // articles from the last /api/market-news call
         let mnActiveFilter = 'ALL';
 
         function _escapeHtml(s) {
@@ -687,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return 'tag--neutral';
         }
 
-        // Main feed (real Marketaux articles or demo fallback — single source: /api/market-news)
+        // news feed, from /api/market-news (Marketaux or demo)
         function renderMainFeed() {
             const q = (miSearch ? miSearch.value.toLowerCase() : '');
             const filtered = mnArticles.filter(a => {
@@ -722,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             }).join('');
 
-            // Re-attach dismiss handlers (container is rebuilt on every render)
+            // the list is rebuilt each time, so hook up the dismiss buttons again
             miFeedContainer.querySelectorAll('.mi-dismiss-btn').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const item = this.closest('.feed-item');
@@ -735,7 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Feed status badge/line (shared truth with AI Market Brief panel)
+        // live / demo status line
         function renderFeedStatus(d) {
             const dot   = document.getElementById('mi-feed-status-dot');
             const label = document.getElementById('mi-feed-status-label');
@@ -750,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (upd) upd.textContent = 'Updated ' + (d.last_updated || '').replace('T', ' ');
         }
 
-        // AI Market Brief panel (right column) — summarizes the SAME articles as the main feed
+        // market brief, built from the same headlines as the feed
         function renderAIBrief(d) {
             const badge   = document.getElementById('amb-source-badge');
             const updated = document.getElementById('amb-updated');
@@ -785,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Single source of truth: /api/market-news feeds BOTH the main feed and the AI brief
+        // one request fills both the feed and the brief
         async function loadMarketNews() {
             try {
                 const ticker = localStorage.getItem('astdss:lastTicker');
@@ -804,14 +800,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         loadMarketNews();
-        // Re-poll periodically — cheap, since the server caches for NEWS_REFRESH_MINUTES.
+        // poll again now and then; the server caches for NEWS_REFRESH_MINUTES
         setInterval(loadMarketNews, 60000);
 
         if (miSearch) {
             miSearch.addEventListener('input', renderMainFeed);
         }
 
-        // Sentiment filter buttons (All / Bullish / Bearish / Neutral)
+        // All / Bullish / Bearish / Neutral
         document.querySelectorAll('.mi-source-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 mnActiveFilter = this.dataset.filter || 'ALL';
@@ -827,7 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Filters button (advanced filter UI not built — honestly labeled demo)
+        // the advanced filters are not built
         const miFiltBtn = document.getElementById('mi-filters-btn');
         if (miFiltBtn) {
             miFiltBtn.addEventListener('click', () => {
@@ -835,10 +831,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Sentiment gauge — simulated periodic randomization (independent of the
-        // real/demo news feed above; already labeled "simulated demo value" in the template).
-        // Does NOT touch #mi-feed-status-dot — that dot's color is reserved for the
-        // real live/demo signal set by renderFeedStatus() above.
+        // sentiment gauge: a demo value that changes every few seconds.
+        // It leaves #mi-feed-status-dot alone, that dot shows live or demo news.
         setInterval(() => {
             const valEl = document.getElementById('mi-sentiment-value');
             const lblEl = document.getElementById('mi-sentiment-label');
@@ -851,13 +845,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 8 — DECISION LOGIC PAGE INTERACTIONS
+    // Decision Logic
 
     const decisionGrid = document.querySelector('.decision-grid');
     if (decisionGrid) {
         const tabItems = document.querySelectorAll('.tab-bar__item');
 
-        // Tab content panels — create overlay panels for Rule Evaluation & Defuzzification
+        // overlay panels for the Rule Evaluation and Defuzzification tabs
         function buildTabPanel(title, content) {
             const p = document.createElement('div');
             p.style.cssText = 'position:absolute;inset:0;background:rgba(255, 255, 255, 0.94);backdrop-filter:blur(8px);z-index:10;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-lg);animation:fadeIn .25s ease;';
@@ -874,11 +868,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', function () {
                 tabItems.forEach(b => b.classList.remove('tab-bar__item--active'));
                 this.classList.add('tab-bar__item--active');
-                // Remove any existing overlay
+                // remove the old overlay
                 document.querySelectorAll('[data-tab-panel]').forEach(p => p.remove());
 
                 if (idx === 1) {
-                    // Rule Evaluation tab
+                    // Rule Evaluation
                     const wrap = document.querySelector('.decision-grid');
                     if (wrap) {
                         wrap.style.position = 'relative';
@@ -891,7 +885,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ));
                     }
                 } else if (idx === 2) {
-                    // Defuzzification tab
+                    // Defuzzification
                     const wrap = document.querySelector('.decision-grid');
                     if (wrap) {
                         wrap.style.position = 'relative';
@@ -909,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Decision Logic Execute Trade button
+        // Execute Trade button
         const dlExec = document.getElementById('dl-execute-trade');
         if (dlExec) {
             dlExec.addEventListener('click', () => {
@@ -925,10 +919,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 9 — BACKTESTING PAGE INTERACTIONS
+    // Backtesting quick pick
 
-    // Asset class option buttons — sets the actual backtest ticker (data-ticker),
-    // so picking "Crypto" really backtests BTC, not just a cosmetic radio toggle.
+    // the quick pick sets the real backtest ticker, e.g. Bitcoin runs BTC
     document.querySelectorAll('.asset-option[data-ticker]').forEach(opt => {
         opt.addEventListener('click', function () {
             const wasActive = this.classList.contains('asset-option--active');
@@ -955,7 +948,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Density slider — show value label
+    // density slider label (only if the slider is on the page)
     const densitySlider = document.querySelector('.config-main input[type="range"]');
     if (densitySlider) {
         const densityDisplay = document.createElement('div');
@@ -968,9 +961,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // SECTION 10 — SETTINGS PAGE INTERACTIONS
+    // Settings (demo page)
 
-    // API key eye buttons — toggle password visibility
+    // show / hide key
     document.querySelectorAll('.api-eye-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const input = this.parentElement.querySelector('input[type="password"], input[type="text"]');
@@ -982,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Run Global Connection Test button
+    // connection test button
     const btnConnTest = document.getElementById('btn-connection-test');
     if (btnConnTest) {
         btnConnTest.addEventListener('click', () => {
@@ -997,8 +990,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Agent toggle switches — find all 38×20 toggle tracks across the settings page
-    // Use size-based detection (width:38px height:20px) rather than fragile style string matching
+    // agent toggles, found by their 38x20 size
     function isToggleTrack(el) {
         const s = el.style;
         return s && s.width === '38px' && s.height === '20px' &&
@@ -1009,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isToggleTrack(el)) return;
         el.style.cursor = 'pointer';
 
-        // Read initial state from thumb position
+        // start state from where the knob is
         const thumb    = el.firstElementChild;
         let isOn       = thumb && (thumb.style.left === '21px');
         const inAgentGrid = !!el.closest('.settings-agent-grid');
@@ -1028,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Appearance theme buttons — GLASS / DARK / LIGHT
+    // theme buttons
     document.querySelectorAll('.settings-theme-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('.settings-theme-btn').forEach(b => {
@@ -1043,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Layout density buttons — COMPACT / DEFAULT / RELAXED
+    // density buttons
     document.querySelectorAll('.settings-density-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('.settings-density-btn').forEach(b => {
@@ -1061,11 +1053,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Fuzzy calibration sliders — show live value
+    // calibration slider values
     document.querySelectorAll('.glass-panel input[type="range"]').forEach(slider => {
-        if (slider.closest('.config-main')) return; // skip backtesting density slider
+        if (slider.closest('.config-main')) return; // not the backtest page slider
         const parent = slider.parentElement;
-        // Find the value display span (already in settings template via {{ val }})
+        // the value span is already in the template
         slider.addEventListener('input', function () {
             const valSpan = this.parentElement.querySelector('.label-mono[style*="color: var(--primary)"], .label-mono[style*="color:var(--primary)"]');
             if (valSpan) {
@@ -1074,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Settings: save fields — add feedback on input change
+    // feedback when a setting changes
     let saveTimeout;
     document.querySelectorAll('.settings-grid .glass-input').forEach(inp => {
         if (inp.id === 'mi-search' || inp.id === 'bt-ticker' || inp.id === 'ticker-input') return;
@@ -1086,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Load Real Agentic Experience Log (Backtesting page panel)
+    // agentic log on the Backtesting page
     function loadAgenticLog() {
         const tbody = document.getElementById('bt-agentic-tbody');
         const count = document.getElementById('bt-agentic-count');

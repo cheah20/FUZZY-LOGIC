@@ -1,16 +1,5 @@
-"""
-interface.py — UI Integration Layer
-ASTDSS Terminal — Neuro-Symbolic Trading DSS
-
-Purpose:
-  Provides structured data for the UI Expert Reasoning Panel.
-  Bridges the backend modules (expert_layer, feature_selector,
-  fuzzy_engine) to the Flask/Jinja frontend.
-
-Provides:
-  - get_expert_reasoning_data() → Full explainability data for UI
-  - compare_baseline_vs_expert()  → Side-by-side comparison
-  - get_system_status()           → Overall system health
+"""Builds the data the Flask templates show: expert reasoning, the baseline
+vs expert comparison and the system status.
 """
 
 from __future__ import annotations
@@ -23,33 +12,11 @@ def get_expert_reasoning_data(
     sentiment: float = -0.15,
     atr: Optional[float] = None,
 ) -> Dict:
-    """
-    Get complete explainability data for the Expert Reasoning Panel.
-    
-    This is the primary function the UI calls to populate the
-    Expert Reasoning Panel on the Decision Logic page.
-    
-    Returns:
-        {
-            "rsi": 74.2,
-            "macd_hist": -0.35,
-            "sentiment": -0.15,
-            "atr": 5.2,
-            "market_regime": "...",
-            "regime_confidence": 0.85,
-            "regime_reason": "...",
-            "triggered_rule": "RULE_3_TECHNICAL_DRIVEN",
-            "active_features": ["rsi", "macd_hist"],
-            "masked_features": ["sentiment"],
-            "weights": {"rsi": 0.6, "macd_hist": 0.4, ...},
-            "fuzzy_score": 0.45,
-            "fuzzy_label": "Hold",
-            "confidence": 0.72,
-            "label_memberships": {"Strong Sell": 0.0, ...},
-            "rule_firings": [...],
-            "weightage_table": [...],
-            "expert_rules": [...],
-        }
+    """Everything the expert reasoning panel needs for one set of inputs.
+
+    Includes the regime and why, the active and masked features with their
+    weights, the fuzzy score and label, rule firings, the weightage table and
+    the expert rules.
     """
     from expert_layer import detect_market_regime, get_expert_layer_info
     from feature_selector import select_features, get_weightage_table
@@ -61,13 +28,13 @@ def get_expert_reasoning_data(
     expert_info = get_expert_layer_info()
     weightage_table = get_weightage_table()
 
-    # Build display-ready input rows for the Input Variables panel
-    # Colours reflect whether the input is active/masked in the current regime.
+    # rows for the inputs panel; the colour shows
+    # whether the input is used or masked in this regime
     active = selection["active_features"]
 
     def _bar_color(feat: str, val: float) -> str:
         if feat not in active:
-            return "rgba(20, 26, 34, 0.18)"   # muted = masked
+            return "rgba(20, 26, 34, 0.18)"   # grey means masked
         if feat == "rsi":
             if val > 70: return "#e5443b"
             if val < 30: return "#12a46b"
@@ -78,7 +45,7 @@ def get_expert_reasoning_data(
             return "rgba(20, 26, 34, 0.45)"
         return "var(--gold-soft)"
 
-    # Normalise raw values to 0–100 for progress bars
+    # 0-100 for the bars
     rsi_pct    = int(max(0, min(100, rsi)))
     macd_pct   = int(max(0, min(100, ((macd_hist + 5) / 10) * 100)))
     sent_pct   = int(max(0, min(100, ((sentiment  + 1) / 2) * 100)))
@@ -151,13 +118,13 @@ def compare_baseline_vs_expert(
     sentiment: float = -0.15,
     atr: Optional[float] = None,
 ) -> Dict:
-    """Side-by-side comparison for UI display."""
+    """Baseline and expert next to each other."""
     from tools import compare_modes_tool
     return compare_modes_tool(rsi, macd_hist, sentiment, atr)
 
 
 def get_system_status() -> Dict:
-    """Get overall system status for UI dashboard."""
+    """System status for the dashboard."""
     return {
         "fuzzy_engine": "Active",
         "expert_layer": "Active",

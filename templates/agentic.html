@@ -5,12 +5,10 @@
 {% block content %}
 <div class="agentic-grid" style="padding:2px 0">
 
-  <!-- LEFT: Agent Profile + KB Summary -->
+  <!-- left: agent profile and knowledge base -->
   <div class="flex-col flex-col-gap-md">
 
-    <!-- Agent Profile — identity + counts always visible; mission/objective/disclaimer
-         prose is reference material, collapsed by default so it doesn't compete
-         with the live pipeline during a timed demo -->
+    <!-- agent profile; mission and disclaimer open on click -->
     <div class="glass-panel glass-panel--gold" style="flex-shrink:0">
       <div class="panel-header">
         <span class="label-xs" style="color:var(--gold-soft)">Agent profile</span>
@@ -56,7 +54,7 @@
       {% endif %}
     </div>
 
-    <!-- Human Expert KB Summary — collapsed by default; this is reference material, not what a demo audience needs read aloud -->
+    <!-- knowledge base summary, closed by default -->
     <div class="glass-panel" style="flex-shrink:0">
       <div class="panel-header" style="margin-bottom:0">
         <span class="label-xs">Expert knowledge base</span>
@@ -90,7 +88,7 @@
     </div>
   </div>
 
-  <!-- CENTER: Agentic Decision Pipeline (the page's main focus) -->
+  <!-- middle: the pipeline -->
   <div class="flex-col flex-col-gap-md">
 
     <!-- Controls -->
@@ -117,7 +115,7 @@
     <!-- Analysis Results (hidden until run) -->
     <div id="agentic-results" style="display:none" class="flex-col flex-col-gap-md">
 
-      <!-- Single dominant flow panel: every stage as a row, top to bottom -->
+      <!-- one row per stage, top to bottom -->
       <div class="glass-panel-high">
         <div class="panel-header">
           <span class="label-xs">Agentic decision flow</span>
@@ -155,7 +153,7 @@
           </div>
         </div>
 
-        <!-- Stage 3: LLM Suggestion (neutral panel — gold is reserved for the final decision, not every "important" box) -->
+        <!-- Stage 3: LLM suggestion -->
         <div class="pipeline-stage">
           <div class="pipeline-stage__num">3</div>
           <div style="flex:1">
@@ -212,7 +210,7 @@
           </div>
         </div>
 
-        <!-- Stage 5: Final Decision — the one place gold dominates -->
+        <!-- Stage 5: final decision -->
         <div id="final-panel" class="pipeline-stage pipeline-stage--active" style="padding:16px;margin-top:4px;margin-bottom:0">
           <div class="pipeline-stage__num" style="color:var(--gold-soft)">5</div>
           <div style="flex:1">
@@ -276,7 +274,7 @@
 
   </div>
 
-  <!-- RIGHT: Experience Log + Compliance -->
+  <!-- right: experience log and modules -->
   <div class="flex-col flex-col-gap-md">
 
     <!-- Experience Log -->
@@ -293,7 +291,7 @@
       </div>
     </div>
 
-    <!-- PA3 Compliance Map — compact by default, full file list on demand -->
+    <!-- module list, opens on click -->
     {% set pa3_items = [
       ('Agent Profile', True, 'agent_profile.py'),
       ('LLM Reasoning Layer', True, 'llm_reasoning.py'),
@@ -337,8 +335,7 @@
 </div>
 
 <script>
-// Collapsible section toggle (KB / PA3 detail blocks default-hidden
-// so a demo audience sees the live pipeline, not a wall of reference text) ──
+// open / close a section
 function toggleSection(id, btn) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -355,8 +352,7 @@ function toggleSection(id, btn) {
 }
 
 // Status colour helpers
-// Gold is reserved for the FINAL decision label only. Baseline/Expert
-// intermediate labels stay neutral so the eye is drawn to the end result.
+// only the final label gets the accent colour
 const LABEL_COLORS = {
   'Strong Buy':  'var(--semantic-buy)',
   'Buy':         'var(--semantic-buy)',
@@ -381,8 +377,7 @@ function labelColor(label) {
   return LABEL_COLORS[label] || 'var(--white-soft)';
 }
 
-// Show a short line by default, full text on hover — keeps the live result
-// scannable in a timed demo without losing the detail for anyone who wants it.
+// short text with the full version on hover
 function setTruncated(id, text, maxLen) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -458,7 +453,7 @@ function renderAgenticResult(d) {
   document.getElementById('expert-score').textContent =
     `score: ${(ex.score||0).toFixed(3)}  ·  conf: ${((ex.confidence||0)*100).toFixed(0)}%`;
 
-  // ANFIS — independent neuro-fuzzy proposer (anfis.py)
+  // ANFIS (anfis.py)
   const anfis = d.anfis_result || {};
   document.getElementById('anfis-label').textContent = anfis.label || '—';
   document.getElementById('anfis-label').style.color = labelColor(anfis.label);
@@ -479,9 +474,9 @@ function renderAgenticResult(d) {
   document.getElementById('llm-direction').textContent = (llmShift.direction||'—').replace(/_/g,' ');
   document.getElementById('llm-conf').textContent = ((llm.confidence||0)*100).toFixed(0) + '%';
   const pLog = llm.prompt_log || {};
-  document.getElementById('llm-system-prompt').textContent = pLog.system_prompt || (pLog.note || '— (demo mode, no live call) —');
-  document.getElementById('llm-user-prompt').textContent = pLog.user_prompt || (pLog.note || '— (demo mode, no live call) —');
-  document.getElementById('llm-raw-response').textContent = pLog.raw_response || (pLog.note || '— (demo mode, no live call) —');
+  document.getElementById('llm-system-prompt').textContent = pLog.system_prompt || (pLog.note || '(demo mode, nothing was sent)');
+  document.getElementById('llm-user-prompt').textContent = pLog.user_prompt || (pLog.note || '(demo mode, nothing was sent)');
+  document.getElementById('llm-raw-response').textContent = pLog.raw_response || (pLog.note || '(demo mode, nothing was sent)');
 
   // Validation
   const vStatus = val.status || '—';
@@ -537,8 +532,7 @@ function renderExperienceLog(entries) {
   }
   const sc = { APPROVED: 'var(--semantic-buy)', REJECTED: 'var(--semantic-sell)', MODIFIED: 'var(--semantic-warning)', NEEDS_REVIEW: 'var(--semantic-warning)' };
   const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-  // Two lines per entry, not three — the reflection sentence moves to a hover
-  // tooltip so a 10-entry log doesn't read like a wall of text mid-demo.
+  // two lines per entry; the reflection note is in the tooltip
   el.innerHTML = entries.map(e => {
     const val  = e.expert_validation_result || {};
     const fin  = e.final_decision || {};

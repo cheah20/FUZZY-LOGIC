@@ -1,10 +1,7 @@
-"""
-agent_profile.py — ASTDSS Profit Maximiser Agent
-Defines the autonomous agent's identity, mission, constraints, and governance rules.
-"""
+"""Who the trading agent is: its mission, what it may and may not do, and its rules."""
 
 AGENT_PROFILE = {
-    "agent_id": "ASTDSS-PM-001",
+    "agent_id": "NT-PM-001",
     "agent_name": "Profit Maximiser Agent",
     "version": "1.0.0-PA3",
     "role": "Agentic Fuzzy Trading Decision Support",
@@ -88,7 +85,7 @@ def get_agent_profile() -> dict:
 
 
 def get_agent_summary() -> dict:
-    """Return a concise summary suitable for UI display panels."""
+    """Short version of the profile for the UI."""
     return {
         "agent_id": AGENT_PROFILE["agent_id"],
         "agent_name": AGENT_PROFILE["agent_name"],

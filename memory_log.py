@@ -1,11 +1,4 @@
-"""
-memory_log.py — Structured Experience Log
-ASTDSS Terminal — PA3 Agentic Fuzzy Trading DSS
-
-Persists each agentic decision cycle to data/experience_log.json.
-Each record captures the full context-to-decision chain for analysis,
-auditing, and PA3 demonstration purposes.
-"""
+"""Saves every agentic run to data/experience_log.json."""
 
 from __future__ import annotations
 import json
@@ -23,7 +16,7 @@ def _ensure_data_dir() -> None:
 
 
 def _atomic_write_json(data: list) -> None:
-    """Write JSON to a temp file then rename, so a crash mid-write can't corrupt the log."""
+    """Write to a temp file and rename it, so a crash halfway cannot break the log."""
     tmp_path = _LOG_FILE + ".tmp"
     with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
@@ -31,19 +24,11 @@ def _atomic_write_json(data: list) -> None:
 
 
 def append_experience_log(record: dict) -> None:
-    """
-    Append a single experience record to the log file.
+    """Add one record to the log.
 
-    The record should contain:
-      - timestamp              : ISO-format datetime string
-      - market_context         : dict of indicator values
-      - baseline_fuzzy_output  : dict (score, label, confidence)
-      - llm_suggestion         : dict from llm_reasoning
-      - expert_validation_result: dict from expert_validation_gate
-      - final_decision         : dict (score, label)
-      - fuzzy_shift            : dict (actually applied shift)
-      - stability_score        : float 0–1
-      - reflection_note        : str (human-readable summary)
+    A record has timestamp, market_context, baseline_fuzzy_output,
+    llm_suggestion, expert_validation_result, final_decision, fuzzy_shift,
+    stability_score (0-1) and reflection_note.
     """
     _ensure_data_dir()
     existing = load_experience_log()
@@ -52,7 +37,7 @@ def append_experience_log(record: dict) -> None:
 
 
 def load_experience_log() -> list:
-    """Return the full experience log as a list of dicts (oldest first)."""
+    """The whole log, oldest first."""
     _ensure_data_dir()
     if not os.path.exists(_LOG_FILE):
         return []
@@ -65,12 +50,12 @@ def load_experience_log() -> list:
 
 
 def get_recent_experience(limit: int = 5) -> list:
-    """Return the most recent `limit` experience records (newest first)."""
+    """The last `limit` records, newest first."""
     return list(reversed(load_experience_log()))[:limit]
 
 
 def clear_experience_log() -> None:
-    """Erase all experience log entries. Used for testing/reset."""
+    """Empty the log (for tests)."""
     _ensure_data_dir()
     _atomic_write_json([])
 
@@ -85,10 +70,7 @@ def build_experience_record(
     reflection_note: str = "",
     anfis_result: Optional[dict] = None,
 ) -> dict:
-    """
-    Helper to assemble a well-structured experience record.
-    Call this before append_experience_log().
-    """
+    """Build a record for append_experience_log()."""
     applied_shift = validation_result.get("applied_shift", {})
     return {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -114,10 +96,8 @@ def build_experience_record(
             "score_delta":     float(llm_suggestion.get("fuzzy_shift", {}).get("score_delta", 0)),
             "direction":       llm_suggestion.get("fuzzy_shift", {}).get("direction", "hold_neutral"),
         },
-        # Full prompt/response audit trail — answers "where can I see the
-        # exact prompt sent to the LLM and what it returned" (PA3 review).
-        # Kept separate from llm_suggestion above so the summary table stays
-        # short while the raw record below remains fully inspectable.
+        # the exact prompt and reply, kept apart from llm_suggestion
+        # so the summary table stays short
         "llm_prompt_log": {
             "system_prompt": (llm_suggestion.get("prompt_log") or {}).get("system_prompt"),
             "user_prompt":   (llm_suggestion.get("prompt_log") or {}).get("user_prompt"),
@@ -152,23 +132,13 @@ def build_experience_record(
 
 
 def append_llm_text_log(record: dict) -> None:
-    """
-    Append a plain-text, human-readable mirror of one experience record's
-    LLM prompt/response to data/llm_prompt_log.txt.
+    """Write the LLM prompt and reply of one record to data/llm_prompt_log.txt.
 
-    This exists alongside the structured JSON log in experience_log.json on
-    purpose: it's a redundant, independently-inspectable record so anyone
-    (including a non-technical reviewer) can open a .txt file and see, in
-    full, exactly what was sent to the LLM and what came back — without
-    needing to parse JSON. Because both logs are built from the same
-    `record` dict in the same call (see agentic_pipeline.py), the timestamp
-    in this file should always match an entry in experience_log.json; if it
-    ever doesn't, that itself is a signal something broke between the two
-    writes.
-
-    Also doubles as a quick "is the LLM actually running" check: when
-    DEEPSEEK_API_KEY is missing/invalid, every block here will show
-    mode=demo and empty SYSTEM PROMPT / USER PROMPT / RAW RESPONSE fields.
+    It repeats what is already in experience_log.json, but as plain text, so
+    you can read exactly what was sent and what came back without opening
+    JSON. Both logs come from the same record, so the timestamps should match.
+    When DEEPSEEK_API_KEY is missing, every entry shows mode=demo and empty
+    prompts, which is a quick way to see the LLM is not running.
     """
     _ensure_data_dir()
 

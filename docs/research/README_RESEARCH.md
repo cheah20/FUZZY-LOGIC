@@ -1,24 +1,21 @@
 # Research Literature
 
-The academic papers that ground the Human Expert Knowledge Base
-(`human_expert_kb.py`) and the fuzzy logic / feature selection design used throughout
-NeuralTrade. These papers are reference material, not runtime dependencies —
-no Python module reads from this folder at runtime.
+Papers behind the human expert knowledge base (`human_expert_kb.py`) and the fuzzy
+logic and feature selection design. They are reading material only; no code reads
+this folder.
 
 The PDFs are kept on the developer's machine and are not in the repository, because
 the publishers hold the copyright. Use the links below to read them.
 
-**Note on attribution:** the mapping below is based on each paper's stated subject
-matter and the design rationale it supports — not a claim that every paper was used
-to derive an exact formula. Where a paper's precise contribution is general
-background (e.g. arXiv preprints on ML/AI trading), it's listed as supporting the
-overall hybrid-AI design philosophy rather than a specific rule.
+The table shows which part of the design each paper backs up. Most papers gave
+background and limits rather than an exact formula; the arXiv papers on ML trading
+support the general hybrid idea, not one specific rule.
 
 | Area | Used For | Papers |
 |---|---|---|
 | RSI | Oversold/overbought expert rules (RSI-001/002/003 in `human_expert_kb.py`) | [8] |
 | MACD | Momentum confirmation, multi-indicator confluence (MACD-001/002/003, MULTI-001) | [8] |
-| ATR | Volatility/risk-penalty justification — explicitly **not** a directional signal (ATR-001/002) | [10] |
+| ATR | Volatility and the risk penalty; ATR is **not** a direction signal (ATR-001/002) | [10] |
 | Bollinger Bands | Volatility-relative bands, regime-detection support (BB-001/002/003) | [2] |
 | Technical Indicator ML/AI | General justification for using technical indicators as predictive/fuzzy input features | [6], [9] |
 | Neuro-Fuzzy / Computational Intelligence | Background for combining fuzzy inference with learned/adaptive components | [7] |
@@ -38,7 +35,6 @@ overall hybrid-AI design philosophy rather than a specific rule.
 9. G. Cohen, A. Aiche and R. Eichel, "Artificial Intelligence Models for Predicting Stock Returns Using Fundamental, Technical, and Entropy-Based Strategies: A Semantic-Augmented Hybrid Approach," *Entropy*, vol. 27, no. 6, 550, 2025. https://doi.org/10.3390/e27060550
 10. "Average True Range Indicator Trading Strategy," practitioner guide (PDF).
 
-For the full rule-by-rule citation (rule ID → paper → captured knowledge), see
-`human_expert_kb.py` — each of the 16 rules carries a `source_name` field pointing to
-the specific paper and author/year it draws from (e.g. Wilder 1978, Bollinger 2002,
+Each of the 16 rules in `human_expert_kb.py` has a `source_name` field with the
+book or paper it comes from (Wilder 1978, Bollinger 2002,
 Appel 2005, Murphy 1999, Sharpe 1966, Pardo 2008, Elder 1993).

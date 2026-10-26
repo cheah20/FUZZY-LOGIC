@@ -1,22 +1,8 @@
-"""
-Trading_Data.py ─ Market Data Layer
-ASTDSS Terminal — Neuro-Symbolic Trading DSS
+"""Price data and technical indicators.
 
-Purpose:
-  Data-driven layer responsible for fetching market data and
-  computing technical indicators.
-
-Provides:
-  - Simulated OHLCV data for development/demo
-  - RSI, MACD, ATR, Bollinger Bands, SMA computation
-  - Sentiment score extraction from news feed
-
-In production, this module would connect to:
-  - Binance WebSocket for real-time OHLCV
-  - Bloomberg / Reuters APIs
-  - News sentiment APIs
-
-For now it provides realistic simulated data for UI development.
+Real prices come from yfinance. When that fails, or for the demo pages,
+a simulated snapshot is used instead. Indicators: RSI, MACD, ATR,
+Bollinger Bands and SMA, plus a simple sentiment value from momentum.
 """
 
 from __future__ import annotations
@@ -24,16 +10,9 @@ from typing import Dict, List, Optional, Tuple
 import math
 import random
 
-# Technical Indicator Computation
 
 def compute_rsi(prices: List[float], period: int = 14) -> float:
-    """
-    Compute Relative Strength Index.
-    
-    RSI = 100 - (100 / (1 + avg_gain / avg_loss))
-    
-    Returns 0–100 value.
-    """
+    """RSI from closing prices, 0 to 100."""
     if len(prices) < period + 1:
         return 50.0
 
@@ -59,11 +38,7 @@ def compute_macd(
     slow: int = 26,
     signal: int = 9,
 ) -> Tuple[float, float, float]:
-    """
-    Compute MACD line, signal line, and histogram.
-    
-    Returns: (macd_line, signal_line, histogram)
-    """
+    """MACD line, signal line and histogram."""
     if len(prices) < slow + signal:
         return 0.0, 0.0, 0.0
 
@@ -78,7 +53,7 @@ def compute_macd(
     slow_ema = ema(prices[-slow:], slow)
     macd_line = fast_ema - slow_ema
 
-    # For signal line we'd need MACD history; simplified here
+    # the signal line needs MACD history, so this is a rough
     signal_line = macd_line * 0.8  # approximation
     histogram = macd_line - signal_line
 
@@ -91,7 +66,7 @@ def compute_atr(
     closes: List[float],
     period: int = 14,
 ) -> float:
-    """Compute Average True Range (normalised 0–10)."""
+    """Average true range, scaled to 0-10."""
     if len(closes) < period + 1:
         return 4.5
 
@@ -103,13 +78,13 @@ def compute_atr(
 
     atr = sum(true_ranges[-period:]) / period
     price = closes[-1] if closes else 100.0
-    # Normalize to 0–10
+    # scale to 0-10
     normalized = min(10.0, (atr / price) * 1000)
     return round(normalized, 3)
 
 
 def compute_sma(prices: List[float], period: int = 20) -> float:
-    """Compute Simple Moving Average."""
+    """Simple moving average."""
     if len(prices) < period:
         return prices[-1] if prices else 0.0
     return sum(prices[-period:]) / period
@@ -120,10 +95,7 @@ def compute_bollinger_bands(
     period: int = 20,
     std_mult: float = 2.0,
 ) -> Tuple[float, float, float]:
-    """
-    Compute Bollinger Bands.
-    Returns: (lower, middle, upper)
-    """
+    """Bollinger Bands as (lower, middle, upper)."""
     if len(prices) < period:
         return 0.0, 0.0, 0.0
 
@@ -138,16 +110,11 @@ def compute_bollinger_bands(
     )
 
 
-# Real Market Data via yfinance (PDF §20)
-
 def get_real_market_snapshot(symbol: str = "BTC-USD", period: str = "60d") -> Dict:
-    """
-    Fetch real market data using yfinance and compute indicators.
-    Falls back to simulated data if yfinance fails.
+    """Get real prices from yfinance and work out the indicators.
+    Falls back to simulated data if the download fails.
 
-    Args:
-        symbol: Yahoo Finance ticker symbol (BTC-USD, AAPL, etc.)
-        period: lookback period string (e.g. '60d', '90d')
+    symbol is a Yahoo symbol such as BTC-USD or AAPL, period something like '60d'.
     """
     try:
         import yfinance as yf
@@ -166,15 +133,15 @@ def get_real_market_snapshot(symbol: str = "BTC-USD", period: str = "60d") -> Di
 
         rsi              = compute_rsi(closes)
         _, _, macd_hist_raw = compute_macd(closes)
-        # Normalize MACD histogram to percentage of price so it fits FLC [-5, 5].
-        # Raw MACD for high-priced assets (BTC ~$67k) is in USD, not normalized.
+        # MACD is in dollars, so for BTC it is huge. Use it as a percent of price
+        # so it fits the fuzzy range of -5 to 5.
         current_price    = closes[-1] if closes[-1] > 0 else 1.0
         macd_hist        = round(macd_hist_raw / current_price * 100, 4)
         atr              = compute_atr(highs, lows, closes)
         sma_20           = compute_sma(closes, 20)
         bb_lower, bb_mid, bb_upper = compute_bollinger_bands(closes)
 
-        # Sentiment proxy from 5-day price momentum
+        # sentiment stand-in: 5-day price change
         price_change = (closes[-1] - closes[-6]) / closes[-6] if len(closes) >= 6 else 0.0
         sentiment    = max(-1.0, min(1.0, price_change * 20))
 
@@ -195,7 +162,7 @@ def get_real_market_snapshot(symbol: str = "BTC-USD", period: str = "60d") -> Di
         }
 
     except Exception as exc:
-        # Fall back to simulation silently
+        # use the simulation instead
         snap = get_simulated_market_snapshot()
         snap["source"]  = f"simulated (yfinance error: {exc})"
         snap["symbol"]  = symbol
@@ -203,9 +170,7 @@ def get_real_market_snapshot(symbol: str = "BTC-USD", period: str = "60d") -> Di
 
 
 def normalize_ticker(ticker: str) -> str:
-    """Normalise user input to a valid yfinance symbol.
-    BTC -> BTC-USD, ETH -> ETH-USD, AAPL -> AAPL, etc.
-    """
+    """Turn what the user typed into a yfinance symbol, e.g. BTC -> BTC-USD."""
     t = ticker.strip().upper()
     CRYPTO = {"BTC","ETH","BNB","SOL","XRP","ADA","DOGE","AVAX","DOT","MATIC"}
     if t in CRYPTO:
@@ -214,11 +179,7 @@ def normalize_ticker(ticker: str) -> str:
 
 
 def get_ticker_snapshot(ticker: str, period: str = "90d") -> Dict:
-    """
-    Get market snapshot for any ticker (stocks or crypto).
-    Wraps get_real_market_snapshot with ticker normalisation.
-    Returns the snapshot dict plus an 'error' key on failure.
-    """
+    """Snapshot for any stock or crypto ticker. Adds an 'error' key on failure."""
     symbol = normalize_ticker(ticker)
     snap   = get_real_market_snapshot(symbol, period=period)
     snap["ticker"]         = ticker.upper()
@@ -227,20 +188,9 @@ def get_ticker_snapshot(ticker: str, period: str = "90d") -> Dict:
 
 
 def get_ohlcv_chart_data(ticker: str, period: str = "3mo") -> Dict:
-    """
-    Return OHLCV series suitable for front-end chart rendering.
-    All price values are rounded; volume is normalised 0-100.
+    """Daily open/high/low/close for the chart, plus volume scaled to 0-100.
 
-    Returns:
-        {
-            "ticker":  "AAPL",
-            "dates":   ["2024-01-02", ...],
-            "close":   [186.2, ...],
-            "open":    [...],
-            "high":    [...],
-            "low":     [...],
-            "volume":  [45, 72, ...]   # normalised 0-100
-        }
+    Returns a dict with ticker, symbol, dates, open, high, low, close and volume.
     """
     symbol = normalize_ticker(ticker)
     try:
@@ -268,18 +218,12 @@ def get_ohlcv_chart_data(ticker: str, period: str = "3mo") -> Dict:
         return {"error": str(exc)}
 
 
-# Simulated Market Data (for development)
-
 def get_simulated_market_snapshot(
     base_price: float = 64231.0,
 ) -> Dict:
-    """
-    Generate a realistic simulated market snapshot for UI development.
-    
-    Returns current price, RSI, MACD, ATR, sentiment, etc.
-    """
-    # Generate a pseudo price series.
-    # Needs >= 35 bars or compute_macd() silently returns (0, 0, 0) — see backtester.py.
+    """Made-up but realistic snapshot (price, RSI, MACD, ATR, sentiment) for the demo pages."""
+    # make up a price series.
+    # it needs at least 35 bars, otherwise compute_macd() returns (0, 0, 0)
     random.seed()
     price = base_price + random.uniform(-500, 500)
     prices = [price + random.uniform(-200, 200) * math.sin(i * 0.3) for i in range(35)]
@@ -292,7 +236,7 @@ def get_simulated_market_snapshot(
     sma_20 = compute_sma(prices, 20)
     bb_lower, bb_mid, bb_upper = compute_bollinger_bands(prices)
 
-    # Simulated sentiment (biased by price movement)
+    # fake sentiment, nudged by the price move
     price_change = (prices[-1] - prices[-6]) / prices[-6] if len(prices) >= 6 else 0.0
     sentiment = max(-1.0, min(1.0, price_change * 15 + random.uniform(-0.2, 0.2)))
 

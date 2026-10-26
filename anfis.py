@@ -1,49 +1,21 @@
-"""
-anfis.py — Adaptive Neuro-Fuzzy Inference System (ANFIS)
-ASTDSS Terminal — Neuro-Symbolic Trading DSS
+"""ANFIS: a 5-layer Sugeno neuro-fuzzy network (Jang, 1993).
 
-Implements the standard 5-layer Sugeno-type ANFIS architecture (Jang, 1993,
-"ANFIS: Adaptive-Network-Based Fuzzy Inference System", IEEE Trans. SMC):
+Inputs are RSI, the MACD histogram and ATR. The starting membership
+functions use the same textbook limits as human_expert_kb.py (Wilder for
+RSI and ATR, Appel for MACD), then training on real price history adjusts
+them. That learning step is the difference from the fixed Mamdani engine
+in fuzzy_engine.py.
 
-  Layer 1 (Fuzzification)  — Gaussian membership grade of each crisp input
-                              for each linguistic term.
-  Layer 2 (Rule firing)    — Product T-norm of membership grades per rule.
-  Layer 3 (Normalisation)  — Each rule's firing strength divided by the sum
-                              of all firing strengths.
-  Layer 4 (Consequent)     — First-order Sugeno linear function of the raw
-                              inputs, scaled by the normalised firing strength.
-  Layer 5 (Summation)      — Sum of all rule contributions = crisp output.
+It does not replace the expert engine. agentic_pipeline.py runs it next to
+the other results, and its output still has to pass the validation gate.
 
-Inputs: RSI, MACD histogram, ATR — the same three indicators whose expert
-boundaries are cited in human_expert_kb.py (Wilder 1978 RSI/ATR, Appel 2005
-MACD; see docs/research/). Those cited boundaries seed the initial Gaussian
-premise parameters (Layer 1) below, so the network starts from literature-
-grounded membership functions rather than arbitrary numbers. Training then
-*adapts* those parameters from real historical price data — this is what
-distinguishes ANFIS from the static Mamdani engine in fuzzy_engine.py, and
-why the network is described as "neuro-fuzzy": fixed expert structure +
-learned parameters.
+Training is Jang's hybrid method: least squares for the consequent
+parameters, then a gradient step on the Gaussian centres and widths. The
+gradient is estimated with central differences instead of being derived
+by hand.
 
-This module deliberately does NOT replace fuzzy_engine.py / expert_layer.py.
-It runs as an independent, parallel proposer in agentic_pipeline.py — its
-output sits alongside baseline_result/expert_result and is still subject to
-the Human Expert Validation Gate before influencing the final decision. Pure
-data-driven ANFIS output is never applied unchecked (see tests/run_test.py
-§21 "ANFIS only data-driven" — rejected as the *sole* signal source, accepted
-here as one more validated input).
-
-Hybrid learning (Jang's two-pass algorithm):
-  Forward pass:  consequent parameters solved in closed form via least
-                 squares (numpy.linalg.lstsq) for fixed premise parameters.
-  Backward pass: premise parameters (Gaussian centre/width) updated by
-                 gradient descent, with the gradient estimated by central
-                 finite differences (numerically robust, avoids deriving
-                 analytic gradients through the normalisation layer by hand).
-
-Public API:
-  train_from_history(symbol, period, epochs)  → trains + caches params
-  predict_score(rsi, macd_hist, atr)          → dict (score, label, confidence, ...)
-  load_params() / params_exist()
+Main functions: train_from_history(), predict_score(), load_params(),
+params_exist().
 """
 
 from __future__ import annotations
@@ -57,20 +29,20 @@ import numpy as np
 _DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 _PARAMS_FILE = os.path.join(_DATA_DIR, "anfis_params.json")
 
-# Input domains (match fuzzy_engine.py so ANFIS output is directly comparable)
+# input ranges, same as fuzzy_engine.py so the scores compare
 INPUT_NAMES = ["rsi", "macd_hist", "atr"]
 INPUT_RANGES = {"rsi": (0.0, 100.0), "macd_hist": (-5.0, 5.0), "atr": (0.0, 10.0)}
-TERMS = ["low", "mid", "high"]  # generic 3-term partition per input
+TERMS = ["low", "mid", "high"]  # three terms per input
 N_RULES = len(TERMS) ** len(INPUT_NAMES)  # 27
 
-# Output score domain, shared with fuzzy_engine.py OUTPUT_TERMS [-2, 2]
+# output score range, same -2..2 as fuzzy_engine.py
 SCORE_MIN, SCORE_MAX = -2.0, 2.0
 
-# Initial Gaussian premise parameters (centre, sigma), seeded from the
-# literature-cited boundaries already used in fuzzy_engine.py / human_expert_kb.py:
-#   RSI:       Wilder (1978) oversold < 30, overbought > 70
-#   MACD hist: Appel (2005) zero-line crossover as the neutral pivot
-#   ATR:       Wilder (1978) volatility bands used for the 0-10 normalised scale
+# starting Gaussian (centre, sigma) for each term, from the same limits
+# used in fuzzy_engine.py and human_expert_kb.py:
+#   RSI: Wilder (1978), oversold below 30, overbought above 70
+#   MACD hist: Appel (2005), zero line is neutral
+#   ATR: Wilder (1978), on the 0-10 scale
 _INIT_PREMISE: Dict[str, Dict[str, Tuple[float, float]]] = {
     "rsi": {
         "low":  (20.0, 12.0),
@@ -91,10 +63,10 @@ _INIT_PREMISE: Dict[str, Dict[str, Tuple[float, float]]] = {
 
 _RULE_COMBOS: List[Tuple[str, str, str]] = [
     (a, b, c) for a in TERMS for b in TERMS for c in TERMS
-]  # 27 rules, fixed order, indexes Layer 2/3/4 consistently
+]  # the 27 rules in a fixed order
 
 
-# Layer 1 — Fuzzification
+# layer 1: fuzzify
 
 def _gaussmf(x: np.ndarray, c: float, sigma: float) -> np.ndarray:
     sigma = max(sigma, 1e-6)
@@ -102,7 +74,7 @@ def _gaussmf(x: np.ndarray, c: float, sigma: float) -> np.ndarray:
 
 
 def _premise_to_array(premise: Dict[str, Dict[str, Tuple[float, float]]]) -> np.ndarray:
-    """Flatten premise dict to a fixed-order array [c,sigma]*9 for optimisation."""
+    """Premise dict to a flat array of [c, sigma] pairs, always in the same order."""
     out = []
     for inp in INPUT_NAMES:
         for term in TERMS:
@@ -126,7 +98,7 @@ def _array_to_premise(arr: np.ndarray) -> Dict[str, Dict[str, Tuple[float, float
 def _layer1_memberships(
     X: np.ndarray, premise: Dict[str, Dict[str, Tuple[float, float]]]
 ) -> Dict[str, Dict[str, np.ndarray]]:
-    """X: (n_samples, 3) ordered [rsi, macd_hist, atr]. Returns mu[input][term] -> (n,) array."""
+    """X has columns rsi, macd_hist, atr. Returns mu[input][term] as arrays."""
     mu: Dict[str, Dict[str, np.ndarray]] = {}
     for j, inp in enumerate(INPUT_NAMES):
         mu[inp] = {}
@@ -136,10 +108,10 @@ def _layer1_memberships(
     return mu
 
 
-# Layer 2/3 — Rule firing + normalisation
+# layers 2 and 3: fire and normalise
 
 def _layer2_3_firing(mu: Dict[str, Dict[str, np.ndarray]]) -> np.ndarray:
-    """Returns normalised firing strengths, shape (n_samples, N_RULES)."""
+    """Normalised firing strength of each rule, shape (n_samples, N_RULES)."""
     n = len(next(iter(mu["rsi"].values())))
     w = np.ones((n, N_RULES))
     for r, (t_rsi, t_macd, t_atr) in enumerate(_RULE_COMBOS):
@@ -149,10 +121,10 @@ def _layer2_3_firing(mu: Dict[str, Dict[str, np.ndarray]]) -> np.ndarray:
     return w / row_sum
 
 
-# Layer 4/5 — Consequent + summation
+# layers 4 and 5: consequents and sum
 
 def _design_matrix(norm_w: np.ndarray, X: np.ndarray) -> np.ndarray:
-    """Build the LSE design matrix: for each rule, columns [w_bar, w_bar*x1, w_bar*x2, w_bar*x3]."""
+    """Design matrix for least squares: per rule [w, w*x1, w*x2, w*x3]."""
     n = X.shape[0]
     n_inputs = X.shape[1]
     cols_per_rule = n_inputs + 1
@@ -180,18 +152,12 @@ def _forward(
 def _fit_consequent_lse(
     norm_w: np.ndarray, X: np.ndarray, y: np.ndarray, ridge: float = 1.0
 ) -> np.ndarray:
-    """
-    Ridge-regularised least squares for the consequent parameters.
+    """Least squares with a small ridge penalty for the consequent parameters.
 
-    With 27 rules x 4 params = 108 consequent parameters, most rules only
-    have a handful of supporting training samples (real price data clusters
-    in the "mid" region of each input range; the "high"/"low" extremes of
-    rarely-visited combinations like RSI=mid + ATR=high are sparsely or
-    never represented). Plain least squares lets those near-empty columns
-    take on huge, poorly-constrained coefficients that then extrapolate to
-    nonsensical scores (e.g. flipping sign) the moment a live input falls in
-    that sparse region. L2 regularisation shrinks unsupported coefficients
-    toward zero instead, keeping out-of-distribution predictions bounded.
+    There are 108 of them (27 rules x 4) and real data mostly sits in the
+    middle of each input range, so some rules barely see any samples. Plain
+    least squares gives those rules huge coefficients that blow up as soon as
+    a live input lands there. The ridge term keeps them small.
     """
     A = _design_matrix(norm_w, X)
     n_params = A.shape[1]
@@ -209,8 +175,6 @@ def _mse(
     return float(np.mean((y_pred - y) ** 2))
 
 
-# Hybrid (Jang) Training
-
 def _train(
     X: np.ndarray,
     y: np.ndarray,
@@ -218,14 +182,11 @@ def _train(
     lr: float = 0.05,
     eps: float = 1e-3,
 ) -> Tuple[Dict[str, Dict[str, Tuple[float, float]]], np.ndarray, List[float]]:
-    """
-    Jang's hybrid learning algorithm.
+    """Jang's hybrid training.
 
-    Each epoch:
-      1. Forward pass: compute normalised firing strengths for current premise
-         parameters, solve consequent parameters in closed form via LSE.
-      2. Backward pass: estimate dMSE/d(premise) via central finite differences
-         and take one gradient-descent step.
+    Each epoch: fit the consequent parameters with least squares for the
+    current premises, then estimate the error gradient for the premises with
+    central differences and take one step.
     """
     premise = {k: dict(v) for k, v in _INIT_PREMISE.items()}
     premise_arr = _premise_to_array(premise)
@@ -233,7 +194,7 @@ def _train(
     loss_history: List[float] = []
 
     for epoch in range(epochs):
-        # Forward pass — closed-form consequent fit
+        # forward pass: least squares for the consequents
         premise = _array_to_premise(premise_arr)
         mu = _layer1_memberships(X, premise)
         norm_w = _layer2_3_firing(mu)
@@ -242,7 +203,7 @@ def _train(
         loss = _mse(premise_arr, consequent, X, y)
         loss_history.append(loss)
 
-        # Backward pass — numerical gradient on premise parameters only
+        # backward pass: numeric gradient, premises only
         grad = np.zeros_like(premise_arr)
         for i in range(len(premise_arr)):
             perturbed = premise_arr.copy()
@@ -253,7 +214,7 @@ def _train(
             grad[i] = (loss_plus - loss_minus) / (2 * eps)
 
         premise_arr = premise_arr - lr * grad
-        # Keep sigmas positive and away from zero
+        # sigma must stay positive and not too small
         for i in range(1, len(premise_arr), 2):
             premise_arr[i] = max(abs(premise_arr[i]), 0.25)
 
@@ -261,19 +222,16 @@ def _train(
     return premise, consequent, loss_history
 
 
-# Training Data — built from real historical OHLC via Trading_Data.py
-
 def _build_training_dataset(
     symbol: str = "AAPL",
     period: str = "2y",
     horizon: int = 5,
     return_scale: float = 8.0,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Roll a window over real historical price data (yfinance), computing
-    RSI/MACD-hist/ATR at each day and labelling with the forward `horizon`-day
-    percentage return, scaled into the same [-2, 2] score domain used
-    throughout the rest of the pipeline (fuzzy_engine.py OUTPUT_TERMS).
+    """Training samples from real price history.
+
+    For each day: RSI, MACD histogram and ATR as inputs, and the return over
+    the next `horizon` days, scaled to the -2..2 score range, as the target.
     """
     import yfinance as yf
     from Trading_Data import compute_rsi, compute_macd, compute_atr
@@ -286,7 +244,7 @@ def _build_training_dataset(
     highs = [float(v) for v in hist["High"]]
     lows = [float(v) for v in hist["Low"]]
 
-    window = 35  # matches compute_macd's minimum bar requirement
+    window = 35  # compute_macd needs this many bars
     rows_X: List[List[float]] = []
     rows_y: List[float] = []
 
@@ -297,7 +255,7 @@ def _build_training_dataset(
 
         rsi = compute_rsi(c_slice)
         _, _, macd_hist_raw = compute_macd(c_slice)
-        macd_hist = macd_hist_raw / c_slice[-1] * 100  # normalise like Trading_Data.py
+        macd_hist = macd_hist_raw / c_slice[-1] * 100  # same scaling as Trading_Data.py
         atr = compute_atr(h_slice, l_slice, c_slice)
 
         future_return = (closes[i + horizon] - closes[i]) / closes[i]
@@ -308,8 +266,6 @@ def _build_training_dataset(
 
     return np.array(rows_X, dtype=float), np.array(rows_y, dtype=float)
 
-
-# Public API
 
 def params_exist() -> bool:
     return os.path.exists(_PARAMS_FILE)
@@ -348,7 +304,7 @@ def train_from_history(
     horizon: int = 5,
     epochs: int = 40,
 ) -> Dict:
-    """Build a training set from real price history and run hybrid ANFIS training."""
+    """Build the training set from price history and train the network."""
     X, y = _build_training_dataset(symbol, period, horizon)
     premise, consequent, loss_history = _train(X, y, epochs=epochs)
 
@@ -378,11 +334,10 @@ def _score_to_label(score: float) -> str:
 
 
 def predict_score(rsi: float, macd_hist: float, atr: float) -> Dict:
-    """
-    Run a forward pass through the trained ANFIS network for a single input.
-    Falls back to a neutral Hold if the network hasn't been trained yet
-    (params_exist() == False) rather than raising — this is a parallel
-    proposer, never a hard pipeline dependency.
+    """Score one input with the trained network.
+
+    If it has not been trained yet it returns a neutral Hold instead of
+    raising, because the pipeline must work without it.
     """
     cached = load_params()
     if cached is None:
@@ -409,7 +364,7 @@ def predict_score(rsi: float, macd_hist: float, atr: float) -> Dict:
     score = float((A @ consequent)[0])
     score = round(max(SCORE_MIN, min(SCORE_MAX, score)), 4)
 
-    # Per-rule contribution magnitude -> confidence proxy (top rule's normalised weight)
+    # confidence: weight of the strongest rule
     confidence = round(float(norm_w.max()), 4)
 
     top_rule_idx = int(norm_w.argmax())

@@ -1,30 +1,13 @@
-"""
-feature_selector.py ─ Dynamic Feature Masking
-ASTDSS Terminal — Neuro-Symbolic Trading DSS
+"""Pick which indicators the fuzzy engine uses in each market regime.
 
-Purpose:
-  Decides which input features should be active based on the
-  detected market regime. This directly addresses the supervisor's
-  comment: "Not every time 4 features used — maybe sometimes
-  input only needs 1 feature."
-
-Provides:
-  - select_features()     → Returns active/masked features + weights
-  - get_feature_selection_info() → Metadata for UI display
-
-Weightage Design (from ASTDSS_FUNCTION_CODING_PLAN.md §7):
-  NEWS_DRIVEN_BEARISH  → Sentiment 100%, RSI 0%, MACD 0%, ATR 0%
-  NEWS_DRIVEN_BULLISH  → Sentiment 100%, RSI 0%, MACD 0%, ATR 0%
-  TECHNICAL_DRIVEN     → RSI 60%, MACD 40%, Sentiment 0%
-  CONFLICTING_SIGNALS  → RSI 30%, MACD 30%, Sentiment 20%, ATR 20%
-  HIGH_UNCERTAINTY     → Equal 25% each
-  NORMAL               → RSI 40%, MACD 30%, Sentiment 30%
+In a news-driven market only sentiment counts. In a calm market RSI,
+MACD and sentiment share the weight.
 """
 
 from __future__ import annotations
 from typing import Dict, List, Optional
 
-# Import regime constants from expert_layer
+# regime names come from expert_layer
 from expert_layer import (
     REGIME_NEWS_DRIVEN_BEARISH,
     REGIME_NEWS_DRIVEN_BULLISH,
@@ -34,10 +17,8 @@ from expert_layer import (
     REGIME_NORMAL,
 )
 
-# Feature Weightage per Regime
+# weight of each feature per regime, 0 means masked
 
-# Each entry: {feature_name: weight (0.0–1.0)}
-# Features with weight 0.0 are MASKED (inactive)
 
 REGIME_WEIGHTS: Dict[str, Dict[str, float]] = {
     REGIME_NEWS_DRIVEN_BEARISH: {
@@ -58,9 +39,9 @@ REGIME_WEIGHTS: Dict[str, Dict[str, float]] = {
         "macd_hist": 0.4,
         "atr": 0.0,
     },
-    # CONFLICTING_SIGNALS: all weights lowered so competing signals
-    # cancel in centroid defuzz → output biases toward Hold (PDF §11).
-    # RSI/MACD carry equal small weight so neither overrides the other.
+    # conflicting signals: every weight stays low so they cancel out
+    # and the centroid ends up near Hold
+    # RSI and MACD get the same weight so neither one wins
     REGIME_CONFLICTING_SIGNALS: {
         "sentiment": 0.15,
         "rsi": 0.15,
@@ -81,7 +62,7 @@ REGIME_WEIGHTS: Dict[str, Dict[str, float]] = {
     },
 }
 
-# Output tendency per regime (for UI explainability)
+# what each regime usually turns into, shown in the UI
 REGIME_TENDENCY: Dict[str, str] = {
     REGIME_NEWS_DRIVEN_BEARISH: "Strong Sell",
     REGIME_NEWS_DRIVEN_BULLISH: "Buy / Strong Buy",
@@ -91,7 +72,7 @@ REGIME_TENDENCY: Dict[str, str] = {
     REGIME_NORMAL: "Balanced (slight technical bias)",
 }
 
-# Regime display names (UI-friendly)
+# regime names as the UI shows them
 REGIME_DISPLAY_NAMES: Dict[str, str] = {
     REGIME_NEWS_DRIVEN_BEARISH: "News-Driven Bearish",
     REGIME_NEWS_DRIVEN_BULLISH: "News-Driven Bullish",
@@ -102,8 +83,6 @@ REGIME_DISPLAY_NAMES: Dict[str, str] = {
 }
 
 
-# Main Selection Function
-
 def select_features(
     regime_result: Dict,
     rsi: float,
@@ -111,35 +90,20 @@ def select_features(
     sentiment: float,
     atr: Optional[float] = None,
 ) -> Dict:
-    """
-    Select active features and assign weights based on market regime.
-    
-    Args:
-        regime_result: Output dict from expert_layer.detect_market_regime()
-        rsi, macd_hist, sentiment, atr: Raw values (unused in selection
-            logic but accepted for future adaptive weighting)
-    
-    Returns:
-        {
-            "active_features": ["sentiment"],     # Features with weight > 0
-            "masked_features": ["rsi", "macd_hist"],  # Features with weight = 0
-            "weights": {"sentiment": 1.0, ...},
-            "regime": "NEWS_DRIVEN_BEARISH",
-            "reason": "News-driven bearish condition detected...",
-            "output_tendency": "Strong Sell"
-        }
+    """Return the active and masked features, their weights and a short reason
+    for this regime. The raw indicator values are accepted but not used yet.
     """
     regime = regime_result.get("regime", REGIME_NORMAL)
     weights = REGIME_WEIGHTS.get(regime, REGIME_WEIGHTS[REGIME_NORMAL]).copy()
 
-    # Remove ATR from weights if no ATR value was provided
+    # no ATR value given, so leave it out
     if atr is None:
         weights.pop("atr", None)
 
     active_features = [f for f, w in weights.items() if w > 0.0]
     masked_features = [f for f, w in weights.items() if w == 0.0]
 
-    # Build a human-readable reason
+    # short sentence for the UI
     regime_display = REGIME_DISPLAY_NAMES.get(regime, regime)
     tendency = REGIME_TENDENCY.get(regime, "Unknown")
 
@@ -163,8 +127,6 @@ def select_features(
         "output_tendency": tendency,
     }
 
-
-# Info helper for UI
 
 def get_weightage_table() -> List[Dict]:
     """Return a display-friendly weightage table for the UI."""

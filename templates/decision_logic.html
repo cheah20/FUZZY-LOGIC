@@ -77,7 +77,7 @@
       <span class="label-sm" style="text-transform:none;color:var(--gold-soft);font-weight:600;">{{ expert_data.output_tendency }}</span>
     </div>
 
-    <!-- Final FLC Output (actual computed signal) -->
+    <!-- final fuzzy signal -->
     <div class="muted-box" style="display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div class="label-xs" style="margin-bottom:3px;">Final FLC Signal</div>
@@ -97,7 +97,7 @@
     {% endif %}
   </div>
 
-  <!-- CENTER: Membership Functions + Cognition Stream + Input Variables (compact) -->
+  <!-- middle: membership chart, cognition stream, inputs -->
   <div class="flex-col flex-col-gap-md" style="min-height: 0">
     <div class="glass-panel flex-1 overflow-hidden">
       <div class="panel-header">
@@ -119,11 +119,11 @@
           <line x1="75" y1="0" x2="75" y2="155" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
           <line x1="150" y1="0" x2="150" y2="155" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
           <line x1="225" y1="0" x2="225" y2="155" stroke="rgba(20, 26, 34, 0.04)" stroke-width="1" />
-          <!-- Oversold set: semantic-buy green (oversold = potential reversal-up, not a "blue" decoration) -->
+          <!-- oversold in green, it can mean a bounce up -->
           <path d="M 10,130 L 60,28 L 110,130" fill="rgba(18, 164, 107, 0.06)" stroke="#12a46b" stroke-width="1.8" />
-          <!-- Neutral set: gold, matches brand accent -->
+          <!-- neutral -->
           <path d="M 85,130 L 150,28 L 215,130" fill="rgba(20, 26, 34, 0.054)" stroke="#141a22" stroke-width="1.8" />
-          <!-- Overbought set: semantic-sell red -->
+          <!-- overbought in red -->
           <path d="M 195,130 L 248,28 L 300,130" fill="rgba(229, 68, 59, 0.06)" stroke="#e5443b" stroke-width="1.8" />
           <line x1="224" y1="28" x2="224" y2="138" stroke="rgba(20, 26, 34, 0.45)" stroke-width="1.5" stroke-dasharray="4,3" />
           <circle cx="224" cy="88" r="4.5" fill="#141a22" opacity=".85" />
@@ -166,7 +166,7 @@
       </div>
     </div>
 
-    <!-- Input Variables (compact — moved here; doesn't need a full column to itself) -->
+    <!-- inputs -->
     <div class="glass-panel flex-col" style="flex-shrink:0;">
       <div class="section-header">
         <span class="section-header__title">Inputs</span>
@@ -203,7 +203,7 @@
       </div>
 
       <div class="flex-col flex-col-gap-sm">
-        <!-- Dynamic firing rules from expert_data -->
+        <!-- rules that fired -->
         {% if expert_data and expert_data.rule_firings %}
           {% for rf in expert_data.rule_firings | sort(attribute='strength', reverse=True) | list %}
           {% if loop.index <= 5 %}
@@ -225,7 +225,7 @@
           {% endif %}
           {% endfor %}
         {% else %}
-          <!-- Fallback static examples when no expert_data -->
+          <!-- example rule when there is no data -->
           <div class="rule-card rule-card--idle">
             <div class="rule-card__header">
               <span class="rule-card__id">Rule 04</span>

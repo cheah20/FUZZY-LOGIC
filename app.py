@@ -2,15 +2,14 @@ from flask import Flask, render_template, jsonify, request
 import json
 from datetime import datetime
 
-# Load .env file before anything else so DEEPSEEK_API_KEY / MARKETAUX_API_KEY
-# / NEWS_API_PROVIDER / NEWS_REFRESH_MINUTES are available to the rest of the app.
+# load .env first so the API keys and news settings are there
+# for the rest of the app
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
-    pass  # python-dotenv not installed — run: pip install python-dotenv
+    pass  # python-dotenv is missing: pip install python-dotenv
 
-# ASTDSS Expert System Modules
 from expert_layer import detect_market_regime, get_expert_layer_info
 from feature_selector import select_features, get_weightage_table
 from fuzzy_engine import compute_score, compute_full_pipeline
@@ -23,8 +22,8 @@ from interface import get_expert_reasoning_data, compare_baseline_vs_expert, get
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-# Simulated Market State
-# This holds live-updating simulated data for the UI
+# simulated market state
+# updated a little on each page load
 _current_snapshot = get_simulated_market_snapshot()
 
 market_data = {
@@ -90,17 +89,15 @@ system_config = {
 }
 
 
-# Page Routes
-
 @app.route('/')
 def dashboard():
-    # Refresh snapshot for live feel
+    # new snapshot on each load
     global _current_snapshot
     _current_snapshot = get_simulated_market_snapshot()
     market_data['btc_price'] = _current_snapshot['price']
     market_data['volatility'] = _current_snapshot['volatility']
 
-    # Get expert analysis for the aggregate signal bar
+    # expert result for the signal bar
     expert_data = get_expert_reasoning_data(
         rsi=_current_snapshot['rsi'],
         macd_hist=_current_snapshot['macd_hist'],
@@ -122,7 +119,7 @@ def market_intelligence():
 
 @app.route('/decision-logic')
 def decision_logic():
-    # Get real expert reasoning data for the Decision Logic page
+    # expert reasoning for the Decision Logic page
     snapshot = get_simulated_market_snapshot()
     expert_data = get_expert_reasoning_data(
         rsi=snapshot['rsi'],
@@ -149,8 +146,6 @@ def settings():
                          system_config=system_config)
 
 
-# REST API Routes — Expert System
-
 @app.route('/api/market-data')
 def get_market_data():
     global _current_snapshot
@@ -167,9 +162,8 @@ def get_news_feed():
 
 @app.route('/api/market-news')
 def api_market_news():
-    """
-    Real (or demo-fallback) finance/trading news + AI Market Brief.
-    GET /api/market-news?symbol=AAPL  (symbol optional — defaults to general market)
+    """Finance news plus a short market brief. Real Marketaux data or the demo feed.
+    GET /api/market-news?symbol=AAPL (symbol is optional)
     """
     from news_service import get_market_news
     symbol = request.args.get('symbol', '').strip() or None
@@ -177,8 +171,8 @@ def api_market_news():
         result = get_market_news(symbol=symbol)
         return jsonify(result)
     except Exception as ex:
-        # Never let the news layer take down the page — degrade to an explicit error
-        # the frontend can show, rather than a 500.
+        # if the news part fails, return an error the page can show
+        # instead of a 500
         return jsonify({
             'source': 'demo', 'is_live': False, 'symbol': symbol or 'GENERAL',
             'articles': [], 'ai_brief': {'text': 'Market news unavailable.', 'mode': 'rule_based'},
@@ -194,7 +188,7 @@ def get_agent_status():
 
 @app.route('/api/expert/reasoning')
 def api_expert_reasoning():
-    """Full expert reasoning data for the UI panel."""
+    """Expert reasoning data for the UI panel."""
     rsi = float(request.args.get('rsi', 74.2))
     macd_hist = float(request.args.get('macd_hist', -0.35))
     sentiment = float(request.args.get('sentiment', -0.15))
@@ -207,7 +201,7 @@ def api_expert_reasoning():
 
 @app.route('/api/expert/regime')
 def api_market_regime():
-    """Detect market regime only."""
+    """Market regime only."""
     rsi = float(request.args.get('rsi', 50))
     macd_hist = float(request.args.get('macd_hist', 0))
     sentiment = float(request.args.get('sentiment', 0))
@@ -220,7 +214,7 @@ def api_market_regime():
 
 @app.route('/api/expert/fuzzy')
 def api_fuzzy_analysis():
-    """Run fuzzy analysis with specified mode."""
+    """Fuzzy analysis in the given mode."""
     rsi = float(request.args.get('rsi', 50))
     macd_hist = float(request.args.get('macd_hist', 0))
     sentiment = float(request.args.get('sentiment', 0))
@@ -238,7 +232,7 @@ def api_fuzzy_analysis():
 
 @app.route('/api/expert/compare')
 def api_compare_modes():
-    """Compare baseline vs expert FLC side-by-side."""
+    """Baseline vs expert, side by side."""
     rsi = float(request.args.get('rsi', 74.2))
     macd_hist = float(request.args.get('macd_hist', -0.35))
     sentiment = float(request.args.get('sentiment', -0.15))
@@ -251,7 +245,7 @@ def api_compare_modes():
 
 @app.route('/api/expert/cognition')
 def api_cognition():
-    """Run the full Cognition Agent analysis."""
+    """Full cognition agent analysis."""
     rsi = float(request.args.get('rsi', 74.2))
     macd_hist = float(request.args.get('macd_hist', -0.35))
     sentiment = float(request.args.get('sentiment', -0.15))
@@ -265,52 +259,46 @@ def api_cognition():
 
 @app.route('/api/expert/weightage')
 def api_weightage_table():
-    """Get the feature weightage table for all regimes."""
+    """Feature weights for every regime."""
     return jsonify(get_weightage_table())
 
 
 @app.route('/api/expert/rules')
 def api_expert_rules():
-    """Get the list of expert rules with descriptions."""
+    """Expert rules with their descriptions."""
     info = get_expert_layer_info()
     return jsonify(info['rules'])
 
 
 @app.route('/api/expert/status')
 def api_system_status():
-    """Get overall expert system status."""
+    """Overall expert system status."""
     return jsonify(get_system_status())
 
 
 @app.route('/api/market-snapshot')
 def api_market_snapshot():
-    """Get simulated market snapshot with all indicators."""
+    """Simulated market snapshot with all indicators."""
     global _current_snapshot
     _current_snapshot = get_simulated_market_snapshot()
     return jsonify(_current_snapshot)
 
 
-# Interactive Analysis & Backtest APIs (Functional Interaction Recovery)
-
 @app.route('/api/analyze')
 def api_analyze():
-    """
-    Full analysis pipeline for a user-specified ticker.
+    """Analyse one ticker: yfinance data, regime, feature masking, fuzzy result.
     GET /api/analyze?ticker=AAPL
-
-    Flow: yfinance data -> expert_layer -> feature_selector
-          -> fuzzy_engine -> explainability panel data
     """
     ticker = request.args.get('ticker', 'AAPL').strip()
     if not ticker:
         return jsonify({'error': 'ticker parameter is required'}), 400
 
-    # Fetch real market data — reject if yfinance failed (source contains 'simulated')
+    # real data only; stop if yfinance failed (source says 'simulated')
     snap = get_ticker_snapshot(ticker, period='90d')
     if 'simulated' in snap.get('source', ''):
         return jsonify({'error': f'Ticker "{ticker.upper()}" not found or has no data. Please check the symbol (e.g. AAPL, TSLA, BTC, ETH).'}), 404
 
-    # Run full expert pipeline
+    # expert pipeline
     try:
         reasoning = get_expert_reasoning_data(
             rsi=snap['rsi'],
@@ -321,7 +309,7 @@ def api_analyze():
     except Exception as ex:
         return jsonify({'error': f'Analysis failed: {ex}'}), 500
 
-    # Fetch OHLCV for chart rendering
+    # chart data
     chart = get_ohlcv_chart_data(ticker, period='3mo')
 
     return jsonify({
@@ -334,7 +322,7 @@ def api_analyze():
         'sentiment':       snap['sentiment'],
         'volatility':      snap.get('volatility', 0),
         'source':          snap.get('source', 'unknown'),
-        # Expert system output
+        # expert result
         'market_regime':   reasoning['market_regime'],
         'regime_display':  reasoning['regime_display'],
         'regime_confidence': reasoning['regime_confidence'],
@@ -348,19 +336,16 @@ def api_analyze():
         'output_tendency': reasoning['output_tendency'],
         'regime_reason':   reasoning['regime_reason'],
         'input_display':   reasoning['input_display'],
-        # Chart data
+        # chart
         'chart_data':      chart if 'error' not in chart else None,
     })
 
 
 @app.route('/api/backtest')
 def api_backtest():
-    """
-    Run backtesting for a user-specified ticker.
+    """Backtest one ticker on real prices, baseline vs expert.
     GET /api/backtest?ticker=AAPL&period=1y
-
-    Fetches real historical prices, runs baseline vs expert FLC,
-    returns metrics + equity curves for chart rendering.
+    Returns the metrics and the equity curves for the chart.
     """
     ticker  = request.args.get('ticker', 'AAPL').strip()
     period  = request.args.get('period', '2y')
@@ -383,7 +368,7 @@ def api_backtest():
         closes    = [float(x) for x in hist['Close']]
         dates     = [str(d.date()) for d in hist.index]
 
-        # Sentiment proxy from 5-day price momentum
+        # sentiment stand-in: 5-day price change
         sentiments = []
         _rnd.seed(42)
         for i in range(len(closes)):
@@ -403,17 +388,17 @@ def api_backtest():
         b_test    = run_backtest(closes[split:], sentiments[split:], mode='baseline')
         e_test    = run_backtest(closes[split:], sentiments[split:], mode='expert')
 
-        # Normalise daily equity to % return, padded to match len(closes)
+        # daily equity as % return, padded to the length of closes
         def daily_to_pct(result_dict):
             curve = result_dict.get('daily_equity') or result_dict['equity_curve']
             base  = curve[0] if curve else 10000.0
             pct   = [round((v / base - 1) * 100, 2) for v in curve]
-            # Pad front with 0.0 so length matches closes (lookback gap)
+            # pad the start with 0.0 for the lookback days
             while len(pct) < len(closes):
                 pct.insert(0, 0.0)
             return pct
 
-        # Buy-and-hold daily % curve aligned to price bars
+        # buy and hold, % per day
         base_price = closes[0]
         bah_curve  = [round((c / base_price - 1) * 100, 2) for c in closes]
 
@@ -424,7 +409,7 @@ def api_backtest():
             'split_index':      split,
             'dates':            dates,
             'buy_hold_return':  round(bah, 2),
-            # Full-period metrics
+            # whole period
             'expert': {
                 'total_return': expert['total_return_pct'],
                 'win_rate':     expert['win_rate_pct'],
@@ -443,7 +428,7 @@ def api_backtest():
                 'equity_curve': daily_to_pct(baseline),
                 'trades':       baseline.get('trades', []),
             },
-            # Out-of-sample (30%)
+            # last 30% only
             'oos_expert':   {'total_return': e_test['total_return_pct'], 'sharpe': e_test['sharpe_ratio']},
             'oos_baseline': {'total_return': b_test['total_return_pct'], 'sharpe': b_test['sharpe_ratio']},
             'bah_curve':    bah_curve,
@@ -453,11 +438,9 @@ def api_backtest():
         return jsonify({'error': f'Backtest failed: {ex}'}), 500
 
 
-# Agentic Layer — PA3 Routes
-
 @app.route('/agentic')
 def agentic():
-    """Agentic Analysis page — PA3 Agentic Fuzzy Layer."""
+    """Agentic Layer page."""
     from agent_profile import get_agent_profile
     from human_expert_kb import get_kb_summary, get_knowledge_base
     return render_template(
@@ -470,16 +453,15 @@ def agentic():
 
 @app.route('/walkthrough')
 def walkthrough():
-    """Guided step-by-step walkthrough of the agentic pipeline (learning aid)."""
+    """Tutorial page that walks through the agentic pipeline step by step."""
     return render_template('walkthrough.html')
 
 
 @app.route('/api/agentic/analyze')
 def api_agentic_analyze():
-    """
-    Run the full agentic decision pipeline.
+    """Run the agentic pipeline.
     GET /api/agentic/analyze?symbol=AAPL&demo=true
-    Optional overrides: rsi, macd_hist, atr, sentiment
+    rsi, macd_hist, atr and sentiment can be passed to override the data.
     """
     from agentic_pipeline import run_agentic_analysis
     symbol   = request.args.get('symbol', 'DEMO')
@@ -488,7 +470,7 @@ def api_agentic_analyze():
     macd_arg     = request.args.get('macd_hist')
     atr_arg      = request.args.get('atr')
     sent_arg     = request.args.get('sentiment')
-    # Validate numeric params at the API boundary before calling pipeline
+    # check the numbers here before they reach the pipeline
     try:
         rsi_val  = float(rsi_arg)  if rsi_arg  else None
         macd_val = float(macd_arg) if macd_arg else None
@@ -512,8 +494,7 @@ def api_agentic_analyze():
 
 @app.route('/api/agentic/experience-log')
 def api_agentic_experience_log():
-    """
-    Return the most recent experience log entries.
+    """Latest experience log entries.
     GET /api/agentic/experience-log?limit=10
     """
     from memory_log import get_recent_experience
@@ -523,11 +504,9 @@ def api_agentic_experience_log():
 
 @app.route('/api/agentic/failure-demo')
 def api_agentic_failure_demo():
-    """
-    Return a structured failure scenario demonstration.
+    """One of the prepared failure cases.
     GET /api/agentic/failure-demo?scenario=0
-    scenario 0 = ATR misinterpretation (primary)
-    scenario 1 = MACD single-indicator overconfidence
+    0 = ATR read as a direction, 1 = trusting MACD alone
     """
     from failure_reflection import get_failure_demo, get_all_failure_demos
     all_arg = request.args.get('all', 'false').lower()
@@ -539,8 +518,7 @@ def api_agentic_failure_demo():
 
 @app.route('/api/agentic/human-expert-kb')
 def api_agentic_kb():
-    """
-    Return the full Human Expert Knowledge Base.
+    """The whole human expert knowledge base.
     GET /api/agentic/human-expert-kb
     """
     from human_expert_kb import get_knowledge_base, get_kb_summary
