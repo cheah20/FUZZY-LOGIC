@@ -1,19 +1,11 @@
-"""
-failure_reflection.py — Failure Scenario and Reflection
-ASTDSS Terminal — PA3 Agentic Fuzzy Trading DSS
+"""Prepared cases where the LLM gets it wrong and the validation gate catches it.
 
-Documents deliberate failure scenarios where the LLM reasoning layer
-makes an incorrect suggestion that the Human Expert Validation Gate
-correctly rejects. Each scenario produces a structured reflection
-that explains WHY the failure occurred and WHAT principle was violated.
-
-This module is used for PA3 presentation and system auditability.
+Each case says what went wrong and which rule was broken. Used on the
+Agentic Layer page.
 """
 
 from __future__ import annotations
 
-
-# Failure Scenario Definitions
 
 FAILURE_SCENARIOS = [
     {
@@ -186,12 +178,9 @@ FAILURE_SCENARIOS = [
 
 
 def get_failure_demo(scenario_index: int = 0) -> dict:
-    """
-    Return a structured failure demonstration for UI display.
+    """One failure case for the UI.
 
-    Args:
-        scenario_index: 0 = ATR misinterpretation (primary demo),
-                        1 = MACD single-indicator overconfidence.
+    0 = ATR read as a direction, 1 = trusting MACD alone.
     """
     idx = scenario_index % len(FAILURE_SCENARIOS)
     scenario = FAILURE_SCENARIOS[idx]
@@ -208,7 +197,7 @@ def get_failure_demo(scenario_index: int = 0) -> dict:
 
 
 def get_all_failure_demos() -> list:
-    """Return all failure scenarios for comprehensive display."""
+    """All failure cases."""
     return [
         {
             "scenario_id": s["scenario_id"],
@@ -224,7 +213,7 @@ def get_all_failure_demos() -> list:
 
 
 def get_reflection_summary() -> list:
-    """Return a compact list of lessons from all failure scenarios."""
+    """Short list of the lessons from every case."""
     return [
         {
             "scenario_id": s["scenario_id"],

@@ -1,22 +1,12 @@
-"""
-news_service.py — Finance/Trading News Layer
-ASTDSS Terminal — Market Intelligence News Provider
+"""Headlines and a short market brief for the Market Intelligence page.
 
-Provides:
-  - get_market_news(symbol=None) -> structured payload for the Market
-    Intelligence "AI Market Brief" panel.
+With MARKETAUX_API_KEY set, headlines come from Marketaux and are cached
+in data/news_cache.json for NEWS_REFRESH_MINUTES (15 by default). Without
+a key, or when the call fails, a small demo feed is used. This never
+raises, so the app works with no keys at all.
 
-Behaviour:
-  - If MARKETAUX_API_KEY is set, fetches real finance/trading headlines
-    from Marketaux (https://www.marketaux.com/).
-  - Caches the result to data/news_cache.json and reuses it until
-    NEWS_REFRESH_MINUTES has elapsed (default 15).
-  - Falls back to a small demo sample feed if no API key is configured,
-    the API call fails, or it returns no articles. Never raises — the
-    Flask app must keep working with zero API keys configured.
-  - If DEEPSEEK_API_KEY is set, asks DeepSeek for a short market brief
-    summarising the headlines. Falls back to a rule-based summary
-    (bullish/bearish headline count) if DeepSeek is unavailable or fails.
+With DEEPSEEK_API_KEY set, DeepSeek writes the brief. Otherwise it is a
+simple count of bullish and bearish headlines.
 """
 
 from __future__ import annotations
@@ -28,7 +18,7 @@ from typing import Dict, List, Optional
 _DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 _CACHE_FILE = os.path.join(_DATA_DIR, "news_cache.json")
 
-# Demo sample feed (used when no API key / API failure / empty result)
+# demo feed, used when there is no key or the call fails
 _DEMO_ARTICLES = [
     {
         "time": "14:20:00",
@@ -103,7 +93,7 @@ def _demo_articles() -> List[Dict]:
 
 
 def _sentiment_from_entities(entities: List[Dict]) -> str:
-    """Marketaux gives a sentiment_score per entity (-1..1, may be None). Average them."""
+    """Average of Marketaux's per-entity sentiment scores (-1..1, can be None)."""
     scores = [e.get("sentiment_score") for e in entities if e.get("sentiment_score") is not None]
     if not scores:
         return "NEUTRAL"
@@ -116,7 +106,7 @@ def _sentiment_from_entities(entities: List[Dict]) -> str:
 
 
 def _fetch_marketaux(symbol: Optional[str], api_key: str) -> List[Dict]:
-    """Fetch live finance/trading headlines from Marketaux. Raises on HTTP/network failure."""
+    """Live headlines from Marketaux. Raises if the request fails."""
     import requests
 
     params = {
@@ -168,7 +158,7 @@ def _rule_based_brief(articles: List[Dict]) -> str:
 
 
 def _deepseek_brief(articles: List[Dict]) -> Optional[str]:
-    """Ask DeepSeek to summarise the headlines. Returns None if unavailable/failed."""
+    """Ask DeepSeek to sum up the headlines. None if it is not available."""
     api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
     if not api_key:
         return None
@@ -202,18 +192,10 @@ def _deepseek_brief(articles: List[Dict]) -> Optional[str]:
 
 
 def get_market_news(symbol: Optional[str] = None, force_refresh: bool = False) -> Dict:
-    """
-    Return the Market Intelligence news payload.
+    """News for the Market Intelligence page.
 
-    Returns:
-        {
-            "source": "marketaux" | "demo",
-            "is_live": bool,
-            "last_updated": str (ISO timestamp),
-            "symbol": str,
-            "articles": [...],
-            "ai_brief": {"text": str, "mode": "deepseek" | "rule_based"},
-        }
+    Returns source ('marketaux' or 'demo'), is_live, last_updated, symbol,
+    articles and ai_brief (text and mode).
     """
     try:
         refresh_minutes = int(os.environ.get("NEWS_REFRESH_MINUTES", "15") or 15)
@@ -240,8 +222,8 @@ def get_market_news(symbol: Optional[str] = None, force_refresh: bool = False) -
                 is_live = True
                 source = "marketaux"
         except Exception as exc:
-            # requests' HTTPError messages embed the full request URL (including
-            # api_token=...) — redact the key before logging so it never leaks.
+            # the HTTPError message contains the full URL with api_token,
+            # so blank out the key before logging it
             safe_msg = str(exc).replace(api_key, "***REDACTED***")
             print(f"[news_service] Marketaux fetch failed, falling back to demo feed: {safe_msg}")
 
@@ -271,6 +253,6 @@ def get_market_news(symbol: Optional[str] = None, force_refresh: bool = False) -
             "payload": payload,
         })
     except Exception:
-        pass  # Caching is best-effort — never break the request over a disk write failure.
+        pass  # the cache is only nice to have, a failed write is ignored
 
     return payload

@@ -11,7 +11,7 @@ flask_app.app.config['TESTING'] = True
 
 print('=== FUNCTIONAL INTERACTION RECOVERY VALIDATION ===\n')
 
-# 1. Templates
+# 1. templates
 from jinja2 import Environment, FileSystemLoader
 env = Environment(loader=FileSystemLoader(str(ROOT / 'templates')))
 print('## 1. TEMPLATES')
@@ -22,7 +22,7 @@ for t in ['base.html','dashboard.html','backtesting.html','decision_logic.html']
     except Exception as e:
         print(f'  [FAIL] {t}: {e}')
 
-# 2. API endpoints
+# 2. API routes
 print('\n## 2. NEW API ENDPOINTS')
 api_tests = [
     ('/api/analyze?ticker=AAPL',        200),
@@ -60,7 +60,7 @@ for url, expected in api_tests:
         'PASS' if ok else 'FAIL',
         url.split('?')[0], ticker, detail))
 
-# 3. Page content
+# 3. page content
 print('\n## 3. PAGE CONTENT (id elements + interactive buttons)')
 from flask import render_template
 from interface import get_expert_reasoning_data
@@ -119,7 +119,7 @@ fns = [
 for label, token in fns:
     print('  [{}] {}'.format('PASS' if token in js else 'FAIL', label))
 
-# 5. Human Expert still active
+# 5. expert layer still changes the result
 print('\n## 5. HUMAN EXPERT LAYER STILL ACTIVE')
 from fuzzy_engine import compute_full_pipeline
 tc1_e = compute_full_pipeline(rsi=25, macd_hist=0.8, sentiment=-0.9, mode='expert')

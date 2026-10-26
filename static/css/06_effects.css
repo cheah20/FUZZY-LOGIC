@@ -1,30 +1,19 @@
-/* ============================================================
-   06_effects.css — Animations, Glows, Rich Effects
-   ASTDSS Terminal — Luxury spatial interface effects
-   ============================================================ */
+/* Animations and small visual effects. */
 
-/* ── GPU COMPOSITOR PROMOTION (Task 2 §12.1) ────────────── */
-/* Promote persistent backdrop-filter layers to their own
-   compositor layer. Keeps paint/raster off the main thread.
-   Use sparingly — each layer consumes GPU memory. */
+/* keep the top bar on its own layer */
+
 .topbar {
   transform: translateZ(0);
 }
 
-/* ── BACKGROUND LAYER ───────────────────────────────────── */
-/* bg-muted.jpeg is a blurred/desaturated/darkened derivative of bg.jpeg
-   (see static/img/bg.jpeg for the original). The original had its own
-   red/green chart candles and blue/purple line charts baked into the
-   photo, which bled through glass panels and fought with the
-   foreground's semantic red/green even with a heavy overlay. The muted
-   version keeps the trading-desk atmosphere (monitors, desk lamp, world
-   clock map) but removes the competing colour detail at the source. */
+/* background layer */
+
 body {
-  /* Flat light-grey canvas (Forex terminal style) — no photo background */
+  /* plain page background, no photo */
   background: var(--bg-main);
 }
 
-/* ── GLOW EFFECTS ───────────────────────────────────────── */
+/* glow effects */
 .glow-gold {
   box-shadow: 0 0 28px rgba(20, 26, 34, 0.162);
 }
@@ -37,11 +26,7 @@ body {
   text-shadow: 0 0 12px rgba(18, 164, 107, 0.25);
 }
 
-/* ── PULSE ANIMATION ──────────────────────────────────────
-   Reserved for elements that represent a genuinely live/processing
-   state (e.g. a currently-running analysis). Not for static badges
-   or decoration — a screen with several independent infinite pulses
-   running at once is one of the main causes of visual fatigue. */
+/* pulse animation */
 @keyframes pulse {
   0%, 100% {
     opacity: 0.95;
@@ -72,7 +57,7 @@ body {
   animation: pulse-amber 2s ease-in-out infinite;
 }
 
-/* ── REDUCED MOTION ──────────────────────────────────────── */
+/* reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -82,7 +67,7 @@ body {
   }
 }
 
-/* ── FADE IN ────────────────────────────────────────────── */
+/* fade in */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -92,7 +77,7 @@ body {
   animation: fadeIn 0.4s ease forwards;
 }
 
-/* ── STAGGER CHILDREN ───────────────────────────────────── */
+/* stagger children */
 .stagger-children > * {
   animation: fadeIn 0.4s ease forwards;
   opacity: 0;
@@ -104,7 +89,7 @@ body {
 .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
 .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
 
-/* ── HOVER LIFT ─────────────────────────────────────────── */
+/* hover lift */
 .hover-lift {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -114,19 +99,19 @@ body {
   box-shadow: 0 8px 32px rgba(16, 24, 40, 0.122);
 }
 
-/* ── DIVIDER ────────────────────────────────────────────── */
+/* divider */
 .divider {
   border-top: 1px solid rgba(20, 26, 34, 0.06);
   padding-top: 14px;
   margin-top: 14px;
 }
 
-/* ── GLOW BAR FOR SIGNAL ────────────────────────────────── */
+/* glow bar for signal */
 .glow-bar {
   box-shadow: 0 0 12px currentColor;
 }
 
-/* ── VIGNETTE OVERLAY ───────────────────────────────────── */
+/* vignette overlay */
 .vignette {
   position: relative;
 }

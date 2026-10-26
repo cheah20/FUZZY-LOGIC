@@ -1,16 +1,14 @@
-# API keys — never commit these
+# API keys, never commit
 .env
 
-# Runtime cache, regenerated automatically, no need to commit
-# (data/experience_log.json is NOT listed here on purpose — it holds
-# persistent agentic-run demo records used for PA3 presentation/demo
-# purposes, and is meant to stay available locally across sessions.)
+# news cache, rebuilt automatically
+# (data/experience_log.json is tracked on purpose, it keeps the saved demo runs)
 data/news_cache.json
-# Rewritten on every agentic run
+# rewritten on every agentic run
 data/llm_prompt_log.txt
 
-# Reference papers stay on the local machine (publisher copyright).
-# The reading list with links is in docs/research/README_RESEARCH.md
+# papers stay local because of publisher copyright,
+# the list with links is docs/research/README_RESEARCH.md
 docs/research/*.pdf
 docs/research/*.htm
 
@@ -32,7 +30,7 @@ __pycache__/
 Thumbs.db
 desktop.ini
 
-# Virtual env (if accidentally placed inside the project)
+# virtual env inside the project
 venv/
 env/
 .venv/

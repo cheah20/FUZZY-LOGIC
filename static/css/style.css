@@ -1,8 +1,4 @@
-/* ============================================================
-   style.css — Barrel Import (ARCHITECTURE.md §5.1)
-   All CSS split into 8 module files.
-   Order is critical: tokens → reset → shell → layouts → components → effects → pages → responsive
-   ============================================================ */
+/* Loads the other stylesheets. Order matters: later files win. */
 @import url("01_tokens.css");
 @import url("02_reset.css");
 @import url("03_shell.css");

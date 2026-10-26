@@ -1,35 +1,12 @@
-"""
-llm_reasoning.py — LLM Reasoning Layer
-ASTDSS Terminal — PA3 Agentic Fuzzy Trading DSS
+"""Asks the LLM for a small change to the fuzzy score.
 
-Provides two modes:
-  demo  — Deterministic scenario-based output for presentation/testing.
-           No API key required. Reproduces five distinct reasoning scenarios
-           based on the current market context.
-  real  — Optional DeepSeek API call. Only activated when DEEPSEEK_API_KEY
-           is present in the environment (.env file). Falls back to demo if
-           the key is missing or the API call fails.
+Demo mode picks one of five fixed answers from the market context and
+needs no key. Real mode calls DeepSeek when DEEPSEEK_API_KEY is set, and
+falls back to demo when the key is missing or the call fails.
 
-Output contract (both modes):
-  {
-      "proposed_action": str,       # Human-readable action description
-      "reason":          str,       # Reasoning chain referencing indicators
-      "fuzzy_shift": {
-          "score_delta":      float,  # Additive shift to the fuzzy score (-2..+2)
-          "confidence_delta": float,  # Additive shift to confidence (0..1)
-          "direction":        str,    # "boost_buy" | "boost_sell" | "reduce_confidence"
-                                      # | "risk_penalty" | "hold_neutral"
-      },
-      "confidence":          float,  # LLM's self-assessed confidence (0..1)
-      "scenario_tag":        str,    # Internal scenario identifier for logging
-      "mode":                str,    # "demo" | "real"
-      "prompt_log": {
-          "system_prompt": str | None,  # Exact system prompt sent (None in demo mode)
-          "user_prompt":   str | None,  # Exact user prompt sent (None in demo mode)
-          "raw_response":  str | None,  # Raw text returned by the LLM before JSON parsing
-          "note":          str | None,  # Explanation when no live call was made
-      },
-  }
+Both modes return the same dict: proposed_action, reason, fuzzy_shift
+(score_delta, confidence_delta, direction), confidence, scenario_tag,
+mode and prompt_log (system_prompt, user_prompt, raw_response, note).
 """
 
 from __future__ import annotations
@@ -37,7 +14,7 @@ import os
 from typing import Optional
 
 
-# Demo scenario definitions
+# demo scenarios
 
 _SCENARIOS = {
     "CONFLICT_RSI_MACD": {
@@ -150,12 +127,12 @@ _SCENARIOS = {
 
 
 def _select_demo_scenario(market_context: dict) -> str:
-    """Deterministically pick a scenario tag from market context values."""
+    """Pick the demo scenario from the market context."""
     rsi = market_context.get("rsi", 50)
     macd_hist = market_context.get("macd_hist", 0)
     atr = market_context.get("atr", 3)
 
-    # Priority-ordered checks
+    # checked in this order
     if rsi > 65 and macd_hist < -0.15:
         return "CONFLICT_RSI_MACD"
     if rsi < 35 and macd_hist > 0.1:
@@ -187,12 +164,11 @@ def _build_demo_output(market_context: dict) -> dict:
 
 
 def _build_real_output(market_context: dict, fuzzy_output: dict) -> dict:
-    """
-    Call the DeepSeek API to generate a structured reasoning output.
-    DeepSeek is OpenAI-API-compatible; uses the openai package with a custom base_url.
+    """Ask DeepSeek for the suggestion.
 
-    Requires DEEPSEEK_API_KEY in environment (loaded from .env via python-dotenv).
-    Falls back to demo mode silently if the key is missing or the call fails.
+    DeepSeek speaks the OpenAI API, so this uses the openai package with a
+    different base_url. Needs DEEPSEEK_API_KEY; uses demo mode if it is
+    missing or the call fails.
     """
     import json
     import re
@@ -265,7 +241,7 @@ def _build_real_output(market_context: dict, fuzzy_output: dict) -> dict:
             data = json.loads(match.group())
             data["scenario_tag"] = "DEEPSEEK_REAL"
             data["mode"] = "real"
-            # Enforce numeric safety bounds before passing to validation gate
+            # keep the numbers inside safe limits before the gate sees them
             shift = data.get("fuzzy_shift", {})
             shift["score_delta"]      = max(-0.5, min(0.5, float(shift.get("score_delta", 0))))
             shift["confidence_delta"] = max(-0.3, min(0.3, float(shift.get("confidence_delta", 0))))
@@ -275,8 +251,8 @@ def _build_real_output(market_context: dict, fuzzy_output: dict) -> dict:
             return data
 
     except Exception as exc:
-        # Never break the pipeline over LLM unavailability — but log it so a
-        # failed real-API call isn't mistaken for a successful one.
+        # a missing LLM must not stop the run, but log it so a failed
+        # real call is not mistaken for a working one
         print(f"[llm_reasoning] DeepSeek API call failed, falling back to demo mode: {exc}")
 
     fallback = _build_demo_output(market_context)
@@ -292,16 +268,10 @@ def generate_llm_suggestion(
     fuzzy_output: Optional[dict] = None,
     demo: bool = True,
 ) -> dict:
-    """
-    Generate a candidate fuzzy adjustment suggestion.
+    """Get a suggested change to the fuzzy output.
 
-    Args:
-        market_context: Dict with rsi, macd_hist, atr, sentiment, market_regime, etc.
-        fuzzy_output:   Current fuzzy engine output (score, label, confidence).
-        demo:           If True, use deterministic demo mode. If False, attempt real API call.
-
-    Returns:
-        Structured suggestion dict (see module docstring for contract).
+    demo=True uses the fixed scenarios, demo=False tries the real API.
+    The returned dict is described at the top of this file.
     """
     if fuzzy_output is None:
         fuzzy_output = {}

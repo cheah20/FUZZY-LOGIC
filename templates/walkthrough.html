@@ -123,9 +123,7 @@ let RESULT = null;
 let STEP = 1;
 const TOTAL_STEPS = 10;
 
-// Neutral by default — colour only carries real meaning (buy/sell/warning).
-// The LLM stage is intentionally NOT blue here; it stays neutral like every
-// other stage so gold can stay reserved for "current step" / final result.
+// stages stay neutral; colour is only for buy, sell, warning and the current step
 const LABEL_COLORS = {
   'Strong Buy': 'var(--semantic-buy)', 'Buy': 'var(--semantic-buy)', 'Hold': 'var(--white-soft)',
   'Sell': 'var(--semantic-sell)', 'Strong Sell': 'var(--semantic-sell)',
