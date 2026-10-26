@@ -6,6 +6,13 @@
 # persistent agentic-run demo records used for PA3 presentation/demo
 # purposes, and is meant to stay available locally across sessions.)
 data/news_cache.json
+# Rewritten on every agentic run
+data/llm_prompt_log.txt
+
+# Reference papers stay on the local machine (publisher copyright).
+# The reading list with links is in docs/research/README_RESEARCH.md
+docs/research/*.pdf
+docs/research/*.htm
 
 # Python cache
 __pycache__/
