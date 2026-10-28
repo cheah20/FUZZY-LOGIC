@@ -1,3 +1,4 @@
+"""NeuralTrade web app: Flask pages and the JSON API behind the dashboard."""
 from flask import Flask, render_template, jsonify, request
 import json
 from datetime import datetime
@@ -91,6 +92,7 @@ system_config = {
 
 @app.route('/')
 def dashboard():
+    """Main dashboard with a fresh market snapshot and the expert signal."""
     # new snapshot on each load
     global _current_snapshot
     _current_snapshot = get_simulated_market_snapshot()
@@ -113,12 +115,14 @@ def dashboard():
 
 @app.route('/market-intelligence')
 def market_intelligence():
+    """News feed page."""
     return render_template('market_intelligence.html',
                          news_feed=news_feed)
 
 
 @app.route('/decision-logic')
 def decision_logic():
+    """Page that shows how the fuzzy rules reached the current decision."""
     # expert reasoning for the Decision Logic page
     snapshot = get_simulated_market_snapshot()
     expert_data = get_expert_reasoning_data(
@@ -135,6 +139,7 @@ def decision_logic():
 
 @app.route('/backtesting')
 def backtesting():
+    """Backtest results and the strategy comparison."""
     return render_template('backtesting.html',
                          backtesting_metrics=backtesting_metrics,
                          comparison=get_cached_comparison())
@@ -142,12 +147,14 @@ def backtesting():
 
 @app.route('/settings')
 def settings():
+    """System settings page."""
     return render_template('settings.html',
                          system_config=system_config)
 
 
 @app.route('/api/market-data')
 def get_market_data():
+    """Return a new simulated market snapshot as JSON."""
     global _current_snapshot
     _current_snapshot = get_simulated_market_snapshot()
     market_data['btc_price'] = _current_snapshot['price']
@@ -157,6 +164,7 @@ def get_market_data():
 
 @app.route('/api/news-feed')
 def get_news_feed():
+    """Return the current news feed as JSON."""
     return jsonify(news_feed)
 
 
@@ -182,6 +190,7 @@ def api_market_news():
 
 @app.route('/api/agent-status')
 def get_agent_status():
+    """Return the status of each agent in the pipeline."""
     pipeline = get_pipeline()
     return jsonify(pipeline.get_agent_status())
 
