@@ -69,6 +69,7 @@ _RULE_COMBOS: List[Tuple[str, str, str]] = [
 # layer 1: fuzzify
 
 def _gaussmf(x: np.ndarray, c: float, sigma: float) -> np.ndarray:
+    """Gaussian membership function used by the ANFIS inputs."""
     sigma = max(sigma, 1e-6)
     return np.exp(-0.5 * ((x - c) / sigma) ** 2)
 
@@ -84,6 +85,7 @@ def _premise_to_array(premise: Dict[str, Dict[str, Tuple[float, float]]]) -> np.
 
 
 def _array_to_premise(arr: np.ndarray) -> Dict[str, Dict[str, Tuple[float, float]]]:
+    """Turn the flat optimiser array back into centre and width per input term."""
     premise: Dict[str, Dict[str, Tuple[float, float]]] = {}
     i = 0
     for inp in INPUT_NAMES:
@@ -143,6 +145,7 @@ def _forward(
     premise: Dict[str, Dict[str, Tuple[float, float]]],
     consequent: np.ndarray,
 ) -> np.ndarray:
+    """Run all ANFIS layers and return the predicted scores."""
     mu = _layer1_memberships(X, premise)
     norm_w = _layer2_3_firing(mu)
     A = _design_matrix(norm_w, X)
@@ -170,6 +173,7 @@ def _fit_consequent_lse(
 def _mse(
     premise_arr: np.ndarray, consequent: np.ndarray, X: np.ndarray, y: np.ndarray
 ) -> float:
+    """Mean squared error of the predictions, used as the training loss."""
     premise = _array_to_premise(premise_arr)
     y_pred = _forward(X, premise, consequent)
     return float(np.mean((y_pred - y) ** 2))
@@ -268,10 +272,12 @@ def _build_training_dataset(
 
 
 def params_exist() -> bool:
+    """True when trained ANFIS parameters are saved on disk."""
     return os.path.exists(_PARAMS_FILE)
 
 
 def load_params() -> Optional[Dict]:
+    """Load the saved ANFIS parameters, or None if missing or unreadable."""
     if not params_exist():
         return None
     try:
@@ -286,6 +292,7 @@ def _save_params(
     consequent: np.ndarray,
     meta: Dict,
 ) -> None:
+    """Save the trained parameters to disk in one atomic write."""
     os.makedirs(_DATA_DIR, exist_ok=True)
     payload = {
         "premise": premise,
@@ -322,6 +329,7 @@ def train_from_history(
 
 
 def _score_to_label(score: float) -> str:
+    """Map an ANFIS score to a trading label, from Strong Sell to Strong Buy."""
     if score <= -1.2:
         return "Strong Sell"
     elif score <= -0.4:
