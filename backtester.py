@@ -250,6 +250,7 @@ def compare_modes_split(
 
 
 def _max_drawdown(equity: List[float]) -> float:
+    """Largest fall from a peak in the equity curve, in percent."""
     peak = equity[0]
     max_dd = 0.0
     for e in equity:
@@ -261,6 +262,7 @@ def _max_drawdown(equity: List[float]) -> float:
 
 
 def _sharpe_ratio(returns: List[float], risk_free: float = 0.02) -> float:
+    """Return per unit of risk, after the risk-free rate."""
     if not returns:
         return 0.0
     mean_ret = sum(returns) / len(returns)
@@ -364,6 +366,7 @@ def get_backtest_evidence() -> Dict:
 _comparison_cache: Optional[Dict] = None
 
 def get_cached_comparison() -> Dict:
+    """Strategy comparison, computed once and then reused."""
     global _comparison_cache
     if _comparison_cache is None:
         _comparison_cache = get_comparison_metrics()
