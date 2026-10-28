@@ -13,6 +13,7 @@ import time
 
 @dataclass
 class AgentState:
+    """What one agent is doing now and what it last returned."""
     name: str
     source: str
     status: str = "Idle"  # Idle, Processing, Synced, Waiting, Error
@@ -188,6 +189,7 @@ _pipeline_instance: Optional[AgentPipeline] = None
 
 
 def get_pipeline() -> AgentPipeline:
+    """Shared agent pipeline, created on first use."""
     global _pipeline_instance
     if _pipeline_instance is None:
         _pipeline_instance = AgentPipeline()
