@@ -20,6 +20,7 @@ WARN = '[WARN]'
 results = {'pass': 0, 'fail': 0, 'warn': 0}
 
 def check(label, condition, detail='', warn_only=False):
+    """Count and print one test result as pass, warning or fail."""
     if condition:
         results['pass'] += 1
         print(f'  {PASS} {label}' + (f'  {detail}' if detail else ''))

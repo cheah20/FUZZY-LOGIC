@@ -1,3 +1,6 @@
+"""Check that the templates load and the main API routes answer.
+Run: python tests/validate_interaction.py
+"""
 import warnings, json, sys
 from pathlib import Path
 warnings.filterwarnings('ignore')
