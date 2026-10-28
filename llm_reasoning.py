@@ -145,6 +145,7 @@ def _select_demo_scenario(market_context: dict) -> str:
 
 
 def _build_demo_output(market_context: dict) -> dict:
+    """Canned LLM answer for the matching demo scenario, used without an API key."""
     tag = _select_demo_scenario(market_context)
     scenario = _SCENARIOS[tag]
     return {

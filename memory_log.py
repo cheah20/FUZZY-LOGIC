@@ -12,6 +12,7 @@ _TXT_LOG_FILE = os.path.join(_DATA_DIR, "llm_prompt_log.txt")
 
 
 def _ensure_data_dir() -> None:
+    """Create the data folder if it does not exist yet."""
     os.makedirs(_DATA_DIR, exist_ok=True)
 
 
