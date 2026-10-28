@@ -67,42 +67,51 @@ def _rsi_overbought(rsi: float) -> float:
 # MACD histogram, -5..5
 
 def _macd_bearish(hist: float) -> float:
+    """How strongly the MACD histogram reads as bearish (0 to 1)."""
     return _trapmf(hist, -5, -5, -0.8, -0.2)
 
 
 def _macd_neutral(hist: float) -> float:
+    """How strongly the MACD histogram reads as neutral (0 to 1)."""
     return _trimf(hist, -0.5, 0, 0.5)
 
 
 def _macd_bullish(hist: float) -> float:
+    """How strongly the MACD histogram reads as bullish (0 to 1)."""
     return _trapmf(hist, 0.2, 0.8, 5, 5)
 
 
 # sentiment, -1..1
 
 def _sent_bearish(s: float) -> float:
+    """How strongly news sentiment reads as bearish (0 to 1)."""
     return _trapmf(s, -1, -1, -0.55, -0.25)
 
 
 def _sent_neutral(s: float) -> float:
+    """How strongly news sentiment reads as neutral (0 to 1)."""
     return _trimf(s, -0.35, 0, 0.35)
 
 
 def _sent_bullish(s: float) -> float:
+    """How strongly news sentiment reads as bullish (0 to 1)."""
     return _trapmf(s, 0.25, 0.55, 1, 1)
 
 
 # ATR, 0-10
 
 def _atr_low(atr: float) -> float:
+    """How strongly the ATR reads as low volatility (0 to 1)."""
     return _trapmf(atr, 0, 0, 1.5, 3.0)
 
 
 def _atr_normal(atr: float) -> float:
+    """How strongly the ATR reads as normal volatility (0 to 1)."""
     return _trimf(atr, 2.0, 4.5, 7.0)
 
 
 def _atr_high(atr: float) -> float:
+    """How strongly the ATR reads as high volatility (0 to 1)."""
     return _trapmf(atr, 6.0, 8.5, 10, 10)
 
 
@@ -118,6 +127,7 @@ OUTPUT_TERMS: Dict[str, Tuple[float, float, float]] = {
 
 
 def _output_mu(score: float, label: str) -> float:
+    """Membership of a decision score in one output term, e.g. Buy."""
     a, b, c = OUTPUT_TERMS[label]
     return _trimf(score, a, b, c)
 
