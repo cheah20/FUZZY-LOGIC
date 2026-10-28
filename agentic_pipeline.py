@@ -22,6 +22,7 @@ _SCORE_LABELS = [
 
 
 def _score_to_label(score: float) -> str:
+    """Map a combined score to a trading label."""
     for lo, hi, label in _SCORE_LABELS:
         if lo <= score < hi:
             return label
