@@ -56,10 +56,12 @@ _DEMO_ARTICLES = [
 
 
 def _ensure_data_dir() -> None:
+    """Create the data folder if it does not exist yet."""
     os.makedirs(_DATA_DIR, exist_ok=True)
 
 
 def _atomic_write_json(path: str, data: dict) -> None:
+    """Write JSON to a temp file first, then swap it in, so a crash never leaves half a file."""
     tmp_path = path + ".tmp"
     with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
@@ -67,6 +69,7 @@ def _atomic_write_json(path: str, data: dict) -> None:
 
 
 def _load_cache() -> Optional[Dict]:
+    """Read the cached news, or None if there is no usable cache."""
     _ensure_data_dir()
     if not os.path.exists(_CACHE_FILE):
         return None
@@ -78,6 +81,7 @@ def _load_cache() -> Optional[Dict]:
 
 
 def _cache_is_fresh(cache: Dict, refresh_minutes: int) -> bool:
+    """True when the cache is younger than refresh_minutes."""
     if not cache or "fetched_at" not in cache:
         return False
     try:
@@ -89,6 +93,7 @@ def _cache_is_fresh(cache: Dict, refresh_minutes: int) -> bool:
 
 
 def _demo_articles() -> List[Dict]:
+    """Copies of the built-in demo headlines, used when no API key is set."""
     return [dict(a) for a in _DEMO_ARTICLES]
 
 
@@ -140,6 +145,7 @@ def _fetch_marketaux(symbol: Optional[str], api_key: str) -> List[Dict]:
 
 
 def _rule_based_brief(articles: List[Dict]) -> str:
+    """Short market summary from counting bullish and bearish headlines (no LLM)."""
     bullish = sum(1 for a in articles if a.get("sentiment") == "BULLISH")
     bearish = sum(1 for a in articles if a.get("sentiment") == "BEARISH")
     neutral = len(articles) - bullish - bearish
